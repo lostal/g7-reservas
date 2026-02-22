@@ -35,7 +35,7 @@ export async function sendVisitorReservationEmail(
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    console.error(
+    console.warn(
       "RESEND_API_KEY no configurada — email de visitante no enviado"
     );
     return;
@@ -82,7 +82,7 @@ export async function sendVisitorCancellationEmail(
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    console.error(
+    console.warn(
       "RESEND_API_KEY no configurada — email de cancelación no enviado"
     );
     return;

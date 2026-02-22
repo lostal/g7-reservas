@@ -10,6 +10,7 @@
 import { actionClient } from "@/lib/actions";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/auth";
+import { revalidatePath } from "next/cache";
 import {
   createSpotSchema,
   updateSpotSchema,
@@ -50,6 +51,7 @@ export const createSpot = actionClient
       throw new Error(`Error al crear plaza: ${error.message}`);
     }
 
+    revalidatePath("/administracion");
     return { id: data.id };
   });
 
@@ -73,6 +75,7 @@ export const updateSpot = actionClient
       throw new Error(`Error al actualizar plaza: ${error.message}`);
     }
 
+    revalidatePath("/administracion");
     return { updated: true };
   });
 
@@ -95,6 +98,7 @@ export const deleteSpot = actionClient
       throw new Error(`Error al eliminar plaza: ${error.message}`);
     }
 
+    revalidatePath("/administracion");
     return { deleted: true };
   });
 
@@ -118,6 +122,7 @@ export const updateUserRole = actionClient
       throw new Error(`Error al actualizar rol: ${error.message}`);
     }
 
+    revalidatePath("/administracion/usuarios");
     return { updated: true };
   });
 
@@ -179,6 +184,8 @@ export const assignSpotToUser = actionClient
 
     if (error) throw new Error(`Error al asignar plaza: ${error.message}`);
 
+    revalidatePath("/administracion/usuarios");
+    revalidatePath("/administracion");
     return { assigned: true };
   });
 
@@ -199,5 +206,6 @@ export const deleteUser = actionClient
       throw new Error(`Error al eliminar cuenta: ${error.message}`);
     }
 
+    revalidatePath("/administracion/usuarios");
     return { deleted: true };
   });

@@ -41,14 +41,6 @@ export type CreateVisitorReservationInput = z.infer<
   typeof createVisitorReservationSchema
 >;
 
-// ─── Alerts ──────────────────────────────────────────────────
-
-export const createAlertSchema = z.object({
-  date: z.iso.date(),
-});
-
-export type CreateAlertInput = z.infer<typeof createAlertSchema>;
-
 // ─── Admin: Spots ────────────────────────────────────────────
 
 export const createSpotSchema = z.object({
@@ -174,15 +166,6 @@ export const updateThemeSchema = z.object({
 
 export type UpdateThemeInput = z.infer<typeof updateThemeSchema>;
 
-// Legacy schemas for backwards compatibility (deprecated)
-export const updateParkingPreferencesSchema = updatePreferencesSchema.pick({
-  default_view: true,
-});
-
-export type UpdateParkingPreferencesInput = z.infer<
-  typeof updateParkingPreferencesSchema
->;
-
 // ─── Settings: Outlook Sync ──────────────────────────────────
 
 export const updateOutlookPreferencesSchema = z.object({
@@ -205,10 +188,3 @@ export const updateCessionRulesSchema = z.object({
 });
 
 export type UpdateCessionRulesInput = z.infer<typeof updateCessionRulesSchema>;
-
-// Legacy schema for backwards compatibility (deprecated)
-export const updateAppearanceSchema = updatePreferencesSchema.pick({
-  theme: true,
-});
-
-export type UpdateAppearanceInput = z.infer<typeof updateAppearanceSchema>;

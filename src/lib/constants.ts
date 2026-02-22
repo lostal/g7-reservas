@@ -42,19 +42,11 @@ export const ROUTES = {
 export function getHomeRouteForRole(
   role: "admin" | "management" | "employee" | string | undefined | null
 ): string {
-  switch (role) {
-    case "admin":
-      return ROUTES.DASHBOARD; // Panel → primera entrada visible para admin
-    case "management":
-      return ROUTES.PARKING; // Parking → primera entrada visible para management
-    default:
-      return ROUTES.PARKING; // Parking → primera entrada visible para employee
-  }
+  if (role === "admin") return ROUTES.DASHBOARD;
+  return ROUTES.PARKING;
 }
 
 /** External links */
 export const EXTERNAL = {
   SEDE_ADDRESS: "Sede GRUPOSIETE, Madrid",
-  GOOGLE_MAPS_URL: "",
-  WAZE_URL: "",
 } as const;

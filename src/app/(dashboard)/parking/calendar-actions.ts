@@ -57,7 +57,7 @@ function isWeekend(dateStr: string): boolean {
 }
 
 function isPast(dateStr: string): boolean {
-  const today = new Date().toISOString().split("T")[0] as string;
+  const today = new Date().toISOString().split("T")[0]!;
   return dateStr < today;
 }
 

@@ -5,6 +5,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server";
+import type { Profile } from "@/lib/supabase/types";
 import {
   validateUserPreferences,
   type ValidatedUserPreferences,
@@ -33,7 +34,7 @@ export async function getUserPreferences(
 
 // ─── Obtener estado de conexión con Microsoft ─────────────────
 
-export async function getMicrosoftConnectionStatus(userId: string): Promise<{
+export type MicrosoftConnectionStatus = {
   connected: boolean;
   scopes: string[];
   lastSync: string | null;
@@ -41,7 +42,11 @@ export async function getMicrosoftConnectionStatus(userId: string): Promise<{
   currentOOOStatus: boolean;
   teamsConnected: boolean;
   outlookConnected: boolean;
-} | null> {
+};
+
+export async function getMicrosoftConnectionStatus(
+  userId: string
+): Promise<MicrosoftConnectionStatus> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -79,7 +84,7 @@ export async function getMicrosoftConnectionStatus(userId: string): Promise<{
 
 // ─── Obtener info de plaza de dirección (para usuarios directivos) ──
 
-export async function getManagementSpotInfo(userId: string): Promise<{
+export type ManagementSpotInfo = {
   spot: {
     id: string;
     label: string;
@@ -91,7 +96,11 @@ export async function getManagementSpotInfo(userId: string): Promise<{
     date: string;
     status: string;
   } | null;
-} | null> {
+};
+
+export async function getManagementSpotInfo(
+  userId: string
+): Promise<ManagementSpotInfo> {
   const supabase = await createClient();
 
   // Obtener la plaza asignada al directivo
@@ -100,7 +109,7 @@ export async function getManagementSpotInfo(userId: string): Promise<{
     .select("id, label, type")
     .eq("assigned_to", userId)
     .eq("type", "management")
-    .single();
+    .maybeSingle();
 
   if (spotError || !spot) {
     return {
@@ -111,7 +120,7 @@ export async function getManagementSpotInfo(userId: string): Promise<{
   }
 
   // Obtener la fecha de hoy
-  const today: string = new Date().toISOString().split("T")[0]!;
+  const today = new Date().toISOString().split("T")[0]!;
 
   // Comprobar si hay cesión para hoy
   const { data: todayCession } = await supabase
@@ -120,7 +129,7 @@ export async function getManagementSpotInfo(userId: string): Promise<{
     .eq("spot_id", spot.id)
     .eq("date", today)
     .neq("status", "cancelled")
-    .single();
+    .maybeSingle();
 
   // Determinar el estado
   let statusToday: "occupied" | "ceded" | "reserved" | "unknown" = "occupied";
@@ -138,7 +147,7 @@ export async function getManagementSpotInfo(userId: string): Promise<{
     .neq("status", "cancelled")
     .order("date", { ascending: true })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   return {
     spot: {
@@ -147,13 +156,24 @@ export async function getManagementSpotInfo(userId: string): Promise<{
       type: spot.type,
     },
     statusToday,
-    nextCession: nextCession || null,
+    nextCession: nextCession ?? null,
   };
+}
+
+// ─── Tipo de retorno del perfil combinado ─────────────────────
+
+export interface UserProfileWithPreferences {
+  profile: Profile;
+  preferences: ValidatedUserPreferences | null;
+  microsoftStatus: MicrosoftConnectionStatus;
+  managementSpot: ManagementSpotInfo | null;
 }
 
 // ─── Obtener perfil con preferencias (combinado) ──────────────
 
-export async function getUserProfileWithPreferences(userId: string) {
+export async function getUserProfileWithPreferences(
+  userId: string
+): Promise<UserProfileWithPreferences | null> {
   const supabase = await createClient();
 
   // Obtener perfil
@@ -180,7 +200,7 @@ export async function getUserProfileWithPreferences(userId: string) {
   const microsoftStatus = await getMicrosoftConnectionStatus(userId);
 
   // Si es directivo, obtener info de la plaza
-  let managementSpot = null;
+  let managementSpot: ManagementSpotInfo | null = null;
   if (profile.role === "management" || profile.role === "admin") {
     managementSpot = await getManagementSpotInfo(userId);
   }

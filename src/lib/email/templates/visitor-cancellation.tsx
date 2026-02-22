@@ -12,10 +12,14 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://parking.gruposiete.es";
 
 export interface VisitorCancellationEmailProps {
   visitorName: string;
@@ -39,6 +43,13 @@ export function VisitorCancellationEmail({
         <Container style={s.container}>
           {/* Cabecera */}
           <Section style={s.header}>
+            <Img
+              src={`${APP_URL}/favicon-192x192.png`}
+              alt="Gruposiete"
+              width={52}
+              height={52}
+              style={s.logoImg}
+            />
             <Heading style={s.logo}>Gruposiete</Heading>
             <Text style={s.tagline}>APARCAMIENTO</Text>
           </Section>
@@ -105,6 +116,11 @@ const s = {
     backgroundColor: "#353f47",
     padding: "28px 40px",
     textAlign: "center" as const,
+  },
+  logoImg: {
+    borderRadius: "12px",
+    display: "block",
+    margin: "0 auto 12px",
   },
   logo: {
     color: "#ffffff",

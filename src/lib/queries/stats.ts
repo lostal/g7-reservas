@@ -300,13 +300,18 @@ export async function getActiveUsersThisMonth(): Promise<number> {
     .toISOString()
     .split("T")[0]!;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("reservations")
     .select("user_id")
     .eq("status", "confirmed")
     .gte("date", firstOfMonth)
     .lte("date", lastOfMonth);
 
-  const uniqueUsers = new Set((data ?? []).map((r) => r.user_id));
+  if (error) {
+    console.error("Error al obtener usuarios activos:", error);
+    return 0;
+  }
+
+  const uniqueUsers = new Set(data.map((r) => r.user_id));
   return uniqueUsers.size;
 }

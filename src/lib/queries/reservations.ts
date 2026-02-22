@@ -57,7 +57,7 @@ export async function getUserReservations(
   userId: string
 ): Promise<ReservationWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0]!;
 
   const { data, error } = await supabase
     .from("reservations")

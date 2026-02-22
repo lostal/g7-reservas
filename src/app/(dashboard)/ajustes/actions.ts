@@ -13,18 +13,14 @@ import { revalidatePath } from "next/cache";
 import {
   updateProfileSchema,
   updateNotificationPreferencesSchema,
-  updateParkingPreferencesSchema,
   updateOutlookPreferencesSchema,
   updateCessionRulesSchema,
-  updateAppearanceSchema,
   updatePreferencesSchema,
   updateThemeSchema,
   type UpdateProfileInput,
   type UpdateNotificationPreferencesInput,
-  type UpdateParkingPreferencesInput,
   type UpdateOutlookPreferencesInput,
   type UpdateCessionRulesInput,
-  type UpdateAppearanceInput,
   type UpdatePreferencesInput,
   type UpdateThemeInput,
 } from "@/lib/validations";
@@ -92,36 +88,6 @@ export async function updateNotificationPreferences(
   return { success: true };
 }
 
-// ─── Update Parking Preferences ──────────────────────────────
-
-export async function updateParkingPreferences(
-  data: UpdateParkingPreferencesInput
-) {
-  const user = await requireAuth();
-  const validated = updateParkingPreferencesSchema.parse(data);
-
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("user_preferences")
-    .update({
-      default_view: validated.default_view,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", user.id);
-
-  if (error) {
-    console.error(
-      "Error al actualizar las preferencias de aparcamiento:",
-      error
-    );
-    throw new Error("No se pudieron actualizar las preferencias");
-  }
-
-  revalidatePath("/ajustes");
-  return { success: true };
-}
-
 // ─── Update Outlook Preferences ──────────────────────────────
 
 export async function updateOutlookPreferences(
@@ -173,31 +139,6 @@ export async function updateCessionRules(data: UpdateCessionRulesInput) {
   if (error) {
     console.error("Error al actualizar las reglas de cesión:", error);
     throw new Error("No se pudieron actualizar las reglas de cesión");
-  }
-
-  revalidatePath("/ajustes");
-  return { success: true };
-}
-
-// ─── Update Appearance ───────────────────────────────────────
-
-export async function updateAppearance(data: UpdateAppearanceInput) {
-  const user = await requireAuth();
-  const validated = updateAppearanceSchema.parse(data);
-
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("user_preferences")
-    .update({
-      theme: validated.theme,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", user.id);
-
-  if (error) {
-    console.error("Error al actualizar la apariencia:", error);
-    throw new Error("No se pudieron actualizar las preferencias de apariencia");
   }
 
   revalidatePath("/ajustes");

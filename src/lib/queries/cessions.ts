@@ -57,7 +57,7 @@ export async function getUserCessions(
   userId: string
 ): Promise<CessionWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0]!;
 
   const { data, error } = await supabase
     .from("cessions")
