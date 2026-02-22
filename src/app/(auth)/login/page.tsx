@@ -74,23 +74,11 @@ export default function LoginPage() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-120 sm:p-8">
           <div className="mb-4 flex items-center justify-center">
-            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary-foreground h-6 w-6"
-              >
-                <rect width="18" height="18" x="3" y="3" rx="2" />
-                <path d="M9 3v18" />
-                <path d="m16 15-3-3 3-3" />
-              </svg>
-            </div>
-            <h1 className="ms-2 text-xl font-medium">GRUPOSIETE Parking</h1>
+            <img
+              src="/logo.png"
+              alt="GRUPOSIETE Parking"
+              className="h-14 w-auto"
+            />
           </div>
         </div>
 
@@ -236,41 +224,13 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Column - Image/Screenshot Placeholder */}
-      <div
-        className={cn(
-          "bg-muted relative hidden h-full flex-col p-10 text-white lg:flex",
-          "dark:border-l"
-        )}
-      >
-        <div className="from-primary/90 to-primary absolute inset-0 bg-linear-to-br" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2 h-6 w-6"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-            <path d="M9 3v18" />
-            <path d="m16 15-3-3 3-3" />
-          </svg>
-          GRUPOSIETE
-        </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              Sistema de gestión inteligente de plazas de parking para empresas.
-            </p>
-            <footer className="text-sm opacity-80">
-              Optimiza el uso de tu parking corporativo
-            </footer>
-          </blockquote>
-        </div>
+      {/* Right Column - Mockup */}
+      <div className="bg-muted relative hidden h-full overflow-hidden lg:block">
+        <img
+          src="/mockup.png"
+          alt="GRUPOSIETE Parking"
+          className="absolute inset-0 h-full w-full object-cover object-top select-none"
+        />
       </div>
     </div>
   );

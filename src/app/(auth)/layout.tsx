@@ -1,8 +1,11 @@
+import { AuthThemeWrapper } from "./theme-wrapper";
+
 /**
  * Auth Layout
  *
  * Wraps authentication pages (login, callback).
  * Minimal layout — no sidebar, no nav.
+ * AuthThemeWrapper fuerza el tema claro vía next-themes forcedTheme.
  */
 export default function AuthLayout({
   children,
@@ -10,8 +13,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="bg-background flex min-h-svh items-center justify-center">
-      {children}
-    </div>
+    <AuthThemeWrapper>
+      <div className="bg-background flex min-h-svh items-center justify-center">
+        {children}
+      </div>
+    </AuthThemeWrapper>
   );
 }
