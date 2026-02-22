@@ -8,6 +8,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Bar,
   BarChart,
@@ -33,7 +34,12 @@ function tickFormatter(value: string, index: number, total: number): string {
 export function ReservationsOverviewChart({
   data,
 }: ReservationsOverviewChartProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const total = data.length;
+
+  if (!mounted) return <div className="h-[350px]" />;
 
   return (
     <ResponsiveContainer width="100%" height={350}>

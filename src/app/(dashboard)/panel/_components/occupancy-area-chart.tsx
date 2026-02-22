@@ -8,6 +8,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Area,
   AreaChart,
@@ -24,12 +25,17 @@ interface OccupancyAreaChartProps {
 }
 
 export function OccupancyAreaChart({ data }: OccupancyAreaChartProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const total = data.length;
 
   function labelTick(value: string, index: number): string {
     const step = Math.max(1, Math.floor(total / 7));
     return index % step === 0 ? value : "";
   }
+
+  if (!mounted) return <div className="h-[300px]" />;
 
   return (
     <ResponsiveContainer width="100%" height={300}>
