@@ -1,169 +1,271 @@
-# GRUPOSIETE Parking
+<div align="center">
 
-Sistema de gestión de reservas de plazas de aparcamiento corporativo para [GRUPOSIETE](https://gruposiete.com). Trabajo de Fin de Grado — Grado en Ingeniería Informática.
+# 🅿️ GRUPOSIETE Parking
 
-## Descripción
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-Aplicación web que permite **ceder**, **reservar**, **asignar** y **visualizar** plazas de parking en tiempo real, integrada con el ecosistema Microsoft 365 de la empresa.
+**Sistema de gestión de reservas de parking corporativo con mapa interactivo en tiempo real, tres roles y Microsoft 365**
 
-**Problema**: Las plazas asignadas a directivos quedan vacías cuando viajan. No existe mecanismo para gestionarlas ni para reservar cuando llegan visitantes externos.
+</div>
 
-**Solución**: Un sistema con tres roles (Empleado, Dirección, Administrador) que gestiona cesiones, reservas, visitantes y alertas, con notificaciones por email y futuras integraciones con Outlook/Teams.
+---
 
-## Stack técnico
+## 🎯 El Problema
 
-| Capa          | Tecnología                                  |
-| ------------- | ------------------------------------------- |
-| Framework     | Next.js 16 (App Router) + TypeScript        |
-| UI            | Tailwind CSS v4 + shadcn/ui + tweakcn theme |
-| Base de datos | Supabase (PostgreSQL + RLS + Realtime)      |
-| Autenticación | Supabase Auth + Microsoft Entra ID          |
-| Validación    | Zod v4                                      |
-| Testing       | Vitest + Playwright                         |
-| Emails        | Resend + React Email                        |
-| CI            | GitHub Actions                              |
-| Deploy        | Vercel                                      |
+Las plazas de aparcamiento asignadas a directivos de [GRUPOSIETE](https://gruposiete.com) quedan vacías cuando estos viajan, mientras el resto de empleados no tiene forma de usarlas. Cuando llegan clientes o proveedores, tampoco existe mecanismo para asignarles plaza. Todo se gestiona "de palabra, o no se gestiona".
 
-## Requisitos previos
+> 💡 En empresas con +50 empleados y plazas limitadas, la tasa de infrautilización del parking corporativo puede superar el 30% en días laborables.
 
-- [Node.js](https://nodejs.org/) >= 20
-- [pnpm](https://pnpm.io/) >= 10
-- Cuenta en [Supabase](https://supabase.com/)
-- (Opcional) [Supabase CLI](https://supabase.com/docs/guides/cli) para generar tipos
+## ✨ La Solución
 
-## Puesta en marcha
+| ❌ Sin el sistema                            | ✅ Con GRUPOSIETE Parking                              |
+| -------------------------------------------- | ------------------------------------------------------ |
+| Plazas vacías cuando el directivo viaja      | Cesión temporal al pool de plazas disponibles          |
+| Sin visibilidad de disponibilidad            | Mapa SVG interactivo con estado en tiempo real         |
+| Gestión de visitantes por email o de palabra | Reserva con notificación automática al visitante       |
+| Sin control de quién aparca dónde            | Panel admin con gestión de plazas, usuarios y roles    |
+| Cada herramienta va por separado             | Integrado en el ecosistema Microsoft 365 de la empresa |
 
-### 1. Clonar e instalar
+**Resultado:** Un sistema con tres roles (Empleado, Dirección, Administrador) que convierte plazas infrautilizadas en un recurso compartido y gestionable.
 
-```bash
-git clone https://github.com/tu-usuario/tfg-parking.git
-cd tfg-parking
-pnpm install
+---
+
+## 🏗️ Tecnologías Utilizadas
+
+<div align="center">
+
+### Frontend & UI
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React_19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Tailwind](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=flat-square&logo=shadcnui&logoColor=white)
+![Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
+
+### Backend & Data
+
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-3E67B1?style=flat-square&logo=zod&logoColor=white)
+![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square&logo=resend&logoColor=white)
+
+### Testing & DevOps
+
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+
+</div>
+
+**Decisiones Clave:**
+
+| Elegí esto...       | En lugar de esto...  | ¿Por qué?                                                                |
+| ------------------- | -------------------- | ------------------------------------------------------------------------ |
+| Supabase + RLS      | Firebase             | PostgreSQL relacional + Row Level Security como RBAC real a nivel de BD  |
+| Server Actions      | API REST separada    | Mutaciones tipadas como funciones de servidor, sin capa API intermedia   |
+| Desarrollo a medida | SaaS (Parkalot, etc) | Integración profunda con M365 + lógica de cesión específica + coste cero |
+| SVG interactivo     | Canvas / WebGL       | Cada plaza es un elemento DOM accesible, clicable y estilizable con CSS  |
+
+---
+
+## ⚡ Features Principales
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔐 Autenticación y Roles
+
+- ✅ Login con Microsoft Entra ID (Azure AD)
+- ✅ Tres roles: Empleado, Dirección, Admin
+- ✅ RLS con ~30 policies a nivel de BD
+- ✅ Perfil automático vía trigger al signup
+
+</td>
+<td width="50%">
+
+### 🗺️ Mapa Interactivo
+
+- ✅ SVG del plano real del parking
+- ✅ Color por estado (libre, reservada, cedida...)
+- ✅ Clic en plaza → flujo de reserva
+- ✅ Actualización en tiempo real (Supabase Realtime)
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 📅 Cesiones y Reservas
+
+- ✅ Directivos ceden plaza los días que viajan
+- ✅ Empleados reservan plazas cedidas (1/día)
+- ✅ Cancelación con lógica de estados
+- ✅ Alertas "Avísame si hay plaza el día X"
+
+</td>
+<td>
+
+### 👥 Visitantes y Notificaciones
+
+- ✅ Reserva para visitante externo (nombre, empresa, email)
+- ✅ Correo automático con confirmación, nº plaza y dirección
+- ✅ Templates profesionales con React Email + Resend
+- ✅ Sistema de alertas por disponibilidad
+
+</td>
+</tr>
+<tr>
+<td>
+
+### ⚙️ Panel de Administración
+
+- ✅ CRUD de plazas y asignaciones
+- ✅ Gestión de usuarios y roles
+- ✅ Configuración global del sistema
+- ✅ DataTable genérica con TanStack React Table
+
+</td>
+<td>
+
+### 🎨 UX y Calidad
+
+- ✅ Command palette ⌘K con cmdk
+- ✅ Tema dual (light/dark) con next-themes
+- ✅ Mobile first + PWA-ready
+- ✅ CI completo: types + lint + format + tests + build
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🧩 Retos Técnicos Superados
+
+### 🔥 Challenge #1: Seguridad RBAC a Nivel de Base de Datos
+
+**El problema:**
+Implementar control de acceso granular para tres roles con reglas complejas (ej: un directivo solo puede ceder SI tiene plaza asignada), sin depender de validaciones en el frontend que son bypasseables.
+
+**La solución:**
+
+- ~30 RLS policies que operan directamente en PostgreSQL
+- Funciones helper (`get_user_role()`, `is_admin()`, `management_has_spot()`) como building blocks
+- El frontend simplemente ejecuta queries — la BD se encarga de filtrar qué ve y qué puede hacer cada rol
+- Zero trust: incluso con acceso directo a Supabase, las policies protegen los datos
+
+**Tech stack:** PostgreSQL • Supabase RLS • SQL Functions
+
+---
+
+### ⚡ Challenge #2: Consistencia de Estado entre Cesiones y Reservas
+
+**El problema:**
+Una cesión puede pasar de "available" a "reserved" cuando alguien reserva la plaza cedida. Si estas actualizaciones no son atómicas, es posible tener una cesión en estado "available" mientras la plaza ya está reservada (estado inconsistente).
+
+**La solución:**
+
+- Trigger `trg_sync_cession_status` que se ejecuta automáticamente tras INSERT/UPDATE en reservations
+- Sincronización dentro de la misma transacción (imposible estado inconsistente)
+- El código de aplicación no necesita coordinar ambas tablas manualmente
+
+**Tech stack:** PostgreSQL Triggers • Transacciones ACID • Supabase
+
+---
+
+### 🎯 Challenge #3: Server Actions Tipadas con Validación Automática
+
+**El problema:**
+Las Server Actions de Next.js no ofrecen validación de entrada ni gestión de errores estandarizada out-of-the-box. Cada acción reinventaba el manejo de errores y la validación.
+
+**La solución:**
+
+- Builder pattern propio (`actionClient`) que encadena schema Zod + handler
+- Tipo de retorno `ActionResult<T>` discriminado: nunca lanza excepciones, siempre devuelve `{ success, data }` o `{ success, error, fieldErrors }`
+- Los errores de validación se devuelven como `fieldErrors` mapeados al formulario (React Hook Form)
+- Una sola línea para crear una acción validada y tipada end-to-end
+
+**Tech stack:** Next.js Server Actions • Zod v4 • TypeScript Generics
+
+---
+
+## ⚙️ Arquitectura del Sistema
+
+```mermaid
+flowchart TB
+    subgraph Cliente["Next.js 16 — App Router"]
+        A[🔐 Auth Module] --> B[📊 Dashboard]
+        B --> C[🗺️ Mapa Parking]
+        B --> D[📅 Calendario]
+        B --> E[👥 Visitantes]
+        B --> F[⚙️ Admin Panel]
+        B --> G[🔧 Ajustes]
+    end
+
+    subgraph Servidor["Server Actions + Middleware"]
+        C --> H[actionClient + Zod]
+        D --> H
+        E --> H
+        F --> H
+        H --> I[Supabase Client SSR]
+    end
+
+    subgraph Data["Supabase"]
+        I --> J[(PostgreSQL + RLS)]
+        J --> K[Row Level Security]
+        J --> L[Realtime Subscriptions]
+        I --> M[Auth + Microsoft Entra ID]
+    end
+
+    subgraph Servicios["Servicios Externos"]
+        H --> N[📧 Resend - React Email]
+        M --> O[Microsoft Graph API]
+    end
+
+    L -->|WebSocket| C
 ```
 
-### 2. Configurar variables de entorno
+**Componentes Principales:**
 
-```bash
-cp .env.example .env.local
-```
+| Componente       | Responsabilidad                                  | Tecnologías                               |
+| ---------------- | ------------------------------------------------ | ----------------------------------------- |
+| App Router       | Routing, layouts, SSR, protección de rutas       | Next.js 16 • TypeScript • Middleware      |
+| Server Actions   | Mutaciones tipadas con validación                | actionClient • Zod v4 • React Hook Form   |
+| Mapa Interactivo | Visualización de plazas en tiempo real           | SVG • Supabase Realtime • React           |
+| Capa de Datos    | Queries tipadas, RLS, triggers de sincronización | Supabase • PostgreSQL • 7 módulos queries |
+| Panel Admin      | CRUD de plazas, usuarios, roles, configuración   | TanStack Table • DataTable genérica       |
+| Notificaciones   | Emails transaccionales a visitantes y usuarios   | Resend • React Email • Templates          |
 
-Editar `.env.local` con tus credenciales:
+---
 
-| Variable                        | Descripción                                      |
-| ------------------------------- | ------------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`      | URL de tu proyecto Supabase                      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima (pública)                          |
-| `MICROSOFT_CLIENT_ID`           | Client ID de Azure AD (opcional hasta P0)        |
-| `MICROSOFT_CLIENT_SECRET`       | Client Secret de Azure AD (opcional hasta P0)    |
-| `MICROSOFT_TENANT_ID`           | Tenant ID de Azure AD (opcional hasta P0)        |
-| `RESEND_API_KEY`                | API key de Resend (opcional hasta P1)            |
-| `NEXT_PUBLIC_APP_URL`           | URL de la app (`http://localhost:3000` en local) |
+## 🎓 Lo Que Aprendí
 
-### 3. Configurar base de datos
+> Este proyecto me obligó a pensar la seguridad desde la base de datos hacia arriba, no al revés. Diseñar ~30 RLS policies me hizo entender que la autorización real vive en la capa de datos, no en el middleware. También descubrí que las Server Actions de Next.js eliminan una cantidad brutal de boilerplate cuando les pones un builder pattern encima — una sola función reemplaza controller + route + validación + error handling. Lo más gratificante fue ver cómo el trigger de sincronización cesión ↔ reserva hace imposible el estado inconsistente sin que el código de aplicación tenga que preocuparse por ello.
 
-Ejecutar en el **SQL Editor** de Supabase, en este orden:
+---
 
-1. `supabase/migrations/00001_initial_schema.sql` — Tablas, enums, triggers
-2. `supabase/migrations/00002_rls_policies.sql` — RLS policies, funciones helper, Realtime
-3. `supabase/seed.sql` — Datos iniciales (27 plazas de parking)
+<div align="center">
 
-### 4. Arrancar
+## 👨‍💻 Desarrollado por Álvaro Lostal
 
-```bash
-pnpm dev
-```
+**Ingeniero Informático • Web Developer**
 
-La app estará en [http://localhost:3000](http://localhost:3000).
+[![Portfolio](https://img.shields.io/badge/Portfolio-lostal.dev-d5bd37?style=for-the-badge&logo=astro&logoColor=white)](https://lostal.dev)
+[![GitHub](https://img.shields.io/badge/GitHub-lostal-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lostal)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Álvaro%20Lostal-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/alvarolostal)
 
-## Scripts disponibles
+</div>
 
-| Script               | Descripción                               |
-| -------------------- | ----------------------------------------- |
-| `pnpm dev`           | Servidor de desarrollo (Turbopack)        |
-| `pnpm build`         | Build de producción                       |
-| `pnpm start`         | Servidor de producción                    |
-| `pnpm lint`          | ESLint (0 warnings permitidos)            |
-| `pnpm lint:fix`      | ESLint con auto-fix                       |
-| `pnpm format`        | Formatear con Prettier                    |
-| `pnpm format:check`  | Verificar formato                         |
-| `pnpm typecheck`     | Verificar tipos TypeScript                |
-| `pnpm test`          | Tests unitarios (Vitest)                  |
-| `pnpm test:watch`    | Tests en modo watch                       |
-| `pnpm test:coverage` | Tests con cobertura                       |
-| `pnpm test:e2e`      | Tests E2E (Playwright)                    |
-| `pnpm check`         | Todo junto: types + lint + format + tests |
-| `pnpm db:types`      | Generar tipos TypeScript desde Supabase   |
+---
 
-## Estructura del proyecto
+<div align="center">
 
-```
-src/
-├── app/                     # Next.js App Router
-│   ├── (auth)/              # Login + callback OAuth
-│   ├── (dashboard)/         # Rutas protegidas
-│   │   ├── dashboard/       # Página principal
-│   │   ├── parking/         # Mapa + reservas
-│   │   ├── calendar/        # Vista calendario
-│   │   ├── visitors/        # Gestión visitantes
-│   │   ├── admin/           # Panel administración
-│   │   └── settings/        # Configuración usuario
-│   └── api/webhooks/        # Webhooks (Teams bot)
-├── components/
-│   ├── ui/                  # shadcn/ui
-│   ├── providers/           # ThemeProvider
-│   ├── layout/              # Sidebar, Header, ThemeToggle
-│   ├── parking/             # Mapa SVG, plaza, leyenda
-│   └── booking/             # Formularios reserva/cesión
-├── lib/
-│   ├── supabase/            # Cliente, tipos, middleware
-│   ├── microsoft/           # Graph API
-│   ├── email/               # Templates + envío
-│   └── wallet/              # Pases Apple/Google
-├── hooks/                   # Custom hooks
-└── types/                   # Tipos globales
-supabase/
-├── migrations/              # SQL migrations
-└── seed.sql                 # Datos iniciales
-```
+### ⭐ Si este proyecto te resulta interesante, considera darle una estrella
 
-## Base de datos
-
-### Tablas
-
-| Tabla                  | Descripción                                                 |
-| ---------------------- | ----------------------------------------------------------- |
-| `profiles`             | Usuarios (auto-creados al signup via trigger)               |
-| `spots`                | Plazas de parking (standard, management, visitor, disabled) |
-| `reservations`         | Reservas de empleados (1 por plaza/día, 1 por usuario/día)  |
-| `cessions`             | Cesiones de plazas de dirección                             |
-| `visitor_reservations` | Reservas para visitantes externos                           |
-| `alerts`               | Suscripciones "avísame si hay hueco"                        |
-| `cession_rules`        | Reglas automáticas de cesión (P4)                           |
-| `system_config`        | Configuración global del sistema                            |
-
-### Roles y RLS
-
-La seguridad opera a nivel de base de datos con Row Level Security:
-
-- **employee**: Lee plazas y configuración. CRUD sobre sus propias reservas y alertas.
-- **management**: Todo de employee + CRUD de cesiones y reglas de cesión propias.
-- **admin**: Acceso total (lectura y escritura en todas las tablas).
-
-## Prioridades de implementación
-
-```
-P0 — Auth + CRUD plazas + cesión + reserva + panel admin
-P1 — Notificaciones email + alertas + PWA
-P2 — Mapa 2D interactivo + reserva para visitantes con correo
-P3 — Integración Outlook Calendar
-P4 — Cesión automática por reglas
-P5 — Bot de Teams
-P6 — Pase de Wallet para visitantes
-P7 — Dashboard analíticas
-```
-
-P0-P1 = MVP. P2-P7 = expansión.
-
-## Licencia
-
-Proyecto académico — Todos los derechos reservados.
+</div>

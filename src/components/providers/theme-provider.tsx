@@ -15,7 +15,7 @@ export function ThemeProvider({
   ...props
 }: ComponentProps<typeof NextThemesProvider>) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="light" {...props}>
+    <NextThemesProvider attribute="class" defaultTheme="system" {...props}>
       {children}
     </NextThemesProvider>
   );
