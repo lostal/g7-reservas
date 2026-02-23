@@ -233,19 +233,22 @@ function DayCell({
         "focus-visible:ring-ring transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-60",
         colorClass,
-        isTodayFlag && "ring-foreground/40 ring-2 ring-offset-1",
+        isTodayFlag && "ring-2 ring-white/50 ring-inset",
         isSelected && "ring-foreground scale-95 ring-2 ring-offset-1"
         // Tamaño touch-friendly en móvil garantizado por min-h + aspect-square
       )}
       onClick={() => onClick(dateStr)}
     >
       <span className="relative z-10">{dayNumber}</span>
-      {/* Indicador de disponibilidad para empleado */}
+      {/* Indicador de disponibilidad para empleado — nunca en fines de semana ni pasados */}
       {role === "employee" &&
         data?.availableCount !== undefined &&
-        status !== "reserved" && (
+        data.availableCount > 0 &&
+        status !== "reserved" &&
+        status !== "weekend" &&
+        status !== "past" && (
           <span className="absolute bottom-[14%] left-1/2 -translate-x-1/2 text-[9px] leading-none opacity-80">
-            {data.availableCount > 0 ? data.availableCount : ""}
+            {data.availableCount}
           </span>
         )}
     </button>

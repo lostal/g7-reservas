@@ -22,6 +22,15 @@ import {
 
 // ─── Query Functions ─────────────────────────────────────────
 
+// ─── Helpers ─────────────────────────────────────────────────
+
+/** El parking cierra sábados (6) y domingos (0) */
+function isWeekend(dateStr: string): boolean {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const day = new Date(y!, m! - 1, d!).getDay();
+  return day === 0 || day === 6;
+}
+
 /**
  * Obtiene las plazas disponibles para una fecha dada.
  *
@@ -29,6 +38,7 @@ import {
  * - No tiene una reserva confirmada para esa fecha
  * - Si type='management', debe existir una cesión con status='available'
  * - Está activa
+ * - La fecha es un día laborable (el parking cierra fines de semana)
  *
  * Devuelve las plazas que el usuario actual puede reservar.
  */
@@ -36,6 +46,9 @@ export async function getAvailableSpotsForDate(
   date: string
 ): Promise<ActionResult<SpotWithStatus[]>> {
   try {
+    // El parking cierra los fines de semana
+    if (isWeekend(date)) return success([]);
+
     const user = await getCurrentUser();
     if (!user) return error("No autenticado");
 

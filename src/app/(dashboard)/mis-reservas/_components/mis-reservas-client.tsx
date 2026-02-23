@@ -24,6 +24,8 @@ import {
   Trash2,
   ArrowRight,
 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -123,26 +125,35 @@ function ReservationRow({
   onCancel: (id: string) => void;
 }) {
   const date = parseLocalDate(reservation.date);
-  const isToday = reservation.date === new Date().toISOString().split("T")[0];
+  const isToday = reservation.date === new Date().toISOString().split("T")[0]!;
 
   return (
-    <div
-      className={`flex items-center gap-4 py-3.5 pl-3 transition-colors ${
-        isToday ? "border-primary border-l-2" : "border-l-2 border-transparent"
-      }`}
-    >
-      {/* Date column */}
-      <div className="w-7 shrink-0 text-center">
-        <p className="text-muted-foreground mb-0.5 text-[10px] leading-none font-medium tracking-widest uppercase">
-          {format(date, "EEE", { locale: es })}
-        </p>
-        <p
-          className={`text-2xl leading-none font-bold tabular-nums ${
-            isToday ? "text-primary" : "text-foreground"
-          }`}
+    <div className="flex items-center gap-4 py-3 pl-1">
+      {/* Date column — círculo de "hoy" al estilo Google Calendar */}
+      <div className="flex w-9 shrink-0 flex-col items-center gap-0.5">
+        <span
+          className={cn(
+            "text-[10px] leading-none font-medium tracking-widest uppercase",
+            isToday ? "text-primary" : "text-muted-foreground"
+          )}
         >
-          {format(date, "d")}
-        </p>
+          {format(date, "EEE", { locale: es })}
+        </span>
+        <div
+          className={cn(
+            "flex size-8 items-center justify-center rounded-full",
+            isToday ? "bg-primary" : ""
+          )}
+        >
+          <span
+            className={cn(
+              "text-lg leading-none font-bold tabular-nums",
+              isToday ? "text-primary-foreground" : "text-foreground"
+            )}
+          >
+            {format(date, "d")}
+          </span>
+        </div>
       </div>
 
       {/* Content */}
@@ -188,26 +199,35 @@ function CessionRow({
   onCancel: (id: string) => void;
 }) {
   const date = parseLocalDate(cession.date);
-  const isToday = cession.date === new Date().toISOString().split("T")[0];
+  const isToday = cession.date === new Date().toISOString().split("T")[0]!;
 
   return (
-    <div
-      className={`flex items-center gap-4 py-3.5 pl-3 transition-colors ${
-        isToday ? "border-primary border-l-2" : "border-l-2 border-transparent"
-      }`}
-    >
-      {/* Date column */}
-      <div className="w-7 shrink-0 text-center">
-        <p className="text-muted-foreground mb-0.5 text-[10px] leading-none font-medium tracking-widest uppercase">
-          {format(date, "EEE", { locale: es })}
-        </p>
-        <p
-          className={`text-2xl leading-none font-bold tabular-nums ${
-            isToday ? "text-primary" : "text-foreground"
-          }`}
+    <div className="flex items-center gap-4 py-3 pl-1">
+      {/* Date column — círculo de "hoy" al estilo Google Calendar */}
+      <div className="flex w-9 shrink-0 flex-col items-center gap-0.5">
+        <span
+          className={cn(
+            "text-[10px] leading-none font-medium tracking-widest uppercase",
+            isToday ? "text-primary" : "text-muted-foreground"
+          )}
         >
-          {format(date, "d")}
-        </p>
+          {format(date, "EEE", { locale: es })}
+        </span>
+        <div
+          className={cn(
+            "flex size-8 items-center justify-center rounded-full",
+            isToday ? "bg-primary" : ""
+          )}
+        >
+          <span
+            className={cn(
+              "text-lg leading-none font-bold tabular-nums",
+              isToday ? "text-primary-foreground" : "text-foreground"
+            )}
+          >
+            {format(date, "d")}
+          </span>
+        </div>
       </div>
 
       {/* Content */}

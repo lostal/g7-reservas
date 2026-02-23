@@ -50,6 +50,17 @@ export interface CalendarDayData {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
+/**
+ * Convierte un Date a "yyyy-MM-dd" usando componentes de hora LOCAL,
+ * evitando el desfase UTC que causa .toISOString() en zonas UTC+N.
+ */
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 function isWeekend(dateStr: string): boolean {
   const d = parseISO(dateStr);
   const day = d.getDay();
@@ -57,8 +68,7 @@ function isWeekend(dateStr: string): boolean {
 }
 
 function isPast(dateStr: string): boolean {
-  const today = new Date().toISOString().split("T")[0]!;
-  return dateStr < today;
+  return dateStr < toLocalDateStr(new Date());
 }
 
 // ─── Main Action ─────────────────────────────────────────────
@@ -83,11 +93,14 @@ export const getCalendarMonthData = actionClient
     const monthStart = parseISO(parsedInput.monthStart);
     const supabase = await createClient();
 
-    // Rango de fechas del mes
+    // Rango de fechas del mes — se construye con componentes locales para
+    // evitar el desfase UTC en zonas horarias positivas (ej. Europe/Madrid).
     const year = monthStart.getFullYear();
     const month = monthStart.getMonth();
-    const firstDay = new Date(year, month, 1).toISOString().split("T")[0]!;
-    const lastDay = new Date(year, month + 1, 0).toISOString().split("T")[0]!;
+    const mm = String(month + 1).padStart(2, "0");
+    const firstDay = `${year}-${mm}-01`;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const lastDay = `${year}-${mm}-${String(daysInMonth).padStart(2, "0")}`;
 
     if (role === "management" || role === "admin") {
       // ── Directivo: necesita su plaza asignada y sus cesiones ──
@@ -119,7 +132,7 @@ export const getCalendarMonthData = actionClient
       // Iteramos todos los días del mes
       const current = new Date(year, month, 1);
       while (current.getMonth() === month) {
-        const dateStr = current.toISOString().split("T")[0]!;
+        const dateStr = toLocalDateStr(current);
         const cession = cessionsByDate.get(dateStr);
 
         let status: ManagementDayStatus;
@@ -234,7 +247,7 @@ export const getCalendarMonthData = actionClient
       const current = new Date(year, month, 1);
 
       while (current.getMonth() === month) {
-        const dateStr = current.toISOString().split("T")[0]!;
+        const dateStr = toLocalDateStr(current);
         const myRes = myReservationByDate.get(dateStr);
         const reserved = reservedByDate.get(dateStr) ?? new Set();
         const cededAvail = cededAvailableByDate.get(dateStr) ?? 0;
@@ -268,10 +281,16 @@ export const getCalendarMonthData = actionClient
           status = "plenty";
         }
 
+        // El parking cierra los fines de semana: no hay plazas disponibles
+        const availableCount =
+          status !== "weekend" && status !== "past" && totalAvailable > 0
+            ? totalAvailable
+            : 0;
+
         days.push({
           date: dateStr,
           employeeStatus: status,
-          availableCount: totalAvailable > 0 ? totalAvailable : 0,
+          availableCount,
           myReservationId: myRes?.id,
         });
 
