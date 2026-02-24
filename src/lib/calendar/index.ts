@@ -29,9 +29,13 @@ function toICSDate(date: string): string {
 
 /** Día siguiente en formato YYYYMMDD (DTEND exclusivo para eventos de día completo) */
 function nextDayICS(date: string): string {
-  const d = new Date(date + "T00:00:00");
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10).replace(/-/g, "");
+  // Parsear con componentes locales para evitar desfase UTC en zonas UTC+N
+  const [y, m, d] = date.split("-").map(Number);
+  const next = new Date(y!, m! - 1, d! + 1);
+  const yy = next.getFullYear();
+  const mm = String(next.getMonth() + 1).padStart(2, "0");
+  const dd = String(next.getDate()).padStart(2, "0");
+  return `${yy}${mm}${dd}`;
 }
 
 /** Escapa texto para el formato ICS (RFC 5545) */
