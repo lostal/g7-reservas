@@ -16,6 +16,12 @@ import { parseISO } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────
 
+type MyReservationRow = {
+  id: string;
+  date: string;
+  spot: { label: string } | null;
+};
+
 /** Estado de un día del calendario para un empleado */
 export type EmployeeDayStatus =
   | "plenty" // Verde: hay plazas disponibles
@@ -194,7 +200,8 @@ export const getCalendarMonthData = actionClient
           .eq("user_id", user.id)
           .gte("date", firstDay)
           .lte("date", lastDay)
-          .eq("status", "confirmed"),
+          .eq("status", "confirmed")
+          .returns<MyReservationRow[]>(),
         // Reservas de visitantes: bloquean las plazas de tipo visitor
         supabase
           .from("visitor_reservations")
@@ -245,8 +252,7 @@ export const getCalendarMonthData = actionClient
         { id: string; spotLabel?: string }
       >();
       for (const r of myReservationsData.data ?? []) {
-        const spotLabel = (r as unknown as { spot: { label: string } | null })
-          .spot?.label;
+        const spotLabel = r.spot?.label;
         myReservationByDate.set(r.date, {
           id: r.id,
           spotLabel: spotLabel ?? undefined,

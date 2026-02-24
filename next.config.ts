@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Salida standalone para builds optimizados con Docker/Vercel
-  // output: "standalone",
-
   // Optimización de imágenes
   images: {
     remotePatterns: [
