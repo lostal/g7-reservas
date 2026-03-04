@@ -14,7 +14,10 @@ import { createClient } from "@/lib/supabase/server";
 import { ParkingCalendarView } from "./_components/parking-calendar-view";
 import { getResourceConfig } from "@/lib/config";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { TriangleAlert } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, CalendarCheck, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ROUTES } from "@/lib/constants";
 
 export default async function ParkingPage() {
   const user = await requireAuth();
@@ -46,9 +49,26 @@ export default async function ParkingPage() {
         </div>
       </Header>
       <Main>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-          <p className="text-muted-foreground">{description}</p>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+            <p className="text-muted-foreground">{description}</p>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            {assignedParkingSpot ? (
+              <Link href={ROUTES.PARKING_CESSIONS}>
+                <ArrowLeftRight className="mr-1.5 size-3.5" />
+                Ir a cesiones
+                <ArrowRight className="ml-1.5 size-3.5" />
+              </Link>
+            ) : (
+              <Link href={ROUTES.PARKING_RESERVAS}>
+                <CalendarCheck className="mr-1.5 size-3.5" />
+                Ir a reservas
+                <ArrowRight className="ml-1.5 size-3.5" />
+              </Link>
+            )}
+          </Button>
         </div>
 
         <div className="mx-auto max-w-lg">
