@@ -14,7 +14,12 @@ import { createClient } from "@/lib/supabase/server";
 import { getAllResourceConfigs } from "@/lib/config";
 import { OfficeCalendarView } from "./_components/office-calendar-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeftRight, ArrowRight, CalendarCheck, TriangleAlert } from "lucide-react";
+import {
+  ArrowLeftRight,
+  ArrowRight,
+  CalendarCheck,
+  TriangleAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
