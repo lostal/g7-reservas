@@ -4,7 +4,7 @@
  * Acciones de cesión de puestos de oficina
  *
  * Server Actions para que los usuarios con puesto preferente asignado
- * (management) puedan cederlo al pool general en fechas específicas.
+ * puedan cederlo al pool general en fechas específicas.
  */
 
 import { actionClient, success, error, type ActionResult } from "@/lib/actions";

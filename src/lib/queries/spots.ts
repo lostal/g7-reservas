@@ -139,8 +139,9 @@ export async function getSpotsByDate(
         status = "occupied";
       }
     } else {
-      // Plaza sin propietario (assigned_to === null): disponible para asignación futura
-      status = "free";
+      // Plaza sin propietario: en parking es libre para reservar directamente;
+      // en oficinas todas las plazas deben tener dueño, así que se muestra ocupada.
+      status = resourceType === "office" ? "occupied" : "free";
     }
 
     return {

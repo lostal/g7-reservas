@@ -5,7 +5,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server";
-import type { Cession } from "@/lib/supabase/types";
+import type { Cession, ResourceType } from "@/lib/supabase/types";
 
 /** Tipo interno para la query con joins de plaza y perfil */
 type CessionJoin = Cession & {
@@ -17,7 +17,7 @@ type CessionJoin = Cession & {
 export interface CessionWithDetails extends Cession {
   spot_label: string;
   user_name: string;
-  resource_type: "parking" | "office";
+  resource_type: ResourceType;
 }
 
 /**
@@ -61,7 +61,7 @@ export async function getCessionsByDate(
         created_at: c.created_at,
         spot_label: c.spots!.label,
         user_name: c.profiles?.full_name ?? "",
-        resource_type: c.spots!.resource_type as "parking" | "office",
+        resource_type: c.spots!.resource_type as ResourceType,
       })
     );
 }
@@ -109,7 +109,7 @@ export async function getUserCessions(
         created_at: c.created_at,
         spot_label: c.spots!.label,
         user_name: c.profiles?.full_name ?? "",
-        resource_type: c.spots!.resource_type as "parking" | "office",
+        resource_type: c.spots!.resource_type as ResourceType,
       })
     );
 }

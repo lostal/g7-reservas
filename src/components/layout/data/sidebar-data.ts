@@ -41,7 +41,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Espacios",
           icon: LayoutGrid,
-          roles: ["employee"],
+          roles: ["employee", "admin"],
           items: [
             {
               title: "Parking",
@@ -64,7 +64,7 @@ export const sidebarData: SidebarData = {
           title: "Mi Actividad",
           url: ROUTES.MIS_RESERVAS,
           icon: CalendarCheck,
-          roles: ["employee"],
+          roles: ["employee", "admin"],
         },
         {
           title: "Visitantes",

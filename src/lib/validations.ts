@@ -212,6 +212,8 @@ export const updateResourceConfigSchema = z.object({
   max_weekly_reservations: z.number().int().min(1).max(50).nullable(),
   /** null = sin límite mensual */
   max_monthly_reservations: z.number().int().min(1).max(200).nullable(),
+  /** null = sin límite diario */
+  max_daily_reservations: z.number().int().min(1).max(50).nullable(),
   time_slots_enabled: z.boolean(),
   slot_duration_minutes: z.number().int().min(15).max(480).nullable(),
   day_start_hour: z.number().int().min(0).max(23).nullable(),

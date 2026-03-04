@@ -25,6 +25,8 @@ import {
   updateThemeSchema,
   updateOutlookPreferencesSchema,
   updateCessionRulesSchema,
+  updateResourceConfigSchema,
+  createOfficeReservationSchema,
 } from "@/lib/validations";
 
 const UUID = "550e8400-e29b-41d4-a716-446655440000";
@@ -617,5 +619,192 @@ describe("updateCessionRulesSchema", () => {
       auto_cede_days: [1.5],
     });
     expect(r.success).toBe(false);
+  });
+});
+
+// ─── updateResourceConfigSchema ───────────────────────────────────────────────
+
+describe("updateResourceConfigSchema", () => {
+  const VALID_BASE = {
+    booking_enabled: true,
+    visitor_booking_enabled: false,
+    allowed_days: [1, 2, 3, 4, 5],
+    max_advance_days: 14,
+    max_consecutive_days: 5,
+    max_weekly_reservations: 5,
+    max_monthly_reservations: 20,
+    max_daily_reservations: 1,
+    time_slots_enabled: false,
+    slot_duration_minutes: null,
+    day_start_hour: null,
+    day_end_hour: null,
+    cession_enabled: true,
+    cession_min_advance_hours: 24,
+    cession_max_per_week: 5,
+    auto_cession_enabled: false,
+  };
+
+  it("acepta configuración mínima válida", () => {
+    const r = updateResourceConfigSchema.safeParse(VALID_BASE);
+    expect(r.success).toBe(true);
+  });
+
+  it("acepta null en campos opcionales (sin límite)", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      max_advance_days: null,
+      max_consecutive_days: null,
+      max_weekly_reservations: null,
+      max_monthly_reservations: null,
+      max_daily_reservations: null,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rechaza allowed_days vacío", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      allowed_days: [],
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("allowed_days");
+  });
+
+  it("rechaza max_advance_days fuera de rango (0)", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      max_advance_days: 0,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("max_advance_days");
+  });
+
+  it("rechaza max_advance_days fuera de rango (366)", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      max_advance_days: 366,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("max_advance_days");
+  });
+
+  it("rechaza max_daily_reservations negativo", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      max_daily_reservations: -1,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("max_daily_reservations");
+  });
+
+  it("rechaza cession_min_advance_hours fuera de rango", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      cession_min_advance_hours: 200,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("cession_min_advance_hours");
+  });
+
+  it("rechaza cession_max_per_week fuera de rango (> 7)", () => {
+    const r = updateResourceConfigSchema.safeParse({
+      ...VALID_BASE,
+      cession_max_per_week: 8,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("cession_max_per_week");
+  });
+});
+
+// ─── createOfficeReservationSchema ───────────────────────────────────────────
+
+describe("createOfficeReservationSchema", () => {
+  it("acepta reserva sin horario (día completo)", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("acepta reserva con horario válido", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      start_time: "09:00",
+      end_time: "11:00",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rechaza start_time sin end_time", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      start_time: "09:00",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("end_time");
+  });
+
+  it("rechaza end_time sin start_time", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      end_time: "11:00",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("end_time");
+  });
+
+  it("rechaza end_time <= start_time", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      start_time: "11:00",
+      end_time: "09:00",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("end_time");
+  });
+
+  it("rechaza end_time igual a start_time", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      start_time: "10:00",
+      end_time: "10:00",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("end_time");
+  });
+
+  it("rechaza horario con formato incorrecto", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: DATE,
+      start_time: "9:00",
+      end_time: "17:00",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("start_time");
+  });
+
+  it("rechaza spot_id no UUID", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: "no-es-uuid",
+      date: DATE,
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("spot_id");
+  });
+
+  it("rechaza fecha con formato incorrecto", () => {
+    const r = createOfficeReservationSchema.safeParse({
+      spot_id: UUID,
+      date: "15/03/2025",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("date");
   });
 });

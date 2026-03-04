@@ -12,7 +12,6 @@
 import { redirect } from "next/navigation";
 import { requireAuth } from "@/lib/supabase/auth";
 import { getSpotsByDate } from "@/lib/queries/spots";
-import { getProfiles } from "@/lib/queries/profiles";
 import {
   getDailyCountsLast30Days,
   getTopSpots,
@@ -57,7 +56,6 @@ export default async function PanelPage() {
   // Fetch all data in parallel
   const [
     spots,
-    _profiles,
     dailyCounts,
     topSpots,
     movementDistribution,
@@ -67,7 +65,6 @@ export default async function PanelPage() {
     visitorsToday,
   ] = await Promise.all([
     getSpotsByDate(today),
-    getProfiles(),
     getDailyCountsLast30Days(30),
     getTopSpots(6),
     getMovementDistribution(),
@@ -90,9 +87,6 @@ export default async function PanelPage() {
   ).length;
   const occupancyPercent =
     totalSpots > 0 ? Math.round((occupiedSpots / totalSpots) * 100) : 0;
-
-  // El rol "management" ya no existe – no hay alertas de este tipo
-  const pendingManagement: typeof _profiles = [];
 
   return (
     <>
@@ -169,14 +163,11 @@ export default async function PanelPage() {
               <CardHeader>
                 <CardTitle>Estado del sistema</CardTitle>
                 <CardDescription>
-                  Alertas y ocupación actual del parking
+                  Alertas y ocupación actual del sistema
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AdminAlerts
-                  pendingManagement={pendingManagement}
-                  occupancyPercent={occupancyPercent}
-                />
+                <AdminAlerts occupancyPercent={occupancyPercent} />
               </CardContent>
             </Card>
           </TabsContent>

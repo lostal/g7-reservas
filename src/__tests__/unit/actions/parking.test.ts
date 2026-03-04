@@ -51,7 +51,9 @@ vi.mock("@/lib/config", () => ({
     max_consecutive_days: 5,
     max_weekly_reservations: 5,
     max_monthly_reservations: 20,
+    max_daily_reservations: null,
     time_slots_enabled: false,
+    cession_enabled: true,
   }),
 }));
 

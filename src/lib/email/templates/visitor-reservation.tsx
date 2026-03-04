@@ -28,7 +28,7 @@ import {
 } from "@react-email/components";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://parking.gruposiete.es";
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://reservas.gruposiete.es";
 
 export interface VisitorReservationEmailProps {
   visitorName: string;
@@ -69,7 +69,7 @@ export function VisitorReservationEmail({
               style={s.logoImg}
             />
             <Heading style={s.logo}>Gruposiete</Heading>
-            <Text style={s.tagline}>APARCAMIENTO</Text>
+            <Text style={s.tagline}>RESERVAS</Text>
           </Section>
 
           {/* Contenido principal */}
@@ -81,8 +81,9 @@ export function VisitorReservationEmail({
               Hola, <strong>{visitorName}</strong>
             </Text>
             <Text style={s.text}>
-              <strong>{reservedByName}</strong> ha reservado una plaza de
-              aparcamiento para tu visita a <strong>Gruposiete</strong>.
+              <strong>{reservedByName}</strong> ha reservado una plaza de ha
+              reservado una plaza de aparcamiento para tu visita a{" "}
+              <strong>Gruposiete</strong>.
             </Text>
 
             {/* Tarjeta de reserva (estilo ticket oscuro) */}

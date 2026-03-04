@@ -281,6 +281,19 @@ function ReservationLimitsSection({ values, errors, setValue }: SectionProps) {
           }
           error={errors.max_monthly_reservations?.message as string | undefined}
         />
+
+        <NullableNumberInput
+          id="max_daily_reservations"
+          label="Reservas máximas por día"
+          description="Límite de reservas diarias por usuario (null = sin límite)"
+          value={values.max_daily_reservations}
+          min={1}
+          max={50}
+          onChange={(v) =>
+            setValue("max_daily_reservations", v, { shouldDirty: true })
+          }
+          error={errors.max_daily_reservations?.message as string | undefined}
+        />
       </div>
     </div>
   );
@@ -414,6 +427,7 @@ export function ResourceConfigForm({
       max_consecutive_days: config.max_consecutive_days,
       max_weekly_reservations: config.max_weekly_reservations,
       max_monthly_reservations: config.max_monthly_reservations,
+      max_daily_reservations: config.max_daily_reservations,
       time_slots_enabled: config.time_slots_enabled,
       slot_duration_minutes: config.slot_duration_minutes,
       day_start_hour: config.day_start_hour,

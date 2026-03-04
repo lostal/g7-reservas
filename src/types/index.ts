@@ -5,12 +5,16 @@
  * and adds app-specific derived types.
  */
 
-import type { SpotType as SpotTypeEnum } from "@/lib/supabase/types";
+import type {
+  SpotType as SpotTypeEnum,
+  ResourceType,
+} from "@/lib/supabase/types";
 
 // Re-export all DB types as the single source of truth
 export type {
   UserRole,
   SpotType,
+  ResourceType,
   ReservationStatus,
   CessionStatus,
   CessionRuleType,
@@ -25,9 +29,8 @@ export type {
   Database,
 } from "@/lib/supabase/types";
 
-// Re-export config types
+// Re-export config types (ResourceType ya viene de supabase/types arriba)
 export type {
-  ResourceType,
   ResourceConfigValues,
   GlobalConfigValues,
   ResourceConfigKey,
@@ -52,8 +55,7 @@ export interface SpotWithStatus {
   id: string;
   label: string;
   type: SpotTypeEnum;
-  /** Parking or office spot — app-level type since Supabase types may lag migrations */
-  resource_type: "parking" | "office";
+  resource_type: ResourceType;
   assigned_to: string | null;
   position_x: number | null;
   position_y: number | null;
@@ -81,7 +83,7 @@ export interface ReservationWithDetails {
   id: string;
   spot_id: string;
   spot_label: string;
-  resource_type: "parking" | "office";
+  resource_type: ResourceType;
   user_id: string;
   user_name?: string;
   date: string;

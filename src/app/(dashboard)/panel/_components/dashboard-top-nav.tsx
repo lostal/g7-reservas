@@ -18,11 +18,6 @@ const linksByRole: Record<string, { title: string; href: string }[]> = {
     { title: "Mapa", href: ROUTES.PARKING_MAP },
     { title: "Visitantes", href: ROUTES.VISITORS },
   ],
-  management: [
-    { title: "Dashboard", href: ROUTES.DASHBOARD },
-    { title: "Reservas", href: ROUTES.PARKING },
-    { title: "Visitantes", href: ROUTES.VISITORS },
-  ],
   admin: [
     { title: "Dashboard", href: ROUTES.DASHBOARD },
     { title: "Visitantes", href: ROUTES.VISITORS },

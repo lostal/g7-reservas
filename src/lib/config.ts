@@ -15,9 +15,6 @@ import { unstable_cache, revalidateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ResourceType } from "@/lib/supabase/types";
 
-// Re-export so callers can import ResourceType from @/lib/config as before
-export type { ResourceType };
-
 // ─── Definición de claves de configuración ────────────────────
 
 /** Claves globales (sin prefijo de recurso) */
@@ -42,7 +39,8 @@ export type ResourceConfigKey =
   | "cession_enabled"
   | "cession_min_advance_hours"
   | "cession_max_per_week"
-  | "auto_cession_enabled";
+  | "auto_cession_enabled"
+  | "max_daily_reservations";
 
 /** Clave completa en la BD (con prefijo de recurso) */
 export type FullConfigKey =
@@ -72,6 +70,8 @@ export interface ResourceConfigValues {
   cession_min_advance_hours: number;
   cession_max_per_week: number;
   auto_cession_enabled: boolean;
+  /** null = sin límite diario */
+  max_daily_reservations: number | null;
 }
 
 export interface GlobalConfigValues {
@@ -90,6 +90,7 @@ const PARKING_DEFAULTS: ResourceConfigValues = {
   max_consecutive_days: 5,
   max_weekly_reservations: 5,
   max_monthly_reservations: 20,
+  max_daily_reservations: 1,
   time_slots_enabled: false,
   slot_duration_minutes: null,
   day_start_hour: null,
@@ -108,6 +109,7 @@ const OFFICE_DEFAULTS: ResourceConfigValues = {
   max_consecutive_days: 3,
   max_weekly_reservations: 10,
   max_monthly_reservations: 40,
+  max_daily_reservations: 2,
   time_slots_enabled: true,
   slot_duration_minutes: 60,
   day_start_hour: 8,

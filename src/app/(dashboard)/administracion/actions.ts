@@ -24,7 +24,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // ─── Spot CRUD ───────────────────────────────────────────────
 
 /**
- * Crea una nueva plaza de aparcamiento.
+ * Crea una nueva plaza.
  */
 export const createSpot = actionClient
   .schema(createSpotSchema)
@@ -57,7 +57,7 @@ export const createSpot = actionClient
   });
 
 /**
- * Actualiza una plaza de aparcamiento existente.
+ * Actualiza una plaza existente.
  */
 export const updateSpot = actionClient
   .schema(updateSpotSchema)
@@ -83,7 +83,7 @@ export const updateSpot = actionClient
   });
 
 /**
- * Elimina una plaza de aparcamiento.
+ * Elimina una plaza.
  * Elimina en cascada reservas y cesiones relacionadas (restricción de BD).
  */
 export const deleteSpot = actionClient

@@ -18,7 +18,7 @@ export const ROUTES = {
   /** Home page for non-admin roles (employee) */
   PARKING: "/parking",
   MIS_RESERVAS: "/mis-reservas",
-  PARKING_CESSATIONS: "/parking/cesiones",
+  PARKING_CESSIONS: "/parking/cesiones",
   PARKING_MAP: "/parking/mapa",
   VISITORS: "/visitantes",
   ADMIN: "/administracion",

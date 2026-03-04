@@ -19,7 +19,7 @@ import {
 } from "@react-email/components";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://parking.gruposiete.es";
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://reservas.gruposiete.es";
 
 export interface VisitorCancellationEmailProps {
   visitorName: string;
@@ -51,7 +51,7 @@ export function VisitorCancellationEmail({
               style={s.logoImg}
             />
             <Heading style={s.logo}>Gruposiete</Heading>
-            <Text style={s.tagline}>APARCAMIENTO</Text>
+            <Text style={s.tagline}>RESERVAS</Text>
           </Section>
 
           {/* Contenido */}

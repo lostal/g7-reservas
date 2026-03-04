@@ -9,7 +9,7 @@
  *
  * Patrones reutilizados del proyecto:
  * - Filas de lista de MyReservationsSection (reservations-view.tsx)
- * - Badges de estado de CessionsView (cessations-view.tsx)
+ * - Badges de estado de CessionsView (cessions-view.tsx)
  * - Separadores con etiqueta de grupo (patrón shadcn-admin)
  */
 

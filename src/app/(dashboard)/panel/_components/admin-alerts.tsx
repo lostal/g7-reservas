@@ -1,56 +1,26 @@
 /**
  * AdminAlerts Component
  *
- * Shows pending admin actions and system status.
+ * Shows system status alerts for the admin panel.
  * Only rendered for admin role.
  */
 
-import { AlertTriangle, UserPlus } from "lucide-react";
-import type { Profile } from "@/lib/supabase/types";
+import { AlertTriangle } from "lucide-react";
 
 interface AdminAlertsProps {
-  /** Management users who don't have a spot assigned yet */
-  pendingManagement: Profile[];
   /** Today's occupancy percentage */
   occupancyPercent: number;
 }
 
-export function AdminAlerts({
-  pendingManagement,
-  occupancyPercent,
-}: AdminAlertsProps) {
-  if (pendingManagement.length === 0) {
-    return (
-      <div className="space-y-4">
-        <OccupancyIndicator percent={occupancyPercent} />
-        <div className="flex items-center gap-3 rounded-lg border border-dashed p-3">
-          <div className="text-muted-foreground text-sm">
-            Sin alertas pendientes
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+export function AdminAlerts({ occupancyPercent }: AdminAlertsProps) {
   return (
     <div className="space-y-4">
       <OccupancyIndicator percent={occupancyPercent} />
-      {pendingManagement.map((user) => (
-        <div
-          key={user.id}
-          className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950"
-        >
-          <UserPlus className="h-4 w-4 shrink-0 text-amber-600" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">
-              {user.full_name || user.email}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              Dirección sin plaza asignada
-            </p>
-          </div>
+      <div className="flex items-center gap-3 rounded-lg border border-dashed p-3">
+        <div className="text-muted-foreground text-sm">
+          Sin alertas pendientes
         </div>
-      ))}
+      </div>
     </div>
   );
 }

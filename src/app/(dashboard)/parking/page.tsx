@@ -10,7 +10,7 @@ import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
 import { requireAuth } from "@/lib/supabase/auth";
-import { getSpots } from "@/lib/queries/spots";
+import { createClient } from "@/lib/supabase/server";
 import { ParkingCalendarView } from "./_components/parking-calendar-view";
 import { getResourceConfig } from "@/lib/config";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -19,12 +19,17 @@ import { TriangleAlert } from "lucide-react";
 export default async function ParkingPage() {
   const user = await requireAuth();
 
-  const [spots, bookingEnabled] = await Promise.all([
-    getSpots("parking"),
+  const supabase = await createClient();
+  const [assignedSpotResult, bookingEnabled] = await Promise.all([
+    supabase
+      .from("spots")
+      .select("*")
+      .eq("assigned_to", user.id)
+      .eq("resource_type", "parking")
+      .maybeSingle(),
     getResourceConfig("parking", "booking_enabled"),
   ]);
-  const assignedParkingSpot =
-    spots.find((s) => s.assigned_to === user.id) ?? null;
+  const assignedParkingSpot = assignedSpotResult.data;
 
   const title = "Parking";
   const description = assignedParkingSpot

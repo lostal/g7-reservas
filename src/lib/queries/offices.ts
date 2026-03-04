@@ -11,7 +11,7 @@ import type { Reservation, Spot } from "@/lib/supabase/types";
 
 // ─── Tipos internos ───────────────────────────────────────────────
 
-type ReservationRow = Reservation & {
+type OfficeReservationJoin = Reservation & {
   spots: { label: string; resource_type: string } | null;
   profiles: { full_name: string } | null;
 };
@@ -261,25 +261,27 @@ export async function getUserOfficeReservations(
     .eq("spots.resource_type", "office")
     .gte("date", today)
     .order("date")
-    .returns<ReservationRow[]>();
+    .returns<OfficeReservationJoin[]>();
 
   if (error)
     throw new Error(`Error al obtener reservas de oficina: ${error.message}`);
 
-  return (data ?? []).map(
-    (r): ReservationWithDetails => ({
-      id: r.id,
-      spot_id: r.spot_id,
-      spot_label: r.spots?.label ?? "",
-      resource_type: "office",
-      user_id: r.user_id,
-      user_name: r.profiles?.full_name ?? "",
-      date: r.date,
-      status: r.status,
-      notes: r.notes,
-      start_time: r.start_time,
-      end_time: r.end_time,
-      created_at: r.created_at,
-    })
-  );
+  return (data ?? [])
+    .filter((r) => r.spots?.resource_type === "office")
+    .map(
+      (r): ReservationWithDetails => ({
+        id: r.id,
+        spot_id: r.spot_id,
+        spot_label: r.spots?.label ?? "",
+        resource_type: "office",
+        user_id: r.user_id,
+        user_name: r.profiles?.full_name ?? "",
+        date: r.date,
+        status: r.status,
+        notes: r.notes,
+        start_time: r.start_time,
+        end_time: r.end_time,
+        created_at: r.created_at,
+      })
+    );
 }

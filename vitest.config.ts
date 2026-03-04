@@ -21,6 +21,7 @@ export default defineConfig({
         "src/lib/**/*.{ts,tsx}",
         "src/app/**/actions.ts",
         "src/app/**/calendar-actions.ts",
+        "src/app/**/cession-actions.ts",
       ],
       exclude: [
         "src/**/*.test.{ts,tsx}",

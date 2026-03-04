@@ -87,13 +87,14 @@ describe("getReservationsByDate", () => {
     expect(result[0]?.user_name).toBe("María López");
   });
 
-  it("usa cadena vacía como fallback si spots es null", async () => {
+  it("filtra filas donde spots es null (datos de BD inconsistentes)", async () => {
     const res = createMockReservationJoin({ spots: null });
     setupSupabaseMock({ data: [res] });
 
     const result = await getReservationsByDate(DATE);
 
-    expect(result[0]?.spot_label).toBe("");
+    // Las filas con spots===null se descartan para evitar tipos nulos en el resultado
+    expect(result).toHaveLength(0);
   });
 
   it("usa cadena vacía como fallback si profiles es null", async () => {
