@@ -50,7 +50,11 @@ export async function getCessionsByDate(
   if (error) throw new Error(`Error al obtener cesiones: ${error.message}`);
 
   return data
-    .filter((c) => c.spots !== null)
+    .filter(
+      (c) =>
+        c.spots !== null &&
+        (!resourceType || c.spots.resource_type === resourceType)
+    )
     .map(
       (c): CessionWithDetails => ({
         id: c.id,

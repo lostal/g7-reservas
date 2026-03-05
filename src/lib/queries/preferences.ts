@@ -132,14 +132,25 @@ export async function getAssignedSpotInfo(
   // Obtener la fecha de hoy
   const today = new Date().toISOString().split("T")[0]!;
 
-  // Comprobar si hay cesión para hoy
-  const { data: todayCession } = await supabase
-    .from("cessions")
-    .select("id, status")
-    .eq("spot_id", spot.id)
-    .eq("date", today)
-    .neq("status", "cancelled")
-    .maybeSingle();
+  // Paralelizar: cesión de hoy + próxima cesión futura en una sola ronda
+  const [{ data: todayCession }, { data: nextCession }] = await Promise.all([
+    supabase
+      .from("cessions")
+      .select("id, status")
+      .eq("spot_id", spot.id)
+      .eq("date", today)
+      .neq("status", "cancelled")
+      .maybeSingle(),
+    supabase
+      .from("cessions")
+      .select("id, date, status")
+      .eq("spot_id", spot.id)
+      .gte("date", today)
+      .neq("status", "cancelled")
+      .order("date", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   // Determinar el estado
   let statusToday: "occupied" | "ceded" | "reserved" | "unknown" = "occupied";
@@ -147,17 +158,6 @@ export async function getAssignedSpotInfo(
   if (todayCession) {
     statusToday = todayCession.status === "reserved" ? "reserved" : "ceded";
   }
-
-  // Obtener la próxima cesión futura
-  const { data: nextCession } = await supabase
-    .from("cessions")
-    .select("id, date, status")
-    .eq("spot_id", spot.id)
-    .gte("date", today)
-    .neq("status", "cancelled")
-    .order("date", { ascending: true })
-    .limit(1)
-    .maybeSingle();
 
   return {
     spot: {

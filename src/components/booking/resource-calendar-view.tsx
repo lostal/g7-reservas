@@ -75,6 +75,13 @@ export interface ResourceCalendarViewProps {
   renderCessionSheet: (props: CessionSheetProps) => React.ReactNode;
 }
 
+// ─── Constantes de caché ─────────────────────────────────────
+
+/** TTL del caché de meses en el cliente. Expirar tras 5 min evita datos obsoletos en sesiones largas. */
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+type CacheEntry = { data: Map<string, ResourceDayData>; loadedAt: number };
+
 // ─── Componente ──────────────────────────────────────────────
 
 export function ResourceCalendarView({
@@ -105,11 +112,10 @@ export function ResourceCalendarView({
   );
   const [cessionSheetOpen, setCessionSheetOpen] = React.useState(false);
 
-  // ── Caché ─────────────────────────────────────────────────
-
-  const monthCache = React.useRef(
-    new Map<string, Map<string, ResourceDayData>>()
-  );
+  // ── Caché con TTL ─────────────────────────────────────────
+  // Cada entrada guarda los datos y el timestamp de carga.
+  // Entradas con más de CACHE_TTL_MS se invalidan automáticamente.
+  const monthCache = React.useRef(new Map<string, CacheEntry>());
   const inFlight = React.useRef(new Set<string>());
   const currentMonthRef = React.useRef(currentMonth);
 
@@ -121,9 +127,10 @@ export function ResourceCalendarView({
       const monthStart = format(month, "yyyy-MM-dd");
 
       const cached = monthCache.current.get(monthKey);
-      if (cached) {
+      const isFresh = cached && Date.now() - cached.loadedAt < CACHE_TTL_MS;
+      if (isFresh) {
         if (format(currentMonthRef.current, "yyyy-MM") === monthKey) {
-          setDayData(cached);
+          setDayData(cached.data);
         }
         return;
       }
@@ -137,7 +144,7 @@ export function ResourceCalendarView({
           const map = new Map<string, ResourceDayData>(
             result.data.map((d) => [d.date, d])
           );
-          monthCache.current.set(monthKey, map);
+          monthCache.current.set(monthKey, { data: map, loadedAt: Date.now() });
           if (format(currentMonthRef.current, "yyyy-MM") === monthKey) {
             setDayData(map);
           }
@@ -172,7 +179,7 @@ export function ResourceCalendarView({
     setCessionSheetOpen(false);
 
     const cached = monthCache.current.get(format(newMonth, "yyyy-MM"));
-    if (cached) setDayData(cached);
+    if (cached) setDayData(cached.data);
 
     void loadMonth(newMonth);
     void loadMonth(addMonths(newMonth, 1), { silent: true });

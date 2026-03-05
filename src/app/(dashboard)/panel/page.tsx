@@ -4,89 +4,39 @@
  * Server Component — admin only.
  * Non-admin roles are redirected to /parking.
  *
- * Follows the shadcn-admin dashboard pattern:
- *   - Tabs: Resumen + Analítica
- *   - Stats cards, bar chart, recent activity, analytics area chart + bar lists
+ * Usa Suspense granular por sección para que el HTML empiece a streamear
+ * antes de que las queries más lentas terminen.
  */
 
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { requireAuth } from "@/lib/supabase/auth";
-import { getSpotsByDate } from "@/lib/queries/spots";
-import {
-  getDailyCountsLast30Days,
-  getTopSpots,
-  getMovementDistribution,
-  getMonthlyReservationCount,
-  getActiveUsersThisMonth,
-  getRecentActivity,
-  getVisitorsTodayCount,
-} from "@/lib/queries/stats";
 import { Header, Main } from "@/components/layout";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ROUTES } from "@/lib/constants";
-import { AdminStatsCards } from "./_components/admin-stats-cards";
-import { ReservationsOverviewChart } from "./_components/reservations-overview-chart";
-import { OccupancyAreaChart } from "./_components/occupancy-area-chart";
-import { SimpleBarList } from "./_components/simple-bar-list";
-import { RecentActivity } from "./_components/recent-activity";
-import { AdminAlerts } from "./_components/admin-alerts";
 import { DashboardTopNav } from "./_components/dashboard-top-nav";
+import { PanelStatsSection } from "./_components/panel-stats-section";
+import { PanelChartsSection } from "./_components/panel-charts-section";
+import { PanelAnalyticsSection } from "./_components/panel-analytics-section";
+import { PanelAlertsSection } from "./_components/panel-alerts-section";
+import {
+  StatsSkeleton,
+  ChartsSkeleton,
+  AnalyticsSkeleton,
+} from "./_components/panel-skeleton";
 
 export default async function PanelPage() {
   const user = await requireAuth();
   const role = user.profile?.role ?? "employee";
 
-  // Only admin can access this page
   if (role !== "admin") {
     redirect(ROUTES.PARKING);
   }
 
   const today = new Date().toISOString().split("T")[0]!;
-
-  // Fetch all data in parallel
-  const [
-    spots,
-    dailyCounts,
-    topSpots,
-    movementDistribution,
-    monthlyReservations,
-    activeUsers,
-    recentActivity,
-    visitorsToday,
-  ] = await Promise.all([
-    getSpotsByDate(today),
-    getDailyCountsLast30Days(30),
-    getTopSpots(6),
-    getMovementDistribution(),
-    getMonthlyReservationCount(),
-    getActiveUsersThisMonth(),
-    getRecentActivity(8),
-    getVisitorsTodayCount(today),
-  ]);
-
-  // Compute occupancy
-  const totalSpots = spots.length;
-  const freeSpots = spots.filter(
-    (s) => s.status === "free" || s.status === "ceded"
-  ).length;
-  const occupiedSpots = spots.filter(
-    (s) =>
-      s.status === "reserved" ||
-      s.status === "occupied" ||
-      s.status === "visitor-blocked"
-  ).length;
-  const occupancyPercent =
-    totalSpots > 0 ? Math.round((occupiedSpots / totalSpots) * 100) : 0;
 
   return (
     <>
@@ -119,113 +69,27 @@ export default async function PanelPage() {
 
           {/* ── Resumen ─────────────────────────────────────── */}
           <TabsContent value="overview" className="space-y-4">
-            {/* Stats cards */}
-            <AdminStatsCards
-              freeSpots={freeSpots}
-              totalSpots={totalSpots}
-              occupancyPercent={occupancyPercent}
-              monthlyReservations={monthlyReservations}
-              activeUsersMonth={activeUsers}
-              visitorsToday={visitorsToday}
-            />
+            {/* Stats cards — bloqueo mínimo, solo 4 queries rápidas */}
+            <Suspense fallback={<StatsSkeleton />}>
+              <PanelStatsSection today={today} />
+            </Suspense>
 
-            {/* Chart + Recent Activity */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
-              {/* Bar chart — reservas últimos 30 días */}
-              <Card className="col-span-1 lg:col-span-4">
-                <CardHeader>
-                  <CardTitle>Reservas — últimos 30 días</CardTitle>
-                  <CardDescription>
-                    Reservas de empleados y visitas confirmadas por día
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="ps-2">
-                  <ReservationsOverviewChart data={dailyCounts} />
-                </CardContent>
-              </Card>
-
-              {/* Recent activity */}
-              <Card className="col-span-1 lg:col-span-3">
-                <CardHeader>
-                  <CardTitle>Actividad reciente</CardTitle>
-                  <CardDescription>
-                    Últimas reservas registradas en el sistema
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RecentActivity items={recentActivity} />
-                </CardContent>
-              </Card>
-            </div>
+            {/* Chart + Actividad reciente */}
+            <Suspense fallback={<ChartsSkeleton />}>
+              <PanelChartsSection />
+            </Suspense>
 
             {/* Admin alerts */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Estado del sistema</CardTitle>
-                <CardDescription>
-                  Alertas y ocupación actual del sistema
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AdminAlerts occupancyPercent={occupancyPercent} />
-              </CardContent>
-            </Card>
+            <Suspense fallback={null}>
+              <PanelAlertsSection today={today} />
+            </Suspense>
           </TabsContent>
 
           {/* ── Analítica ────────────────────────────────────── */}
           <TabsContent value="analytics" className="space-y-4">
-            {/* Area chart — tendencia diaria */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Tendencia diaria de ocupación</CardTitle>
-                <CardDescription>
-                  Reservas de empleados y visitas de los últimos 30 días
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-6">
-                <OccupancyAreaChart data={dailyCounts} />
-              </CardContent>
-            </Card>
-
-            {/* Bar lists */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
-              <Card className="col-span-1 lg:col-span-4">
-                <CardHeader>
-                  <CardTitle>Plazas más reservadas</CardTitle>
-                  <CardDescription>
-                    Plazas con más reservas confirmadas este mes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {topSpots.length > 0 ? (
-                    <SimpleBarList
-                      items={topSpots.map((s) => ({
-                        name: `Plaza ${s.spot_label}`,
-                        value: s.count,
-                      }))}
-                      barClass="bg-primary"
-                    />
-                  ) : (
-                    <p className="text-muted-foreground text-sm">
-                      Sin datos este mes
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="col-span-1 lg:col-span-3">
-                <CardHeader>
-                  <CardTitle>Distribución de movimientos</CardTitle>
-                  <CardDescription>Tipos de ocupación este mes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SimpleBarList
-                    items={movementDistribution}
-                    barClass="bg-muted-foreground"
-                  />
-                </CardContent>
-              </Card>
-            </div>
+            <Suspense fallback={<AnalyticsSkeleton />}>
+              <PanelAnalyticsSection />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </Main>

@@ -93,7 +93,11 @@ export const actionClient: ActionBuilder = {
             const data = await handler({ parsedInput: result.data });
             return success(data);
           } catch (err) {
-            console.error("Error en la acción:", err);
+            // Loguear con stack trace para facilitar debugging en producción
+            console.error(
+              "[action] error inesperado:",
+              err instanceof Error ? (err.stack ?? err.message) : err
+            );
             return error(
               err instanceof Error
                 ? err.message

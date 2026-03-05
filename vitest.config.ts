@@ -32,12 +32,13 @@ export default defineConfig({
         // Tipos re-exportados sin lógica
         "src/lib/supabase/types.ts",
       ],
-      // Umbrales de cobertura — reflejan la cobertura actual de lógica de negocio
+      // Umbrales de cobertura — calibrados contra cobertura real (46% líneas, 38% ramas, 47% funciones)
+      // Objetivo: detectar regresiones. Subir progresivamente al añadir tests.
       thresholds: {
-        lines: 40,
-        branches: 35,
-        functions: 44,
-        statements: 40,
+        lines: 45,
+        branches: 37,
+        functions: 45,
+        statements: 45,
       },
     },
   },

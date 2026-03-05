@@ -64,8 +64,13 @@ export async function getDailyCountsLast30Days(
     );
   }
 
+  type ReservationForCount = {
+    date: string;
+    spots?: { resource_type: string } | null;
+  };
+
   const [reservationsResult, visitorsResult] = await Promise.all([
-    reservationsQuery,
+    reservationsQuery.returns<ReservationForCount[]>(),
     supabase
       .from("visitor_reservations")
       .select("date")
@@ -88,12 +93,7 @@ export async function getDailyCountsLast30Days(
     countsByDate.set(dateStr, { reservations: 0, visitors: 0 });
   }
 
-  type ReservationForCount = {
-    date: string;
-    spots?: { resource_type: string } | null;
-  };
-  for (const r of (reservationsResult.data ??
-    []) as unknown as ReservationForCount[]) {
+  for (const r of reservationsResult.data ?? []) {
     if (resourceType && r.spots?.resource_type !== resourceType) continue;
     const entry = countsByDate.get(r.date);
     if (entry) entry.reservations++;
