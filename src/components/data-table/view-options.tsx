@@ -31,7 +31,7 @@ export function DataTableViewOptions<TData>({
           Vista
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px]">
+      <DropdownMenuContent align="end" className="w-37.5">
         <DropdownMenuLabel>Columnas</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table

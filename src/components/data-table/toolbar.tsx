@@ -50,7 +50,7 @@ export function DataTableToolbar<TData>({
               ? table.getColumn(searchKey)?.setFilterValue(event.target.value)
               : table.setGlobalFilter(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-8 w-37.5 lg:w-62.5"
         />
         <div className="flex gap-x-2">
           {filters?.map((filter) => {

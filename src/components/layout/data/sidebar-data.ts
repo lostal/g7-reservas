@@ -25,6 +25,7 @@ import {
   ArrowLeftRight,
   CalendarCheck,
   Globe,
+  BookUser,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { type SidebarData } from "../types";
@@ -93,6 +94,11 @@ export function getSidebarData({
             url: ROUTES.DASHBOARD,
             icon: LayoutDashboard,
             roles: ["admin"],
+          },
+          {
+            title: "Directorio",
+            url: ROUTES.DIRECTORIO,
+            icon: BookUser,
           },
           {
             title: "Parking",

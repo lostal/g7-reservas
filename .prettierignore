@@ -1,1 +1,6 @@
 pnpm-lock.yaml
+shadcn-admin
+.agent
+.agents
+coverage
+.next

@@ -56,6 +56,8 @@ const eslintConfig = defineConfig([
     "src/lib/supabase/database.types.ts", // auto-generated
     "shadcn-admin/**", // plantilla de referencia
     "skills/**", // archivos de skills
+    ".agent/**", // agentes de VS Code
+    ".agents/**", // agentes de VS Code
   ]),
 ]);
 
