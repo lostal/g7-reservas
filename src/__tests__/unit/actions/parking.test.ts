@@ -293,6 +293,47 @@ describe("getAvailableSpotsForDate", () => {
     expect(result.success).toBe(true);
     if (result.success) expect(result.data).toHaveLength(0);
   });
+
+  // ── Plazas de visitas (visitor) ────────────────────────────────────────────
+
+  it("incluye plaza de visitas sin reservas con status 'free'", async () => {
+    const spot = createMockSpot({ id: "v1", type: "visitor" });
+    setupSupabaseMock({ spots: [spot] });
+
+    const result = await getAvailableSpotsForDate("2025-03-17");
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]?.status).toBe("free");
+    }
+  });
+
+  it("excluye plaza de visitas con reserva de empleado confirmada", async () => {
+    const spot = createMockSpot({ id: "v1", type: "visitor" });
+    setupSupabaseMock({
+      spots: [spot],
+      reservations: [{ id: "r1", spot_id: "v1" }],
+    });
+
+    const result = await getAvailableSpotsForDate("2025-03-17");
+
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).toHaveLength(0);
+  });
+
+  it("excluye plaza de visitas con reserva de visitante confirmada", async () => {
+    const spot = createMockSpot({ id: "v1", type: "visitor" });
+    setupSupabaseMock({
+      spots: [spot],
+      visitorReservations: [{ id: "vr1", spot_id: "v1" }],
+    });
+
+    const result = await getAvailableSpotsForDate("2025-03-17");
+
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).toHaveLength(0);
+  });
 });
 
 // ─── createReservation ────────────────────────────────────────────────────────

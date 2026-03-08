@@ -106,8 +106,20 @@ export async function getAvailableSpotsForDate(
       // Omitir plazas con reservas de visitantes
       if (visitorSpotIds.has(spot.id)) continue;
 
-      // Las plazas de visitas (type='visitor') no son reservables por empleados
-      if (spot.type === "visitor") continue;
+      if (spot.type === "visitor") {
+        // Plazas de visitas: disponibles por defecto salvo reserva activa — no requieren cesión.
+        available.push({
+          id: spot.id,
+          label: spot.label,
+          type: spot.type,
+          resource_type: "parking",
+          assigned_to: spot.assigned_to,
+          position_x: spot.position_x,
+          position_y: spot.position_y,
+          status: "free",
+        });
+        continue;
+      }
 
       if (spot.assigned_to !== null) {
         // Plaza con propietario: solo disponible si tiene cesión activa
