@@ -58,6 +58,7 @@ const eslintConfig = defineConfig([
     "skills/**", // archivos de skills
     ".agent/**", // agentes de VS Code
     ".agents/**", // agentes de VS Code
+    ".claude/worktrees/**", // worktrees temporales de Claude Code
   ]),
 ]);
 
