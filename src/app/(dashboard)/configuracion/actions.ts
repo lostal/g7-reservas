@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { revalidatePath } from "next/cache";
 import { invalidateConfigCache } from "@/lib/config";
+import { getActiveEntityId } from "@/lib/queries/active-entity";
 import {
   updateGlobalConfigSchema,
   updateResourceConfigSchema,
@@ -22,8 +23,8 @@ import {
 // ─── Helper interno ───────────────────────────────────────────
 
 /**
- * Actualiza (o inserta) múltiples claves en system_config dentro de una
- * sola transacción lógica. Usa upsert para garantizar idempotencia.
+ * Actualiza (o inserta) múltiples claves en system_config.
+ * Usado para la configuración global que no es específica de sede.
  */
 async function upsertConfigs(
   entries: Array<{ key: string; value: unknown }>,
@@ -33,7 +34,7 @@ async function upsertConfigs(
 
   const rows = entries.map(({ key, value }) => ({
     key,
-    value: value as never, // JSONB acepta cualquier tipo serializable
+    value: value as never,
     updated_by: adminUserId,
   }));
 
@@ -43,6 +44,33 @@ async function upsertConfigs(
 
   if (error) {
     throw new Error(`Error al guardar configuración: ${error.message}`);
+  }
+}
+
+/**
+ * Actualiza (o inserta) múltiples claves en entity_config para la sede indicada.
+ * Los cambios son específicos de la sede activa y no afectan al resto de sedes.
+ */
+async function upsertEntityConfigs(
+  entityId: string,
+  entries: Array<{ key: string; value: unknown }>,
+  adminUserId: string
+): Promise<void> {
+  const supabase = await createClient();
+
+  const rows = entries.map(({ key, value }) => ({
+    entity_id: entityId,
+    key,
+    value: value as never,
+    updated_by: adminUserId,
+  }));
+
+  const { error } = await supabase
+    .from("entity_config")
+    .upsert(rows, { onConflict: "entity_id,key" });
+
+  if (error) {
+    throw new Error(`Error al guardar configuración de sede: ${error.message}`);
   }
 }
 
@@ -86,9 +114,16 @@ export const updateParkingConfig = actionClient
   .schema(updateResourceConfigSchema)
   .action(async ({ parsedInput }) => {
     const adminUser = await requireAdmin();
+    const entityId = await getActiveEntityId();
 
     const entries = resourceConfigToEntries("parking", parsedInput);
-    await upsertConfigs(entries, adminUser.id);
+
+    if (entityId) {
+      await upsertEntityConfigs(entityId, entries, adminUser.id);
+    } else {
+      await upsertConfigs(entries, adminUser.id);
+    }
+
     await invalidateConfigCache();
     revalidatePath("/configuracion/parking");
     revalidatePath("/parking");
@@ -102,9 +137,16 @@ export const updateOfficeConfig = actionClient
   .schema(updateResourceConfigSchema)
   .action(async ({ parsedInput }) => {
     const adminUser = await requireAdmin();
+    const entityId = await getActiveEntityId();
 
     const entries = resourceConfigToEntries("office", parsedInput);
-    await upsertConfigs(entries, adminUser.id);
+
+    if (entityId) {
+      await upsertEntityConfigs(entityId, entries, adminUser.id);
+    } else {
+      await upsertConfigs(entries, adminUser.id);
+    }
+
     await invalidateConfigCache();
     revalidatePath("/configuracion/oficinas");
     revalidatePath("/oficinas");
