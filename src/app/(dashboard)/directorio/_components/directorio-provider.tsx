@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import useDialogState from "@/hooks/use-dialog-state";
 import { type DirectorioUser } from "./directorio-schema";
+import { type Entity } from "@/lib/queries/entities";
 
 type DirectorioDialogType = "add" | "edit" | "delete";
 
@@ -12,6 +13,7 @@ type DirectorioContextType = {
   currentRow: DirectorioUser | null;
   setCurrentRow: React.Dispatch<React.SetStateAction<DirectorioUser | null>>;
   isAdmin: boolean;
+  entities: Entity[];
 };
 
 const DirectorioContext = React.createContext<DirectorioContextType | null>(
@@ -21,16 +23,18 @@ const DirectorioContext = React.createContext<DirectorioContextType | null>(
 export function DirectorioProvider({
   children,
   isAdmin,
+  entities,
 }: {
   children: React.ReactNode;
   isAdmin: boolean;
+  entities: Entity[];
 }) {
   const [open, setOpen] = useDialogState<DirectorioDialogType>(null);
   const [currentRow, setCurrentRow] = useState<DirectorioUser | null>(null);
 
   return (
     <DirectorioContext
-      value={{ open, setOpen, currentRow, setCurrentRow, isAdmin }}
+      value={{ open, setOpen, currentRow, setCurrentRow, isAdmin, entities }}
     >
       {children}
     </DirectorioContext>

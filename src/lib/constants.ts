@@ -34,6 +34,7 @@ export const ROUTES = {
 
   OFFICES: "/oficinas",
   OFFICES_CESSIONS: "/oficinas/cesiones",
+  ADMIN_ENTITIES: "/administracion/entidades",
   DIRECTORIO: "/directorio",
   SETTINGS: "/ajustes/perfil",
   SETTINGS_NOTIFICATIONS: "/ajustes/notificaciones",

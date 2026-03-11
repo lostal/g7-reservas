@@ -17,6 +17,7 @@ import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ROUTES } from "@/lib/constants";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import { DashboardTopNav } from "./_components/dashboard-top-nav";
 import { PanelStatsSection } from "./_components/panel-stats-section";
 import { PanelChartsSection } from "./_components/panel-charts-section";
@@ -38,6 +39,7 @@ export default async function PanelPage() {
   }
 
   const today = new Date().toISOString().split("T")[0]!;
+  const entityId = await getEffectiveEntityId();
 
   return (
     <>
@@ -71,25 +73,25 @@ export default async function PanelPage() {
           {/* ── Resumen ─────────────────────────────────────── */}
           <TabsContent value="overview" className="space-y-4">
             {/* Stats cards — bloqueo mínimo, solo 4 queries rápidas */}
-            <Suspense fallback={<StatsSkeleton />}>
-              <PanelStatsSection today={today} />
+            <Suspense key={entityId ?? "global"} fallback={<StatsSkeleton />}>
+              <PanelStatsSection today={today} entityId={entityId} />
             </Suspense>
 
             {/* Chart + Actividad reciente */}
             <Suspense fallback={<ChartsSkeleton />}>
-              <PanelChartsSection />
+              <PanelChartsSection entityId={entityId} />
             </Suspense>
 
             {/* Admin alerts */}
             <Suspense fallback={<AlertsSkeleton />}>
-              <PanelAlertsSection today={today} />
+              <PanelAlertsSection today={today} entityId={entityId} />
             </Suspense>
           </TabsContent>
 
           {/* ── Analítica ────────────────────────────────────── */}
           <TabsContent value="analytics" className="space-y-4">
             <Suspense fallback={<AnalyticsSkeleton />}>
-              <PanelAnalyticsSection />
+              <PanelAnalyticsSection entityId={entityId} />
             </Suspense>
           </TabsContent>
         </Tabs>

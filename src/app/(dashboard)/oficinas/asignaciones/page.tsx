@@ -5,6 +5,7 @@ import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
 import { getSpots } from "@/lib/queries/spots";
 import { getProfiles } from "@/lib/queries/profiles";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import { SpotsProvider } from "@/app/(dashboard)/administracion/components/spots-provider";
 import { SpotsDialogs } from "@/app/(dashboard)/administracion/components/spots-dialogs";
 import { SpotsPrimaryButtons } from "@/app/(dashboard)/administracion/components/spots-primary-buttons";
@@ -13,9 +14,11 @@ import { SpotsTable } from "@/app/(dashboard)/administracion/components/spots-ta
 export default async function OficinaAsignacionesPage() {
   await requireAdmin();
 
+  const entityId = await getEffectiveEntityId();
+
   const [spots, profiles] = await Promise.all([
-    getSpots("office", true),
-    getProfiles(),
+    getSpots("office", true, entityId),
+    getProfiles(entityId),
   ]);
 
   return (

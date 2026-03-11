@@ -1,5 +1,6 @@
 export { AppSidebar } from "./app-sidebar";
 export { AppTitle } from "./app-title";
+export { EntitySwitcher } from "./entity-switcher";
 export { Header } from "./header";
 export { Main } from "./main";
 export { NavGroup } from "./nav-group";

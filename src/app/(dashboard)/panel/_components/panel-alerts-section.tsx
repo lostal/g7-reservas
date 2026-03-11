@@ -10,10 +10,14 @@ import { AdminAlerts } from "./admin-alerts";
 
 interface PanelAlertsSectionProps {
   today: string;
+  entityId?: string | null;
 }
 
-export async function PanelAlertsSection({ today }: PanelAlertsSectionProps) {
-  const spots = await getSpotsByDate(today);
+export async function PanelAlertsSection({
+  today,
+  entityId,
+}: PanelAlertsSectionProps) {
+  const spots = await getSpotsByDate(today, undefined, entityId);
 
   const totalSpots = spots.length;
   const occupiedSpots = spots.filter(

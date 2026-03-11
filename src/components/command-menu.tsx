@@ -28,7 +28,7 @@ import { updateTheme } from "@/app/(dashboard)/ajustes/actions";
 export function CommandMenu() {
   const router = useRouter();
   const { setTheme } = useTheme();
-  const { open, setOpen, role, visitorBookingEnabled } = useSearch();
+  const { open, setOpen, role } = useSearch();
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -49,7 +49,6 @@ export function CommandMenu() {
     const data = getSidebarData({
       hasParkingSpot: false,
       hasOfficeSpot: false,
-      visitorBookingEnabled,
     });
     return data.navGroups
       .map((group) => ({
@@ -59,7 +58,7 @@ export function CommandMenu() {
         ),
       }))
       .filter((group) => group.items.length > 0);
-  }, [role, visitorBookingEnabled]);
+  }, [role]);
 
   return (
     <CommandDialog modal open={open} onOpenChange={setOpen}>

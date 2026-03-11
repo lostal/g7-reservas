@@ -99,7 +99,7 @@ export type DeleteSpotInput = z.infer<typeof deleteSpotSchema>;
 
 export const updateUserRoleSchema = z.object({
   user_id: z.string().uuid(),
-  role: z.enum(["employee", "admin"]),
+  role: z.enum(["employee", "manager", "hr", "admin"]),
 });
 
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
@@ -228,6 +228,40 @@ export type UpdateResourceConfigInput = z.infer<
   typeof updateResourceConfigSchema
 >;
 
+// ─── Admin: Entities ──────────────────────────────────────────────────────────
+
+export const createEntitySchema = z.object({
+  name: z.string().min(1, "Nombre requerido").max(100),
+  short_code: z.string().min(2, "Mínimo 2 caracteres").max(10),
+  is_active: z.boolean().optional(),
+});
+export type CreateEntityInput = z.infer<typeof createEntitySchema>;
+
+export const updateEntitySchema = createEntitySchema.partial().extend({
+  id: z.string().uuid(),
+});
+export type UpdateEntityInput = z.infer<typeof updateEntitySchema>;
+
+export const deleteEntitySchema = z.object({ id: z.string().uuid() });
+export type DeleteEntityInput = z.infer<typeof deleteEntitySchema>;
+
+export const ENTITY_MODULES = [
+  "parking",
+  "office",
+  "visitors",
+  "nominas",
+  "vacaciones",
+  "tablon",
+] as const;
+export type EntityModuleKey = (typeof ENTITY_MODULES)[number];
+
+export const toggleEntityModuleSchema = z.object({
+  entity_id: z.string().uuid(),
+  module: z.enum(ENTITY_MODULES),
+  enabled: z.boolean(),
+});
+export type ToggleEntityModuleInput = z.infer<typeof toggleEntityModuleSchema>;
+
 // ─── Office Reservations ──────────────────────────────────────
 
 export const createOfficeReservationSchema = z
@@ -263,4 +297,28 @@ export const createOfficeReservationSchema = z
 
 export type CreateOfficeReservationInput = z.infer<
   typeof createOfficeReservationSchema
+>;
+
+// ─── Admin: Directorio ────────────────────────────────────────
+
+export const updateDirectorioUserSchema = z.object({
+  user_id: z.string().uuid(),
+  nombre: z.string().min(1, "Nombre requerido"),
+  puesto: z.string().optional().default(""),
+  telefono: z.string().optional().default(""),
+  entity_id: z.string().uuid().optional(),
+});
+export type UpdateDirectorioUserInput = z.infer<
+  typeof updateDirectorioUserSchema
+>;
+
+export const createDirectorioUserSchema = z.object({
+  nombre: z.string().min(1, "Nombre requerido"),
+  correo: z.string().email("Email inválido"),
+  puesto: z.string().optional().default(""),
+  telefono: z.string().optional().default(""),
+  entity_id: z.string().uuid().optional(),
+});
+export type CreateDirectorioUserInput = z.infer<
+  typeof createDirectorioUserSchema
 >;

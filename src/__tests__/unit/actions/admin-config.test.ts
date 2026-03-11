@@ -33,6 +33,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/queries/active-entity", () => ({
+  getActiveEntityId: vi.fn().mockResolvedValue(null),
+  getEffectiveEntityId: vi.fn().mockResolvedValue(null),
+}));
+
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { invalidateConfigCache } from "@/lib/config";
@@ -51,6 +56,12 @@ function setupAdminUser() {
       role: "admin" as const,
       full_name: "Admin",
       avatar_url: null,
+      dni: null,
+      entity_id: null,
+      job_title: null,
+      location: null,
+      manager_id: null,
+      phone: null,
       created_at: "2025-01-01T00:00:00Z",
       updated_at: "2025-01-01T00:00:00Z",
     },

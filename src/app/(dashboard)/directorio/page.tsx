@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getAllEntities } from "@/lib/queries/entities";
 import { Header, Main } from "@/components/layout";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
@@ -14,23 +15,43 @@ export default async function DirectorioPage() {
   const user = await requireAuth();
   const isAdmin = user.profile?.role === "admin";
   const supabase = await createClient();
+  const userEntityId = user.profile?.entity_id ?? null;
 
-  const { data: profiles } = await supabase
+  let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, email, role")
+    .select(
+      "id, full_name, email, role, job_title, phone, entity_id, entities(name)"
+    )
     .order("full_name");
 
-  const directorioData: DirectorioUser[] = (profiles ?? []).map((p) => ({
-    id: p.id,
-    nombre: p.full_name,
-    puesto: p.role === "admin" ? "Administrador" : "Empleado",
-    ubicacion: "",
-    correo: p.email,
-    telefono: "",
-  }));
+  // Los empleados solo ven usuarios de su propia sede;
+  // los administradores ven el directorio global.
+  if (!isAdmin && userEntityId) {
+    profilesQuery = profilesQuery.eq("entity_id", userEntityId);
+  }
+
+  const [{ data: profiles }, entities] = await Promise.all([
+    profilesQuery,
+    getAllEntities(),
+  ]);
+
+  const directorioData: DirectorioUser[] = (profiles ?? []).map((p) => {
+    const entityName =
+      p.entities && !Array.isArray(p.entities) ? p.entities.name : "";
+    return {
+      id: p.id,
+      nombre: p.full_name,
+      correo: p.email,
+      rol: p.role ?? "employee",
+      puesto: p.job_title ?? "",
+      telefono: p.phone ?? "",
+      entity_id: p.entity_id ?? null,
+      entity_name: entityName,
+    };
+  });
 
   return (
-    <DirectorioProvider isAdmin={isAdmin}>
+    <DirectorioProvider isAdmin={isAdmin} entities={entities}>
       <Header fixed>
         <Search />
         <div className="ms-auto flex items-center space-x-4">
@@ -49,7 +70,7 @@ export default async function DirectorioPage() {
           </div>
           <DirectorioPrimaryButtons />
         </div>
-        <DirectorioTable data={directorioData} />
+        <DirectorioTable data={directorioData} entities={entities} />
       </Main>
 
       <DirectorioDialogs />

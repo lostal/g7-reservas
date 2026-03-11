@@ -15,15 +15,19 @@ import { AdminStatsCards } from "./admin-stats-cards";
 
 interface PanelStatsSectionProps {
   today: string;
+  entityId?: string | null;
 }
 
-export async function PanelStatsSection({ today }: PanelStatsSectionProps) {
+export async function PanelStatsSection({
+  today,
+  entityId,
+}: PanelStatsSectionProps) {
   const [spots, monthlyReservations, activeUsers, visitorsToday] =
     await Promise.all([
-      getSpotsByDate(today),
-      getMonthlyReservationCount(),
-      getActiveUsersThisMonth(),
-      getVisitorsTodayCount(today),
+      getSpotsByDate(today, undefined, entityId),
+      getMonthlyReservationCount(undefined, entityId),
+      getActiveUsersThisMonth(entityId),
+      getVisitorsTodayCount(today, entityId),
     ]);
 
   const totalSpots = spots.length;

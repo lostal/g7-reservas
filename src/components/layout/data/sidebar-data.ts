@@ -7,6 +7,10 @@
  * Role visibility:
  *   employee   → usuario general (puede reservar y ceder si tiene plaza asignada)
  *   admin      → administrador (gestiona usuarios, plazas y configuración)
+ *
+ * Estructura de grupos:
+ *   "Sede activa"  → Contenido que varía según la sede seleccionada (módulos habilitados)
+ *   "Global"       → Siempre visible para admins: Directorio, Sedes, Ajustes
  */
 
 import {
@@ -26,21 +30,31 @@ import {
   CalendarCheck,
   Globe,
   BookUser,
+  Landmark,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { type SidebarData } from "../types";
+import type { UserRole } from "@/lib/supabase/types";
 
 interface SidebarDataParams {
   hasParkingSpot: boolean;
   hasOfficeSpot: boolean;
-  visitorBookingEnabled: boolean;
+  /** List of enabled module keys for the active/assigned entity. */
+  enabledModules?: string[];
 }
 
 export function getSidebarData({
   hasParkingSpot,
   hasOfficeSpot,
-  visitorBookingEnabled,
+  enabledModules,
 }: SidebarDataParams): SidebarData {
+  const parkingEnabled = !enabledModules || enabledModules.includes("parking");
+  const officeEnabled = !enabledModules || enabledModules.includes("office");
+  // "visitors" es un módulo independiente dentro del módulo parking
+  const visitorsEnabled =
+    parkingEnabled && (!enabledModules || enabledModules.includes("visitors"));
+
+  // ─── Subitems de empleado ─────────────────────────────────
   const parkingSubItems = [
     hasParkingSpot
       ? {
@@ -53,7 +67,7 @@ export function getSidebarData({
           url: ROUTES.PARKING_RESERVAS,
           icon: CalendarCheck,
         },
-    ...(visitorBookingEnabled
+    ...(visitorsEnabled
       ? [{ title: "Visitantes", url: ROUTES.VISITORS, icon: Users }]
       : []),
   ];
@@ -73,8 +87,9 @@ export function getSidebarData({
     { title: "Mapa", url: ROUTES.OFFICES_MAP, icon: MapPin },
   ];
 
+  // ─── Subitems de admin ────────────────────────────────────
   const adminParkingItems = [
-    ...(visitorBookingEnabled
+    ...(visitorsEnabled
       ? [{ title: "Visitantes", url: ROUTES.VISITORS, icon: Users }]
       : []),
     { title: "Asignaciones", url: ROUTES.ADMIN_PARKING, icon: LayoutGrid },
@@ -84,70 +99,111 @@ export function getSidebarData({
     { title: "Asignaciones", url: ROUTES.ADMIN_OFFICES, icon: LayoutGrid },
   ];
 
+  const configSubItems = [
+    { title: "General", url: ROUTES.ADMIN_SETTINGS, icon: Globe },
+    ...(parkingEnabled
+      ? [
+          {
+            title: "Parking",
+            url: ROUTES.ADMIN_SETTINGS_PARKING,
+            icon: ParkingCircle,
+          },
+        ]
+      : []),
+    ...(officeEnabled
+      ? [
+          {
+            title: "Oficinas",
+            url: ROUTES.ADMIN_SETTINGS_OFFICES,
+            icon: Building2,
+          },
+        ]
+      : []),
+  ];
+
   return {
     navGroups: [
+      // ─── Sede activa: varía según módulos habilitados ──────
       {
-        title: "General",
+        title: "Sede activa",
         items: [
+          // Panel (admin — analytics de la sede activa)
           {
             title: "Panel",
             url: ROUTES.DASHBOARD,
             icon: LayoutDashboard,
-            roles: ["admin"],
+            roles: ["admin"] as UserRole[],
           },
+          // Parking (employee)
+          ...(parkingEnabled
+            ? [
+                {
+                  title: "Parking",
+                  url: ROUTES.PARKING,
+                  icon: ParkingCircle,
+                  roles: ["employee"] as UserRole[],
+                  items: parkingSubItems,
+                },
+              ]
+            : []),
+          // Parking (admin)
+          ...(parkingEnabled
+            ? [
+                {
+                  title: "Parking",
+                  icon: ParkingCircle,
+                  roles: ["admin"] as UserRole[],
+                  items: adminParkingItems,
+                },
+              ]
+            : []),
+          // Oficinas (employee)
+          ...(officeEnabled
+            ? [
+                {
+                  title: "Oficinas",
+                  url: ROUTES.OFFICES,
+                  icon: Building2,
+                  roles: ["employee"] as UserRole[],
+                  items: oficinasSubItems,
+                },
+              ]
+            : []),
+          // Oficinas (admin)
+          ...(officeEnabled
+            ? [
+                {
+                  title: "Oficinas",
+                  icon: Building2,
+                  roles: ["admin"] as UserRole[],
+                  items: adminOficinaItems,
+                },
+              ]
+            : []),
+          // Configuración (admin — configuración de la sede activa)
+          {
+            title: "Configuración",
+            icon: SlidersHorizontal,
+            roles: ["admin"] as UserRole[],
+            items: configSubItems,
+          },
+        ],
+      },
+      // ─── Global: siempre visibles para admins ──────────────
+      {
+        title: "Global",
+        items: [
           {
             title: "Directorio",
             url: ROUTES.DIRECTORIO,
             icon: BookUser,
+            roles: ["admin"] as UserRole[],
           },
           {
-            title: "Parking",
-            url: ROUTES.PARKING,
-            icon: ParkingCircle,
-            roles: ["employee"],
-            items: parkingSubItems,
-          },
-          {
-            title: "Parking",
-            icon: ParkingCircle,
-            roles: ["admin"],
-            items: adminParkingItems,
-          },
-          {
-            title: "Oficinas",
-            url: ROUTES.OFFICES,
-            icon: Building2,
-            roles: ["employee"],
-            items: oficinasSubItems,
-          },
-          {
-            title: "Oficinas",
-            icon: Building2,
-            roles: ["admin"],
-            items: adminOficinaItems,
-          },
-        ],
-      },
-      {
-        title: "Administración",
-        items: [
-          {
-            title: "Configuración",
-            icon: SlidersHorizontal,
-            roles: ["admin"],
-            items: [
-              { title: "General", url: ROUTES.ADMIN_SETTINGS, icon: Globe },
-              {
-                title: "Parking",
-                url: ROUTES.ADMIN_SETTINGS_PARKING,
-                icon: ParkingCircle,
-              },
-              {
-                title: "Oficinas",
-                url: ROUTES.ADMIN_SETTINGS_OFFICES,
-                icon: Building2,
-              },
-            ],
+            title: "Sedes",
+            url: ROUTES.ADMIN_ENTITIES,
+            icon: Landmark,
+            roles: ["admin"] as UserRole[],
           },
           {
             title: "Ajustes",

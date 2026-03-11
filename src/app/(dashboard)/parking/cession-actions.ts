@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { createCessionSchema, cancelCessionSchema } from "@/lib/validations";
 import { getAllResourceConfigs } from "@/lib/config";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import { isTooSoonForCession } from "@/lib/calendar/calendar-utils";
 import {
   getUserCessions as queryUserCessions,
@@ -33,8 +34,9 @@ export const createCession = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     // Comprobar si las cesiones de parking están habilitadas
-    const config = await getAllResourceConfigs("parking");
+    const config = await getAllResourceConfigs("parking", entityId);
     if (!config.cession_enabled) {
       throw new Error("Las cesiones de parking están deshabilitadas");
     }

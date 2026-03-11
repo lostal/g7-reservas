@@ -17,7 +17,7 @@ import {
   type UpdateGlobalConfigInput,
 } from "@/lib/validations";
 import { updateGlobalConfig } from "../actions";
-import type { GlobalConfigValues } from "@/lib/config";
+import type { GlobalConfigValues } from "@/lib/config-types";
 
 interface GlobalConfigFormProps {
   config: GlobalConfigValues;

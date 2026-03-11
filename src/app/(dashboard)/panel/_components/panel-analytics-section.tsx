@@ -21,11 +21,17 @@ import {
 import { OccupancyAreaChart } from "./occupancy-area-chart";
 import { SimpleBarList } from "./simple-bar-list";
 
-export async function PanelAnalyticsSection() {
+interface PanelAnalyticsSectionProps {
+  entityId?: string | null;
+}
+
+export async function PanelAnalyticsSection({
+  entityId,
+}: PanelAnalyticsSectionProps) {
   const [dailyCounts, topSpots, movementDistribution] = await Promise.all([
-    getDailyCountsLast30Days(30),
-    getTopSpots(6),
-    getMovementDistribution(),
+    getDailyCountsLast30Days(30, undefined, entityId),
+    getTopSpots(6, undefined, entityId),
+    getMovementDistribution(entityId),
   ]);
 
   return (

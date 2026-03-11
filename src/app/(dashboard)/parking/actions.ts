@@ -22,6 +22,7 @@ import {
 } from "@/lib/queries/reservations";
 import { getAllResourceConfigs } from "@/lib/config";
 import { getDayOfWeek } from "@/lib/utils";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import { validateBookingDate } from "@/lib/booking-validation";
 
 // ─── Available spots ─────────────────────────────────────────
@@ -45,8 +46,9 @@ export async function getAvailableSpotsForDate(
     const user = await getCurrentUser();
     if (!user) return error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     // Leer configuración del parking desde la BD
-    const config = await getAllResourceConfigs("parking");
+    const config = await getAllResourceConfigs("parking", entityId);
 
     // Comprobar si las reservas están habilitadas
     if (!config.booking_enabled) return success([]);
@@ -188,8 +190,9 @@ export const createReservation = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     // Leer configuración del parking
-    const config = await getAllResourceConfigs("parking");
+    const config = await getAllResourceConfigs("parking", entityId);
 
     // Comprobar si las reservas están habilitadas
     if (!config.booking_enabled) {

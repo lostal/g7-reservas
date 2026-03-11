@@ -23,11 +23,13 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 export default async function ParkingPage() {
   const user = await requireAuth();
 
   const supabase = await createClient();
+  const entityId = await getEffectiveEntityId();
   const [assignedSpotResult, bookingEnabled] = await Promise.all([
     supabase
       .from("spots")
@@ -35,7 +37,7 @@ export default async function ParkingPage() {
       .eq("assigned_to", user.id)
       .eq("resource_type", "parking")
       .maybeSingle(),
-    getResourceConfig("parking", "booking_enabled"),
+    getResourceConfig("parking", "booking_enabled", entityId),
   ]);
   const assignedParkingSpot = assignedSpotResult.data;
 
@@ -88,6 +90,7 @@ export default async function ParkingPage() {
             </Alert>
           )}
           <ParkingCalendarView
+            key={entityId ?? "global"}
             hasAssignedSpot={!!assignedParkingSpot}
             assignedSpot={assignedParkingSpot}
           />

@@ -18,28 +18,42 @@ import {
 } from "@/components/ui/sidebar";
 import { getSidebarData } from "./data/sidebar-data";
 import { AppTitle } from "./app-title";
+import { EntitySwitcher } from "./entity-switcher";
 import { NavGroup } from "./nav-group";
 import { NavUser } from "./nav-user";
 import type { UserRole } from "@/lib/supabase/types";
+import type { Entity } from "@/lib/queries/entities";
 
 interface AppSidebarProps {
   role: UserRole;
-  visitorBookingEnabled?: boolean;
   hasParkingSpot?: boolean;
   hasOfficeSpot?: boolean;
+  /** Admin-only: list of entities for the switcher. Empty array = no migrations yet. */
+  entities?: Entity[];
+  activeEntityId?: string | null;
+  /** Whether activeEntityId was read from the cookie (true) or used a fallback (false). */
+  entityIdPersisted?: boolean;
+  /** Non-admin: name of the user's assigned entity/sede. */
+  entityName?: string;
+  /** List of enabled module keys for the active/assigned entity. */
+  enabledModules?: string[];
 }
 
 export function AppSidebar({
   role,
-  visitorBookingEnabled = true,
   hasParkingSpot = false,
   hasOfficeSpot = false,
+  entities,
+  activeEntityId,
+  entityIdPersisted = false,
+  entityName,
+  enabledModules,
 }: AppSidebarProps) {
   const filteredNavGroups = useMemo(() => {
     const data = getSidebarData({
       hasParkingSpot,
       hasOfficeSpot,
-      visitorBookingEnabled,
+      enabledModules,
     });
     return data.navGroups
       .map((group) => ({
@@ -49,12 +63,20 @@ export function AppSidebar({
         ),
       }))
       .filter((group) => group.items.length > 0);
-  }, [role, visitorBookingEnabled, hasParkingSpot, hasOfficeSpot]);
+  }, [role, hasParkingSpot, hasOfficeSpot, enabledModules]);
 
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
-        <AppTitle />
+        {role === "admin" && entities !== undefined ? (
+          <EntitySwitcher
+            entities={entities}
+            activeEntityId={activeEntityId ?? null}
+            entityIdPersisted={entityIdPersisted}
+          />
+        ) : (
+          <AppTitle entityName={entityName} />
+        )}
       </SidebarHeader>
       <SidebarContent>
         {filteredNavGroups.map((props) => (

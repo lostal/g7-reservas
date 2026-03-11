@@ -13,72 +13,23 @@
 
 import { unstable_cache, revalidateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+// Los tipos públicos están en config-types.ts para que los componentes cliente
+// puedan importarlos sin arrastrar las dependencias server-only de este fichero.
+export type {
+  GlobalConfigKey,
+  ResourceConfigKey,
+  ModuleConfigKey,
+  FullConfigKey,
+  ResourceConfigValues,
+  GlobalConfigValues,
+} from "./config-types";
+import type {
+  ResourceConfigKey,
+  ResourceConfigValues,
+  GlobalConfigValues,
+} from "./config-types";
 import type { ResourceType } from "@/lib/supabase/types";
-
-// ─── Definición de claves de configuración ────────────────────
-
-/** Claves globales (sin prefijo de recurso) */
-export type GlobalConfigKey =
-  | "notifications_enabled"
-  | "email_notifications_enabled"
-  | "teams_notifications_enabled";
-
-/** Claves por tipo de recurso (sin prefijo) */
-export type ResourceConfigKey =
-  | "booking_enabled"
-  | "visitor_booking_enabled"
-  | "allowed_days"
-  | "max_advance_days"
-  | "max_consecutive_days"
-  | "max_weekly_reservations"
-  | "max_monthly_reservations"
-  | "time_slots_enabled"
-  | "slot_duration_minutes"
-  | "day_start_hour"
-  | "day_end_hour"
-  | "cession_enabled"
-  | "cession_min_advance_hours"
-  | "cession_max_per_week"
-  | "auto_cession_enabled"
-  | "max_daily_reservations";
-
-/** Clave completa en la BD (con prefijo de recurso) */
-export type FullConfigKey =
-  | GlobalConfigKey
-  | `parking.${ResourceConfigKey}`
-  | `office.${ResourceConfigKey}`;
-
-// ─── Tipos de valor por clave ─────────────────────────────────
-
-export interface ResourceConfigValues {
-  booking_enabled: boolean;
-  visitor_booking_enabled: boolean;
-  allowed_days: number[]; // 0=Dom, 1=Lun, ..., 6=Sáb
-  /** null = sin límite de antelación */
-  max_advance_days: number | null;
-  /** null = sin límite de días consecutivos */
-  max_consecutive_days: number | null;
-  /** null = sin límite semanal */
-  max_weekly_reservations: number | null;
-  /** null = sin límite mensual */
-  max_monthly_reservations: number | null;
-  time_slots_enabled: boolean;
-  slot_duration_minutes: number | null;
-  day_start_hour: number | null;
-  day_end_hour: number | null;
-  cession_enabled: boolean;
-  cession_min_advance_hours: number;
-  cession_max_per_week: number;
-  auto_cession_enabled: boolean;
-  /** null = sin límite diario */
-  max_daily_reservations: number | null;
-}
-
-export interface GlobalConfigValues {
-  notifications_enabled: boolean;
-  email_notifications_enabled: boolean;
-  teams_notifications_enabled: boolean;
-}
 
 // ─── Valores por defecto ──────────────────────────────────────
 
@@ -166,10 +117,12 @@ const fetchRawConfigs = unstable_cache(
 
 /**
  * Devuelve todas las configuraciones de un tipo de recurso como un objeto tipado.
- * Si una clave no existe en la BD, usa el valor por defecto de RESOURCE_DEFAULTS.
+ * Si se proporciona `entityId`, aplica el overlay de `entity_config` sobre `system_config`.
+ * Prioridad: entity_config > system_config > defaults.
  */
 export async function getAllResourceConfigs(
-  resourceType: ResourceType
+  resourceType: ResourceType,
+  entityId?: string | null
 ): Promise<ResourceConfigValues> {
   const raw = await fetchRawConfigs();
   const defaults = RESOURCE_DEFAULTS[resourceType];
@@ -205,6 +158,20 @@ export async function getAllResourceConfigs(
     }
   }
 
+  // Aplicar overlay de entity_config si se especificó una sede
+  if (entityId) {
+    const entityRaw = await fetchEntityConfigs(entityId);
+    for (const _key of Object.keys(result) as Array<
+      keyof ResourceConfigValues
+    >) {
+      const fullKey = `${prefix}${_key}`;
+      if (entityRaw[fullKey] !== undefined) {
+        // @ts-expect-error – JSONB values are already the correct runtime type
+        result[_key] = entityRaw[fullKey];
+      }
+    }
+  }
+
   return result;
 }
 
@@ -237,12 +204,14 @@ export async function getGlobalConfigs(): Promise<GlobalConfigValues> {
 
 /**
  * Devuelve una sola clave de configuración de recurso con tipo inferido.
+ * Si se proporciona `entityId`, aplica el overlay de `entity_config`.
  */
 export async function getResourceConfig<K extends ResourceConfigKey>(
   resourceType: ResourceType,
-  key: K
+  key: K,
+  entityId?: string | null
 ): Promise<ResourceConfigValues[K]> {
-  const config = await getAllResourceConfigs(resourceType);
+  const config = await getAllResourceConfigs(resourceType, entityId);
   return config[key];
 }
 
@@ -253,4 +222,51 @@ export async function getResourceConfig<K extends ResourceConfigKey>(
 export async function invalidateConfigCache(): Promise<void> {
   // Second arg 'default' required by Next.js 16 internal cache layer — do not remove
   revalidateTag(CONFIG_CACHE_TAG, "default");
+}
+
+// ─── Configuración por entidad (entity_config) ───────────────
+
+/**
+ * Carga todas las filas de entity_config para una entidad concreta.
+ * Sin caché: las páginas de configuración son force-dynamic y se espera
+ * que la escritura en entity_config se refleje de inmediato.
+ */
+async function fetchEntityConfigs(
+  entityId: string
+): Promise<Record<string, unknown>> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("entity_config")
+    .select("key, value")
+    .eq("entity_id", entityId);
+
+  if (error) {
+    console.error("[config] Error fetching entity_config:", error.message);
+    return {};
+  }
+
+  return Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
+}
+
+/**
+ * Devuelve todas las configuraciones de un tipo de recurso para una sede concreta.
+ * Alias de `getAllResourceConfigs(resourceType, entityId)` — mantenido por compatibilidad.
+ */
+export async function getAllEntityResourceConfigs(
+  entityId: string,
+  resourceType: ResourceType
+): Promise<ResourceConfigValues> {
+  return getAllResourceConfigs(resourceType, entityId);
+}
+
+/**
+ * Devuelve una sola clave de configuración de recurso para una sede concreta.
+ * Alias de `getResourceConfig(resourceType, key, entityId)` — mantenido por compatibilidad.
+ */
+export async function getEntityResourceConfig<K extends ResourceConfigKey>(
+  entityId: string,
+  resourceType: ResourceType,
+  key: K
+): Promise<ResourceConfigValues[K]> {
+  return getResourceConfig(resourceType, key, entityId);
 }

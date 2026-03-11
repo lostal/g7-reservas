@@ -122,19 +122,31 @@ export const directorioColumns: ColumnDef<DirectorioUser>[] = [
       <LongText className="max-w-52">{row.getValue("puesto")}</LongText>
     ),
     meta: { className: "w-52" },
-    filterFn: (row, id, value: string[]) => value.includes(row.getValue(id)),
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "ubicacion",
+    // Hidden column used only for filtering by entity_id (UUID)
+    accessorKey: "entity_id",
+    header: () => null,
+    cell: () => null,
+    filterFn: (row, id, value: string[]) => {
+      const val = row.getValue(id);
+      return (
+        Array.isArray(value) && val !== null && value.includes(val as string)
+      );
+    },
+    enableSorting: false,
+    enableHiding: true,
+  },
+  {
+    accessorKey: "entity_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Sede" />
     ),
     cell: ({ row }) => (
-      <div className="text-sm text-nowrap">{row.getValue("ubicacion")}</div>
+      <div className="text-sm text-nowrap">{row.getValue("entity_name")}</div>
     ),
-    filterFn: (row, id, value: string[]) => value.includes(row.getValue(id)),
     enableSorting: false,
     enableHiding: false,
   },

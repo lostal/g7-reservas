@@ -21,6 +21,7 @@ import {
   deleteUserSchema,
 } from "@/lib/validations";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getActiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Spot CRUD ───────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ export const createSpot = actionClient
   .action(async ({ parsedInput }) => {
     await requireAdmin();
     const supabase = await createClient();
+    const entityId = await getActiveEntityId();
 
     const { data, error } = await supabase
       .from("spots")
@@ -40,6 +42,7 @@ export const createSpot = actionClient
         type: parsedInput.type,
         resource_type: parsedInput.resource_type,
         assigned_to: parsedInput.assigned_to ?? null,
+        entity_id: entityId ?? null,
       })
       .select("id")
       .single();
@@ -69,8 +72,25 @@ export const updateSpot = actionClient
   .action(async ({ parsedInput }) => {
     await requireAdmin();
     const supabase = await createClient();
+    const activeEntityId = await getActiveEntityId();
 
     const { id, ...updates } = parsedInput;
+
+    // Verificar que el spot pertenece a la sede activa (o es global)
+    if (activeEntityId) {
+      const { data: spot } = await supabase
+        .from("spots")
+        .select("entity_id")
+        .eq("id", id)
+        .single();
+      if (
+        spot &&
+        spot.entity_id !== null &&
+        spot.entity_id !== activeEntityId
+      ) {
+        throw new Error("No tienes permisos para modificar esta plaza");
+      }
+    }
 
     const { error } = await supabase.from("spots").update(updates).eq("id", id);
 
@@ -98,6 +118,23 @@ export const deleteSpot = actionClient
   .action(async ({ parsedInput }) => {
     await requireAdmin();
     const supabase = await createClient();
+    const activeEntityId = await getActiveEntityId();
+
+    // Verificar que el spot pertenece a la sede activa (o es global)
+    if (activeEntityId) {
+      const { data: spot } = await supabase
+        .from("spots")
+        .select("entity_id")
+        .eq("id", parsedInput.id)
+        .single();
+      if (
+        spot &&
+        spot.entity_id !== null &&
+        spot.entity_id !== activeEntityId
+      ) {
+        throw new Error("No tienes permisos para eliminar esta plaza");
+      }
+    }
 
     const { error } = await supabase
       .from("spots")
@@ -126,10 +163,28 @@ export const updateUserRole = actionClient
   .action(async ({ parsedInput }) => {
     await requireAdmin();
     const supabase = await createClient();
+    const activeEntityId = await getActiveEntityId();
+
+    // Verificar que el usuario objetivo pertenece a la sede activa
+    if (activeEntityId) {
+      const { data: targetProfile } = await supabase
+        .from("profiles")
+        .select("entity_id")
+        .eq("id", parsedInput.user_id)
+        .single();
+      if (
+        targetProfile &&
+        targetProfile.entity_id !== null &&
+        targetProfile.entity_id !== activeEntityId
+      ) {
+        throw new Error("No tienes permisos para modificar este usuario");
+      }
+    }
 
     const { error } = await supabase
       .from("profiles")
-      .update({ role: parsedInput.role })
+      // Cast: roles 'manager' | 'hr' added in migration 00003; valid once applied
+      .update({ role: parsedInput.role as "employee" | "admin" })
       .eq("id", parsedInput.user_id);
 
     if (error) {
@@ -172,7 +227,7 @@ export const assignSpotToUser = actionClient
     // 2. Validate spot is assigned type
     const { data: spot, error: spotErr } = await supabase
       .from("spots")
-      .select("id, type, resource_type, assigned_to")
+      .select("id, type, resource_type, assigned_to, entity_id")
       .eq("id", spot_id)
       .single();
 
@@ -182,6 +237,32 @@ export const assignSpotToUser = actionClient
     }
     if (spot.assigned_to && spot.assigned_to !== user_id) {
       throw new Error("Esa plaza ya está asignada a otro usuario");
+    }
+
+    // Verificar que el spot pertenece a la sede activa
+    const activeEntityId = await getActiveEntityId();
+    if (
+      activeEntityId &&
+      spot.entity_id !== null &&
+      spot.entity_id !== activeEntityId
+    ) {
+      throw new Error("Esta plaza no pertenece a la sede activa");
+    }
+
+    // Verificar que el usuario objetivo pertenece a la sede activa
+    if (activeEntityId) {
+      const { data: targetProfile } = await supabase
+        .from("profiles")
+        .select("entity_id")
+        .eq("id", user_id)
+        .single();
+      if (
+        targetProfile &&
+        targetProfile.entity_id !== null &&
+        targetProfile.entity_id !== activeEntityId
+      ) {
+        throw new Error("Este usuario no pertenece a la sede activa");
+      }
     }
 
     // 3. Assign the new spot FIRST — if this fails the user's previous assignment
@@ -258,6 +339,23 @@ export const assignUserToSpot = actionClient
       return { assigned: false };
     }
 
+    // Verificar que el spot pertenece a la sede activa
+    const activeEntityId = await getActiveEntityId();
+    if (activeEntityId) {
+      const { data: spot } = await supabase
+        .from("spots")
+        .select("entity_id")
+        .eq("id", spot_id)
+        .single();
+      if (
+        spot &&
+        spot.entity_id !== null &&
+        spot.entity_id !== activeEntityId
+      ) {
+        throw new Error("Esta plaza no pertenece a la sede activa");
+      }
+    }
+
     // 1. Assign user to this spot FIRST — if this fails the user's previous
     //    assignment remains intact. Order matters: assign → clear avoids
     //    leaving the user with zero spots if the second step fails.
@@ -292,9 +390,30 @@ export const deleteUser = actionClient
   .schema(deleteUserSchema)
   .action(async ({ parsedInput }) => {
     await requireAdmin();
-    const supabase = createAdminClient();
+    const supabase = await createClient();
+    const activeEntityId = await getActiveEntityId();
 
-    const { error } = await supabase.auth.admin.deleteUser(parsedInput.user_id);
+    // Verificar que el usuario objetivo pertenece a la sede activa
+    if (activeEntityId) {
+      const { data: targetProfile } = await supabase
+        .from("profiles")
+        .select("entity_id")
+        .eq("id", parsedInput.user_id)
+        .single();
+      if (
+        targetProfile &&
+        targetProfile.entity_id !== null &&
+        targetProfile.entity_id !== activeEntityId
+      ) {
+        throw new Error("No tienes permisos para eliminar este usuario");
+      }
+    }
+
+    const adminClient = createAdminClient();
+
+    const { error } = await adminClient.auth.admin.deleteUser(
+      parsedInput.user_id
+    );
 
     if (error) {
       throw new Error(`Error al eliminar cuenta: ${error.message}`);

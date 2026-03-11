@@ -22,7 +22,7 @@ import {
   updateResourceConfigSchema,
   type UpdateResourceConfigInput,
 } from "@/lib/validations";
-import type { ResourceConfigValues } from "@/lib/config";
+import type { ResourceConfigValues } from "@/lib/config-types";
 
 const DAYS_OF_WEEK = [
   { value: 1, label: "Lunes" },

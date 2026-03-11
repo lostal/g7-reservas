@@ -19,10 +19,16 @@ import {
 import { ReservationsOverviewChart } from "./reservations-overview-chart";
 import { RecentActivity } from "./recent-activity";
 
-export async function PanelChartsSection() {
+interface PanelChartsSectionProps {
+  entityId?: string | null;
+}
+
+export async function PanelChartsSection({
+  entityId,
+}: PanelChartsSectionProps) {
   const [dailyCounts, recentActivity] = await Promise.all([
-    getDailyCountsLast30Days(30),
-    getRecentActivity(8),
+    getDailyCountsLast30Days(30, undefined, entityId),
+    getRecentActivity(8, entityId),
   ]);
 
   return (

@@ -18,6 +18,12 @@ import { getUserPreferences } from "@/lib/queries/preferences";
 import { ThemeSync } from "@/components/providers/theme-sync";
 import { getResourceConfig } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
+import {
+  getAllEntities,
+  getEntityEnabledModules,
+  type Entity,
+} from "@/lib/queries/entities";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 export default async function DashboardLayout({
   children,
@@ -30,13 +36,14 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
 
   // Fetch user preferences, visitor_booking_enabled config, and spot ownership in parallel.
-  // getResourceConfig usa el cache de 5 min (tag system-config) para consistencia.
+  // getResourceConfig aplica el overlay de entity_config sobre system_config.
   const supabase = await createClient();
+  const entityId = await getEffectiveEntityId();
   const [prefs, parkingVisitors, officeVisitors, parkingSpot, officeSpot] =
     await Promise.all([
       getUserPreferences(user.id),
-      getResourceConfig("parking", "visitor_booking_enabled"),
-      getResourceConfig("office", "visitor_booking_enabled"),
+      getResourceConfig("parking", "visitor_booking_enabled", entityId),
+      getResourceConfig("office", "visitor_booking_enabled", entityId),
       supabase
         .from("spots")
         .select("id")
@@ -57,6 +64,43 @@ export default async function DashboardLayout({
   const hasOfficeSpot = !!officeSpot.data;
   const dbTheme = prefs?.theme ?? "system";
 
+  // Carga de entidades y módulos — try/catch por si la migración no está aplicada aún
+  let entities: Entity[] | undefined = undefined;
+  let activeEntityId: string | null = null;
+  let entityIdPersisted = false;
+  let enabledModules: string[] | undefined = undefined;
+  let userEntityName: string | undefined = undefined;
+  if (user.profile?.role === "admin") {
+    try {
+      entities = await getAllEntities();
+      const cookieEntityId = cookieStore.get("active-entity-id")?.value ?? null;
+      activeEntityId = cookieEntityId ?? entities[0]?.id ?? null;
+      entityIdPersisted = cookieEntityId !== null;
+      if (activeEntityId) {
+        enabledModules = await getEntityEnabledModules(activeEntityId);
+      }
+    } catch {
+      // table doesn't exist yet — migration pending
+      entities = [];
+    }
+  } else if (user.profile?.entity_id) {
+    // Para employees: obtener nombre de sede y módulos habilitados de su sede
+    try {
+      const [entityRow, employeeModules] = await Promise.all([
+        supabase
+          .from("entities")
+          .select("name")
+          .eq("id", user.profile.entity_id)
+          .maybeSingle(),
+        getEntityEnabledModules(user.profile.entity_id),
+      ]);
+      userEntityName = entityRow.data?.name ?? undefined;
+      enabledModules = employeeModules;
+    } catch {
+      // migration pending — ignore
+    }
+  }
+
   return (
     <SearchProvider
       role={(user.profile?.role ?? "employee") as UserRole}
@@ -67,9 +111,13 @@ export default async function DashboardLayout({
         <ThemeSync dbTheme={dbTheme} />
         <AppSidebar
           role={(user.profile?.role ?? "employee") as UserRole}
-          visitorBookingEnabled={visitorBookingEnabled}
           hasParkingSpot={hasParkingSpot}
           hasOfficeSpot={hasOfficeSpot}
+          entities={entities}
+          activeEntityId={activeEntityId}
+          entityIdPersisted={entityIdPersisted}
+          entityName={userEntityName}
+          enabledModules={enabledModules}
         />
         <SidebarInset
           className={cn(

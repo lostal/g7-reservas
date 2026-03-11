@@ -23,11 +23,13 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 export default async function OficinasPage() {
   const user = await requireAuth();
 
   const supabase = await createClient();
+  const entityId = await getEffectiveEntityId();
   const [assignedSpotResult, officeConfig] = await Promise.all([
     supabase
       .from("spots")
@@ -35,7 +37,7 @@ export default async function OficinasPage() {
       .eq("assigned_to", user.id)
       .eq("resource_type", "office")
       .maybeSingle(),
-    getAllResourceConfigs("office"),
+    getAllResourceConfigs("office", entityId),
   ]);
   const assignedSpot = assignedSpotResult.data;
   const {
@@ -92,6 +94,7 @@ export default async function OficinasPage() {
             </Alert>
           )}
           <OfficeCalendarView
+            key={entityId ?? "global"}
             hasAssignedSpot={!!assignedSpot}
             assignedSpot={assignedSpot ?? null}
             timeSlotsEnabled={Boolean(timeSlotsEnabled)}

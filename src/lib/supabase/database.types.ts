@@ -46,6 +46,131 @@ export type Database = {
           },
         ];
       };
+      announcement_reads: {
+        Row: {
+          announcement_id: string;
+          read_at: string;
+          user_id: string;
+        };
+        Insert: {
+          announcement_id: string;
+          read_at?: string;
+          user_id: string;
+        };
+        Update: {
+          announcement_id?: string;
+          read_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey";
+            columns: ["announcement_id"];
+            isOneToOne: false;
+            referencedRelation: "announcements";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "announcement_reads_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      announcements: {
+        Row: {
+          body: string;
+          created_at: string;
+          created_by: string;
+          entity_id: string | null;
+          expires_at: string | null;
+          id: string;
+          published_at: string | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          created_by: string;
+          entity_id?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          published_at?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          created_by?: string;
+          entity_id?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          published_at?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "announcements_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      audit_events: {
+        Row: {
+          actor_email: string;
+          actor_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          event_type: string;
+          id: number;
+          metadata: Json;
+        };
+        Insert: {
+          actor_email: string;
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type: string;
+          event_type: string;
+          id?: number;
+          metadata?: Json;
+        };
+        Update: {
+          actor_email?: string;
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          event_type?: string;
+          id?: number;
+          metadata?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       cession_rules: {
         Row: {
           created_at: string;
@@ -129,35 +254,439 @@ export type Database = {
           },
         ];
       };
+      documents: {
+        Row: {
+          access_level: Database["public"]["Enums"]["document_access"];
+          category: Database["public"]["Enums"]["document_category"];
+          created_at: string;
+          entity_id: string | null;
+          file_size_bytes: number | null;
+          id: string;
+          is_active: boolean;
+          mime_type: string;
+          owner_id: string | null;
+          period_month: number | null;
+          period_year: number | null;
+          storage_path: string;
+          title: string;
+          updated_at: string;
+          uploaded_by: string | null;
+        };
+        Insert: {
+          access_level?: Database["public"]["Enums"]["document_access"];
+          category: Database["public"]["Enums"]["document_category"];
+          created_at?: string;
+          entity_id?: string | null;
+          file_size_bytes?: number | null;
+          id?: string;
+          is_active?: boolean;
+          mime_type?: string;
+          owner_id?: string | null;
+          period_month?: number | null;
+          period_year?: number | null;
+          storage_path: string;
+          title: string;
+          updated_at?: string;
+          uploaded_by?: string | null;
+        };
+        Update: {
+          access_level?: Database["public"]["Enums"]["document_access"];
+          category?: Database["public"]["Enums"]["document_category"];
+          created_at?: string;
+          entity_id?: string | null;
+          file_size_bytes?: number | null;
+          id?: string;
+          is_active?: boolean;
+          mime_type?: string;
+          owner_id?: string | null;
+          period_month?: number | null;
+          period_year?: number | null;
+          storage_path?: string;
+          title?: string;
+          updated_at?: string;
+          uploaded_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "documents_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "documents_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      entities: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          short_code: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          short_code: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          short_code?: string;
+        };
+        Relationships: [];
+      };
+      entity_config: {
+        Row: {
+          entity_id: string;
+          key: string;
+          updated_at: string;
+          updated_by: string | null;
+          value: Json;
+        };
+        Insert: {
+          entity_id: string;
+          key: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: Json;
+        };
+        Update: {
+          entity_id?: string;
+          key?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "entity_config_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "entity_config_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      entity_holiday_calendars: {
+        Row: {
+          calendar_id: string;
+          entity_id: string;
+        };
+        Insert: {
+          calendar_id: string;
+          entity_id: string;
+        };
+        Update: {
+          calendar_id?: string;
+          entity_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "entity_holiday_calendars_calendar_id_fkey";
+            columns: ["calendar_id"];
+            isOneToOne: false;
+            referencedRelation: "holiday_calendars";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "entity_holiday_calendars_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      entity_modules: {
+        Row: {
+          enabled: boolean;
+          entity_id: string;
+          module: string;
+        };
+        Insert: {
+          enabled?: boolean;
+          entity_id: string;
+          module: string;
+        };
+        Update: {
+          enabled?: boolean;
+          entity_id?: string;
+          module?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "entity_modules_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      holiday_calendars: {
+        Row: {
+          country: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          region: string | null;
+          updated_at: string;
+          year: number;
+        };
+        Insert: {
+          country?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          region?: string | null;
+          updated_at?: string;
+          year: number;
+        };
+        Update: {
+          country?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          region?: string | null;
+          updated_at?: string;
+          year?: number;
+        };
+        Relationships: [];
+      };
+      holidays: {
+        Row: {
+          calendar_id: string;
+          created_at: string;
+          date: string;
+          id: string;
+          is_optional: boolean;
+          name: string;
+        };
+        Insert: {
+          calendar_id: string;
+          created_at?: string;
+          date: string;
+          id?: string;
+          is_optional?: boolean;
+          name: string;
+        };
+        Update: {
+          calendar_id?: string;
+          created_at?: string;
+          date?: string;
+          id?: string;
+          is_optional?: boolean;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "holidays_calendar_id_fkey";
+            columns: ["calendar_id"];
+            isOneToOne: false;
+            referencedRelation: "holiday_calendars";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leave_requests: {
+        Row: {
+          created_at: string;
+          employee_id: string;
+          end_date: string;
+          hr_action_at: string | null;
+          hr_id: string | null;
+          hr_notes: string | null;
+          id: string;
+          leave_type: Database["public"]["Enums"]["leave_type"];
+          manager_action_at: string | null;
+          manager_id: string | null;
+          manager_notes: string | null;
+          reason: string | null;
+          start_date: string;
+          status: Database["public"]["Enums"]["leave_status"];
+          updated_at: string;
+          working_days: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          employee_id: string;
+          end_date: string;
+          hr_action_at?: string | null;
+          hr_id?: string | null;
+          hr_notes?: string | null;
+          id?: string;
+          leave_type?: Database["public"]["Enums"]["leave_type"];
+          manager_action_at?: string | null;
+          manager_id?: string | null;
+          manager_notes?: string | null;
+          reason?: string | null;
+          start_date: string;
+          status?: Database["public"]["Enums"]["leave_status"];
+          updated_at?: string;
+          working_days?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          employee_id?: string;
+          end_date?: string;
+          hr_action_at?: string | null;
+          hr_id?: string | null;
+          hr_notes?: string | null;
+          id?: string;
+          leave_type?: Database["public"]["Enums"]["leave_type"];
+          manager_action_at?: string | null;
+          manager_id?: string | null;
+          manager_notes?: string | null;
+          reason?: string | null;
+          start_date?: string;
+          status?: Database["public"]["Enums"]["leave_status"];
+          updated_at?: string;
+          working_days?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey";
+            columns: ["employee_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leave_requests_hr_id_fkey";
+            columns: ["hr_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leave_requests_manager_id_fkey";
+            columns: ["manager_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notification_subscriptions: {
+        Row: {
+          channel: string;
+          event_type: string;
+          module: string;
+          user_id: string;
+        };
+        Insert: {
+          channel?: string;
+          event_type: string;
+          module: string;
+          user_id: string;
+        };
+        Update: {
+          channel?: string;
+          event_type?: string;
+          module?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
           created_at: string;
+          dni: string | null;
           email: string;
+          entity_id: string | null;
           full_name: string;
           id: string;
+          job_title: string | null;
+          location: string | null;
+          manager_id: string | null;
+          phone: string | null;
           role: Database["public"]["Enums"]["user_role"];
           updated_at: string;
         };
         Insert: {
           avatar_url?: string | null;
           created_at?: string;
+          dni?: string | null;
           email: string;
+          entity_id?: string | null;
           full_name?: string;
           id: string;
+          job_title?: string | null;
+          location?: string | null;
+          manager_id?: string | null;
+          phone?: string | null;
           role?: Database["public"]["Enums"]["user_role"];
           updated_at?: string;
         };
         Update: {
           avatar_url?: string | null;
           created_at?: string;
+          dni?: string | null;
           email?: string;
+          entity_id?: string | null;
           full_name?: string;
           id?: string;
+          job_title?: string | null;
+          location?: string | null;
+          manager_id?: string | null;
+          phone?: string | null;
           role?: Database["public"]["Enums"]["user_role"];
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profiles_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "profiles_manager_id_fkey";
+            columns: ["manager_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       reservations: {
         Row: {
@@ -217,6 +746,7 @@ export type Database = {
         Row: {
           assigned_to: string | null;
           created_at: string;
+          entity_id: string | null;
           id: string;
           is_active: boolean;
           label: string;
@@ -229,6 +759,7 @@ export type Database = {
         Insert: {
           assigned_to?: string | null;
           created_at?: string;
+          entity_id?: string | null;
           id?: string;
           is_active?: boolean;
           label: string;
@@ -241,6 +772,7 @@ export type Database = {
         Update: {
           assigned_to?: string | null;
           created_at?: string;
+          entity_id?: string | null;
           id?: string;
           is_active?: boolean;
           label?: string;
@@ -256,6 +788,13 @@ export type Database = {
             columns: ["assigned_to"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "spots_entity_id_fkey";
+            columns: ["entity_id"];
+            isOneToOne: false;
+            referencedRelation: "entities";
             referencedColumns: ["id"];
           },
         ];
@@ -502,11 +1041,18 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_user_entity_id: { Args: never; Returns: string };
       get_user_role: {
         Args: never;
         Returns: Database["public"]["Enums"]["user_role"];
       };
       is_admin: { Args: never; Returns: boolean };
+      is_hr: { Args: never; Returns: boolean };
+      is_manager_or_above: { Args: never; Returns: boolean };
+      reports_to_current_user: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
       reservation_tsrange: {
         Args: { p_date: string; p_end: string; p_start: string };
         Returns: unknown;
@@ -519,10 +1065,19 @@ export type Database = {
     Enums: {
       cession_rule_type: "out_of_office" | "day_of_week";
       cession_status: "available" | "reserved" | "cancelled";
+      document_access: "own" | "entity" | "global";
+      document_category: "payslip" | "corporate" | "contract" | "other";
+      leave_status:
+        | "pending"
+        | "manager_approved"
+        | "hr_approved"
+        | "rejected"
+        | "cancelled";
+      leave_type: "vacation" | "personal" | "sick" | "other";
       reservation_status: "confirmed" | "cancelled";
       resource_type: "parking" | "office";
       spot_type: "standard" | "visitor";
-      user_role: "employee" | "admin";
+      user_role: "employee" | "manager" | "hr" | "admin";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -655,10 +1210,20 @@ export const Constants = {
     Enums: {
       cession_rule_type: ["out_of_office", "day_of_week"],
       cession_status: ["available", "reserved", "cancelled"],
+      document_access: ["own", "entity", "global"],
+      document_category: ["payslip", "corporate", "contract", "other"],
+      leave_status: [
+        "pending",
+        "manager_approved",
+        "hr_approved",
+        "rejected",
+        "cancelled",
+      ],
+      leave_type: ["vacation", "personal", "sick", "other"],
       reservation_status: ["confirmed", "cancelled"],
       resource_type: ["parking", "office"],
       spot_type: ["standard", "visitor"],
-      user_role: ["employee", "admin"],
+      user_role: ["employee", "manager", "hr", "admin"],
     },
   },
 } as const;

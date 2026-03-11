@@ -57,6 +57,10 @@ vi.mock("@/lib/config", () => ({
   }),
 }));
 
+vi.mock("@/lib/queries/active-entity", () => ({
+  getEffectiveEntityId: vi.fn().mockResolvedValue(null),
+}));
+
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 

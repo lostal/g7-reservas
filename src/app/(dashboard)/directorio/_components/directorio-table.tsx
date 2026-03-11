@@ -26,42 +26,22 @@ import {
 import { DataTablePagination, DataTableToolbar } from "@/components/data-table";
 import { type DirectorioUser } from "./directorio-schema";
 import { directorioColumns as columns } from "./directorio-columns";
-
-const SEDES = [
-  { label: "Madrid", value: "Madrid" },
-  { label: "Barcelona", value: "Barcelona" },
-  { label: "Valencia", value: "Valencia" },
-  { label: "Bilbao", value: "Bilbao" },
-  { label: "Sevilla", value: "Sevilla" },
-];
-
-const PUESTOS = [
-  { label: "Administrativa", value: "Administrativa" },
-  { label: "Analista de Datos", value: "Analista de Datos" },
-  { label: "Arquitecto de Software", value: "Arquitecto de Software" },
-  { label: "Contable Senior", value: "Contable Senior" },
-  { label: "Coordinadora de Proyectos", value: "Coordinadora de Proyectos" },
-  { label: "Desarrollador Senior", value: "Desarrollador Senior" },
-  { label: "Directora de Marketing", value: "Directora de Marketing" },
-  { label: "Directora de Operaciones", value: "Directora de Operaciones" },
-  { label: "Diseñadora UX/UI", value: "Diseñadora UX/UI" },
-  { label: "Jefa de Recursos Humanos", value: "Jefa de Recursos Humanos" },
-  { label: "Responsable Comercial", value: "Responsable Comercial" },
-  { label: "Responsable de Sede", value: "Responsable de Sede" },
-  { label: "Responsable de TI", value: "Responsable de TI" },
-  { label: "Técnica de Soporte", value: "Técnica de Soporte" },
-  { label: "Técnico de Infraestructura", value: "Técnico de Infraestructura" },
-];
+import { type Entity } from "@/lib/queries/entities";
 
 type DirectorioTableProps = {
   data: DirectorioUser[];
+  entities: Entity[];
 };
 
-export function DirectorioTable({ data }: DirectorioTableProps) {
+export function DirectorioTable({ data, entities }: DirectorioTableProps) {
   const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    entity_id: false,
+  });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const sedeOptions = entities.map((e) => ({ label: e.name, value: e.id }));
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -96,8 +76,7 @@ export function DirectorioTable({ data }: DirectorioTableProps) {
         searchPlaceholder="Buscar por nombre..."
         searchKey="nombre"
         filters={[
-          { columnId: "ubicacion", title: "Sede", options: SEDES },
-          { columnId: "puesto", title: "Puesto", options: PUESTOS },
+          { columnId: "entity_id", title: "Sede", options: sedeOptions },
         ]}
       />
       <div className="overflow-hidden rounded-md border">

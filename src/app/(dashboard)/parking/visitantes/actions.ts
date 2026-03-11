@@ -36,6 +36,7 @@ import {
   type VisitorReservationWithDetails,
 } from "@/lib/queries/visitor-reservations";
 import { getResourceConfig } from "@/lib/config";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Funciones de consulta ────────────────────────────────────
 
@@ -50,8 +51,10 @@ export async function getVisitorReservationsAction(): Promise<
     if (!user) return error("No autenticado");
 
     const isAdmin = user.profile?.role === "admin";
+    const entityId = await getEffectiveEntityId();
     const reservations = await getUpcomingVisitorReservations(
-      isAdmin ? undefined : user.id
+      isAdmin ? undefined : user.id,
+      entityId
     );
     return success(reservations);
   } catch (err) {
@@ -74,9 +77,11 @@ export async function getAvailableVisitorSpotsAction(
     const user = await getCurrentUser();
     if (!user) return error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     const spots = await getAvailableVisitorSpotsForDate(
       date,
-      excludeReservationId
+      excludeReservationId,
+      entityId
     );
     return success(spots);
   } catch (err) {
@@ -147,10 +152,12 @@ export const createVisitorReservation = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     // Comprobar si las reservas de visitantes están habilitadas
     const visitorEnabled = await getResourceConfig(
       "parking",
-      "visitor_booking_enabled"
+      "visitor_booking_enabled",
+      entityId
     );
     if (!visitorEnabled) {
       throw new Error(
@@ -162,9 +169,19 @@ export const createVisitorReservation = actionClient
 
     const { data: spotData } = await supabase
       .from("spots")
-      .select("label")
+      .select("label, entity_id")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
+
+    // Verificar que la plaza pertenece a la sede activa
+    if (
+      entityId &&
+      spotData &&
+      spotData.entity_id !== null &&
+      spotData.entity_id !== entityId
+    ) {
+      throw new Error("La plaza seleccionada no pertenece a la sede activa");
+    }
 
     const spotLabel = spotData?.label ?? parsedInput.spot_id;
     const reservedByName = user.profile?.full_name ?? user.email;

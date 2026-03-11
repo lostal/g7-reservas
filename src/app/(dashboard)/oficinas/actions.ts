@@ -17,6 +17,7 @@ import {
 } from "@/lib/validations";
 import type { SpotWithStatus, TimeSlot, ReservationWithDetails } from "@/types";
 import { getAllResourceConfigs } from "@/lib/config";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import {
   getOfficeAvailabilityForDate,
   getAvailableTimeSlots,
@@ -40,7 +41,8 @@ export async function getOfficeSpotsForDate(
     const user = await getCurrentUser();
     if (!user) return error("No autenticado");
 
-    const config = await getAllResourceConfigs("office");
+    const entityId = await getEffectiveEntityId();
+    const config = await getAllResourceConfigs("office", entityId);
 
     if (!config.booking_enabled) return success([]);
 
@@ -69,7 +71,8 @@ export async function getOfficeTimeSlotsForSpot(
     const user = await getCurrentUser();
     if (!user) return error("No autenticado");
 
-    const config = await getAllResourceConfigs("office");
+    const entityId = await getEffectiveEntityId();
+    const config = await getAllResourceConfigs("office", entityId);
 
     if (!config.time_slots_enabled) {
       return error("Las franjas horarias no están habilitadas");
@@ -138,7 +141,8 @@ export const createOfficeReservation = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
-    const config = await getAllResourceConfigs("office");
+    const entityId = await getEffectiveEntityId();
+    const config = await getAllResourceConfigs("office", entityId);
 
     // Comprobar si las reservas están habilitadas
     if (!config.booking_enabled) {

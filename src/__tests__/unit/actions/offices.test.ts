@@ -62,6 +62,10 @@ vi.mock("@/lib/queries/offices", () => ({
   getUserOfficeReservations: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/lib/queries/active-entity", () => ({
+  getEffectiveEntityId: vi.fn().mockResolvedValue(null),
+}));
+
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { getAllResourceConfigs } from "@/lib/config";

@@ -53,6 +53,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/queries/active-entity", () => ({
+  getEffectiveEntityId: vi.fn().mockResolvedValue(null),
+}));
+
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { getUpcomingVisitorReservations } from "@/lib/queries/visitor-reservations";
@@ -141,7 +145,10 @@ describe("getVisitorReservationsAction", () => {
 
     expect(result.success).toBe(true);
     // Admin: se llama sin userId (undefined)
-    expect(getUpcomingVisitorReservations).toHaveBeenCalledWith(undefined);
+    expect(getUpcomingVisitorReservations).toHaveBeenCalledWith(
+      undefined,
+      null
+    );
     if (result.success) expect(result.data).toEqual(mockReservations);
   });
 
@@ -157,7 +164,7 @@ describe("getVisitorReservationsAction", () => {
 
     expect(result.success).toBe(true);
     // Empleado: se llama con su propio userId
-    expect(getUpcomingVisitorReservations).toHaveBeenCalledWith(USER_ID);
+    expect(getUpcomingVisitorReservations).toHaveBeenCalledWith(USER_ID, null);
   });
 });
 
