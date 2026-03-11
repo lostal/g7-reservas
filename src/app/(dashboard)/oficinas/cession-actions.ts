@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { createCessionSchema, cancelCessionSchema } from "@/lib/validations";
 import { getAllResourceConfigs } from "@/lib/config";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 import { isTooSoonForCession } from "@/lib/calendar/calendar-utils";
 import {
   getUserCessions,
@@ -31,8 +32,9 @@ export const createOfficeCession = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
+    const entityId = await getEffectiveEntityId();
     // Comprobar si las cesiones de oficina están habilitadas
-    const config = await getAllResourceConfigs("office");
+    const config = await getAllResourceConfigs("office", entityId);
     if (!config.cession_enabled) {
       throw new Error("Las cesiones de oficina están deshabilitadas");
     }

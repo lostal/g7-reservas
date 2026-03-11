@@ -25,6 +25,7 @@ import {
 import { z } from "zod/v4";
 import { parseISO } from "date-fns";
 import { isPast, getDayOfWeek } from "@/lib/utils";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -55,17 +56,23 @@ export const getOfficeCalendarMonthData = actionClient
     const monthStart = parseISO(parsedInput.monthStart);
     const supabase = await createClient();
 
-    const config = await getAllResourceConfigs("office");
+    const entityId = await getEffectiveEntityId();
+    const config = await getAllResourceConfigs("office", entityId);
     const allowedDays: number[] = config.allowed_days;
     const { year, month, firstDay, lastDay } = buildMonthRange(monthStart);
 
-    // Comprobar si el usuario tiene puesto asignado de oficina
-    const { data: assignedSpot } = await supabase
+    // Comprobar si el usuario tiene puesto asignado de oficina (en la sede activa)
+    let assignedSpotQuery = supabase
       .from("spots")
       .select("id, label")
       .eq("assigned_to", user.id)
-      .eq("resource_type", "office")
-      .maybeSingle();
+      .eq("resource_type", "office");
+    if (entityId) {
+      assignedSpotQuery = assignedSpotQuery.or(
+        `entity_id.eq.${entityId},entity_id.is.null`
+      );
+    }
+    const { data: assignedSpot } = await assignedSpotQuery.maybeSingle();
 
     if (assignedSpot) {
       // ── Usuario con puesto asignado: gestiona cesiones de oficina ──
@@ -100,11 +107,18 @@ export const getOfficeCalendarMonthData = actionClient
       // ── Usuario sin puesto asignado: puestos disponibles + propias reservas ──
       const [spotsData, reservationsData, cessionsData, myReservationsData] =
         await Promise.all([
-          supabase
-            .from("spots")
-            .select("id, type, assigned_to")
-            .eq("is_active", true)
-            .eq("resource_type", "office"),
+          entityId
+            ? supabase
+                .from("spots")
+                .select("id, type, assigned_to")
+                .eq("is_active", true)
+                .eq("resource_type", "office")
+                .or(`entity_id.eq.${entityId},entity_id.is.null`)
+            : supabase
+                .from("spots")
+                .select("id, type, assigned_to")
+                .eq("is_active", true)
+                .eq("resource_type", "office"),
           supabase
             .from("reservations")
             .select("spot_id, date")
