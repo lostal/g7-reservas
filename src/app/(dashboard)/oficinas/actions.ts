@@ -166,9 +166,14 @@ export const createOfficeReservation = actionClient
           "Debes seleccionar una franja horaria para reservar este puesto"
         );
       }
-      const toMinutes = (t: string) => {
-        const [h, m] = t.split(":").map(Number);
-        return (h ?? 0) * 60 + (m ?? 0);
+      const toMinutes = (t: string): number => {
+        const parts = t.split(":");
+        const h = parseInt(parts[0] ?? "", 10);
+        const m = parseInt(parts[1] ?? "0", 10);
+        if (isNaN(h) || isNaN(m)) {
+          throw new Error(`Formato de hora inválido: ${t}`);
+        }
+        return h * 60 + m;
       };
       const startMins = toMinutes(parsedInput.start_time);
       const endMins = toMinutes(parsedInput.end_time);

@@ -111,7 +111,11 @@ export function createMockCession(overrides?: {
   id?: string;
   spot_id?: string;
   status?: "available" | "reserved" | "cancelled";
-}) {
+}): {
+  id: string;
+  spot_id: string;
+  status: "available" | "reserved" | "cancelled";
+} {
   return {
     id: "ces-00000000-0000-0000-0000-000000000001",
     spot_id: "spot-00000000-0000-0000-0000-000000000001",
@@ -202,7 +206,18 @@ export function createMockReservationJoin(overrides?: {
   updated_at?: string;
   spots?: { label: string } | null;
   profiles?: { full_name: string } | null;
-}) {
+}): {
+  id: string;
+  spot_id: string;
+  user_id: string;
+  date: string;
+  status: ReservationRow["status"];
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  spots: { label: string } | null;
+  profiles: { full_name: string } | null;
+} {
   return {
     id: "res-00000000-0000-0000-0000-000000000001",
     spot_id: "spot-00000000-0000-0000-0000-000000000001",

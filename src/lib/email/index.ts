@@ -16,6 +16,20 @@ import {
   type VisitorCancellationEmailProps,
 } from "./templates/visitor-cancellation";
 
+function getResendClient(): { resend: Resend; fromAddress: string } | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY no configurada — email no enviado");
+    return null;
+  }
+  const fromAddress = process.env.RESEND_FROM_EMAIL;
+  if (!fromAddress) {
+    console.warn("RESEND_FROM_EMAIL no configurada — email no enviado");
+    return null;
+  }
+  return { resend: new Resend(apiKey), fromAddress };
+}
+
 /** Parámetros para enviar el email de confirmación de visitante */
 export interface SendVisitorEmailParams extends VisitorReservationEmailProps {
   /** Dirección de email del destinatario */
@@ -32,24 +46,9 @@ export interface SendVisitorEmailParams extends VisitorReservationEmailProps {
 export async function sendVisitorReservationEmail(
   params: SendVisitorEmailParams
 ): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) {
-    console.warn(
-      "RESEND_API_KEY no configurada — email de visitante no enviado"
-    );
-    return;
-  }
-
-  const resend = new Resend(apiKey);
-  const fromAddress = process.env.RESEND_FROM_EMAIL;
-
-  if (!fromAddress) {
-    console.warn(
-      "RESEND_FROM_EMAIL no configurada — email de confirmación de visitante no enviado"
-    );
-    return;
-  }
+  const client = getResendClient();
+  if (!client) return;
+  const { resend, fromAddress } = client;
 
   const { to, icsBuffer, ...emailProps } = params;
 
@@ -86,24 +85,9 @@ export interface SendVisitorCancellationEmailParams extends VisitorCancellationE
 export async function sendVisitorCancellationEmail(
   params: SendVisitorCancellationEmailParams
 ): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) {
-    console.warn(
-      "RESEND_API_KEY no configurada — email de cancelación no enviado"
-    );
-    return;
-  }
-
-  const resend = new Resend(apiKey);
-  const fromAddress = process.env.RESEND_FROM_EMAIL;
-
-  if (!fromAddress) {
-    console.warn(
-      "RESEND_FROM_EMAIL no configurada — email de cancelación de visitante no enviado"
-    );
-    return;
-  }
+  const client = getResendClient();
+  if (!client) return;
+  const { resend, fromAddress } = client;
 
   const { to, icsBuffer, ...emailProps } = params;
 

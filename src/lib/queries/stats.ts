@@ -7,6 +7,17 @@
 
 import { createClient } from "@/lib/supabase/server";
 
+function currentMonthBounds(): { firstOfMonth: string; lastOfMonth: string } {
+  const now = new Date();
+  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .split("T")[0]!;
+  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    .toISOString()
+    .split("T")[0]!;
+  return { firstOfMonth, lastOfMonth };
+}
+
 export interface DailyCount {
   /** Fecha ISO p.ej. "2025-01-15" */
   date: string;
@@ -149,14 +160,7 @@ export async function getTopSpots(
   entityId?: string | null
 ): Promise<SpotUsage[]> {
   const supabase = await createClient();
-
-  const now = new Date();
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]!;
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0]!;
+  const { firstOfMonth, lastOfMonth } = currentMonthBounds();
 
   let query = supabase
     .from("reservations")
@@ -222,14 +226,7 @@ export async function getMovementDistribution(
   entityId?: string | null
 ): Promise<MovementDistribution[]> {
   const supabase = await createClient();
-
-  const now = new Date();
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]!;
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0]!;
+  const { firstOfMonth, lastOfMonth } = currentMonthBounds();
 
   if (!entityId) {
     // Sin filtro de sede → head:true para rendimiento
@@ -320,14 +317,7 @@ export async function getMonthlyReservationCount(
   entityId?: string | null
 ): Promise<number> {
   const supabase = await createClient();
-
-  const now = new Date();
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]!;
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0]!;
+  const { firstOfMonth, lastOfMonth } = currentMonthBounds();
 
   const needsJoin = resourceType || entityId;
 
@@ -353,14 +343,18 @@ export async function getMonthlyReservationCount(
     query = query.eq("spots.entity_id", entityId);
   }
 
-  const { count, data } = await query;
+  type MonthlyCountRow = {
+    id: string;
+    spots: { resource_type: string; entity_id: string | null } | null;
+  };
+
+  const { count, data } = needsJoin
+    ? await query.returns<MonthlyCountRow[]>()
+    : await query;
 
   // Si usamos join, el count puede no ser exacto — usamos filtro JS
   if (needsJoin && data) {
-    const rows = data as unknown as {
-      spots: { resource_type: string; entity_id: string | null } | null;
-    }[];
-    const filtered = rows.filter((r) => {
+    const filtered = (data as MonthlyCountRow[]).filter((r) => {
       if (resourceType && r.spots?.resource_type !== resourceType) return false;
       if (entityId && r.spots?.entity_id !== entityId) return false;
       return true;
@@ -497,14 +491,7 @@ export async function getActiveUsersThisMonth(
   entityId?: string | null
 ): Promise<number> {
   const supabase = await createClient();
-
-  const now = new Date();
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]!;
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0]!;
+  const { firstOfMonth, lastOfMonth } = currentMonthBounds();
 
   let query = supabase
     .from("reservations")

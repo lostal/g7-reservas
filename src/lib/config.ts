@@ -115,6 +115,9 @@ const fetchRawConfigs = unstable_cache(
   }
 );
 
+const toBooleanConfig = (rawVal: unknown): boolean =>
+  rawVal === true || rawVal === 1;
+
 /**
  * Devuelve todas las configuraciones de un tipo de recurso como un objeto tipado.
  * Si se proporciona `entityId`, aplica el overlay de `entity_config` sobre `system_config`.
@@ -145,7 +148,7 @@ export async function getAllResourceConfigs(
       result[_key] = Array.isArray(rawVal) ? rawVal : defVal;
     } else if (typeof defVal === "boolean") {
       // @ts-expect-error – idem
-      result[_key] = rawVal === true || rawVal === 1;
+      result[_key] = toBooleanConfig(rawVal);
     } else if (typeof defVal === "number" || defVal === null) {
       // null explícito en BD = "sin límite"; undefined ya fue gestionado arriba
       // @ts-expect-error – idem
@@ -184,20 +187,17 @@ export async function getGlobalConfigs(): Promise<GlobalConfigValues> {
   return {
     notifications_enabled:
       raw["notifications_enabled"] !== undefined
-        ? raw["notifications_enabled"] === true ||
-          raw["notifications_enabled"] === 1
+        ? toBooleanConfig(raw["notifications_enabled"])
         : GLOBAL_DEFAULTS.notifications_enabled,
 
     email_notifications_enabled:
       raw["email_notifications_enabled"] !== undefined
-        ? raw["email_notifications_enabled"] === true ||
-          raw["email_notifications_enabled"] === 1
+        ? toBooleanConfig(raw["email_notifications_enabled"])
         : GLOBAL_DEFAULTS.email_notifications_enabled,
 
     teams_notifications_enabled:
       raw["teams_notifications_enabled"] !== undefined
-        ? raw["teams_notifications_enabled"] === true ||
-          raw["teams_notifications_enabled"] === 1
+        ? toBooleanConfig(raw["teams_notifications_enabled"])
         : GLOBAL_DEFAULTS.teams_notifications_enabled,
   };
 }
@@ -246,27 +246,4 @@ async function fetchEntityConfigs(
   }
 
   return Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
-}
-
-/**
- * Devuelve todas las configuraciones de un tipo de recurso para una sede concreta.
- * Alias de `getAllResourceConfigs(resourceType, entityId)` — mantenido por compatibilidad.
- */
-export async function getAllEntityResourceConfigs(
-  entityId: string,
-  resourceType: ResourceType
-): Promise<ResourceConfigValues> {
-  return getAllResourceConfigs(resourceType, entityId);
-}
-
-/**
- * Devuelve una sola clave de configuración de recurso para una sede concreta.
- * Alias de `getResourceConfig(resourceType, key, entityId)` — mantenido por compatibilidad.
- */
-export async function getEntityResourceConfig<K extends ResourceConfigKey>(
-  entityId: string,
-  resourceType: ResourceType,
-  key: K
-): Promise<ResourceConfigValues[K]> {
-  return getResourceConfig(resourceType, key, entityId);
 }
