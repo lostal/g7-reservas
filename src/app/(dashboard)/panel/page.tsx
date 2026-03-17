@@ -15,6 +15,7 @@ import { Header, Main } from "@/components/layout";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
+import { toServerDateStr } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ROUTES } from "@/lib/constants";
 import { getEffectiveEntityId } from "@/lib/queries/active-entity";
@@ -39,7 +40,7 @@ export default async function PanelPage() {
     redirect(ROUTES.PARKING);
   }
 
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
   const entityId = await getEffectiveEntityId();
 
   return (

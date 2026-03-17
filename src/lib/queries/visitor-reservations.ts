@@ -6,6 +6,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { VisitorReservation } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 
 /** Fila de reserva de visitante con detalles de plaza y creador */
 export interface VisitorReservationWithDetails extends VisitorReservation {
@@ -24,7 +25,7 @@ export async function getUpcomingVisitorReservations(
   entityId?: string | null
 ): Promise<VisitorReservationWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   let query = supabase
     .from("visitor_reservations")
@@ -50,10 +51,15 @@ export async function getUpcomingVisitorReservations(
     })[]
   >();
 
-  if (error)
-    throw new Error(
-      `Error al obtener reservas de visitantes: ${error.message}`
+  if (error) {
+    console.error(
+      "[visitor-reservations] getUpcomingVisitorReservations query error",
+      {
+        code: error.code,
+      }
     );
+    throw new Error("No se pudieron obtener las reservas de visitantes");
+  }
 
   // Si se filtró por entityId, incluir también plazas sin sede asignada (entity_id = null)
   const filtered = entityId
@@ -110,8 +116,20 @@ export async function getAvailableVisitorSpotsForDate(
     reservedQuery,
   ]);
 
-  if (spotsResult.error)
-    throw new Error(`Error al obtener plazas: ${spotsResult.error.message}`);
+  if (spotsResult.error) {
+    console.error(
+      "[visitor-reservations] getAvailableVisitorSpotsForDate spots query error",
+      { code: spotsResult.error.code }
+    );
+    throw new Error("No se pudieron obtener las plazas de visitantes");
+  }
+  if (reservedResult.error) {
+    console.error(
+      "[visitor-reservations] getAvailableVisitorSpotsForDate reservations query error",
+      { code: reservedResult.error.code }
+    );
+    throw new Error("No se pudieron obtener las plazas de visitantes");
+  }
 
   const reservedIds = new Set(
     (reservedResult.data ?? []).map((r) => r.spot_id)

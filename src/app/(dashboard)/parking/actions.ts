@@ -93,8 +93,23 @@ export async function getAvailableSpotsForDate(
           .eq("status", "confirmed"),
       ]);
 
-    if (spotsResult.error)
-      return error(`Error al obtener plazas: ${spotsResult.error.message}`);
+    if (
+      spotsResult.error ||
+      reservationsResult.error ||
+      cessionsResult.error ||
+      visitorResult.error
+    ) {
+      console.error(
+        "[parking] getAvailableSpotsForDate availability queries error",
+        {
+          spotsCode: spotsResult.error?.code,
+          reservationsCode: reservationsResult.error?.code,
+          cessionsCode: cessionsResult.error?.code,
+          visitorCode: visitorResult.error?.code,
+        }
+      );
+      return error("No se pudieron obtener las plazas disponibles");
+    }
 
     const spots = spotsResult.data;
     const reservedSpotIds = new Set(
@@ -217,13 +232,16 @@ export const createReservation = actionClient
     // Verificar que el spot es de tipo parking
     const { data: spot } = await supabase
       .from("spots")
-      .select("id, resource_type")
+      .select("id, resource_type, entity_id")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
 
     if (!spot) throw new Error("Plaza no encontrada");
     if (spot.resource_type !== "parking") {
       throw new Error("Esta plaza no es un espacio de parking");
+    }
+    if (entityId && spot.entity_id !== null && spot.entity_id !== entityId) {
+      throw new Error("La plaza seleccionada no pertenece a la sede activa");
     }
 
     // Check if user already has a reservation for this date
@@ -255,9 +273,23 @@ export const createReservation = actionClient
 
     if (error) {
       if (error.code === "23505") {
+        const { data: userDuplicate } = await supabase
+          .from("reservations")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("date", parsedInput.date)
+          .eq("status", "confirmed")
+          .maybeSingle();
+
+        if (userDuplicate) {
+          throw new Error("Ya tienes una reserva para este día");
+        }
         throw new Error("Esta plaza ya está reservada para este día");
       }
-      throw new Error(`Error al crear reserva: ${error.message}`);
+      console.error("[parking] createReservation insert error", {
+        code: error.code,
+      });
+      throw new Error("No se pudo crear la reserva");
     }
 
     revalidatePath("/parking");
@@ -287,7 +319,10 @@ export const cancelReservation = actionClient
       .select("id");
 
     if (error) {
-      throw new Error(`Error al cancelar reserva: ${error.message}`);
+      console.error("[parking] cancelReservation update error", {
+        code: error.code,
+      });
+      throw new Error("No se pudo cancelar la reserva");
     }
     if (!data || data.length === 0) {
       throw new Error("Reserva no encontrada o no pertenece a tu cuenta");

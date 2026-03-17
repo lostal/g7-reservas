@@ -204,7 +204,11 @@ export function createMockReservationJoin(overrides?: {
   notes?: string | null;
   created_at?: string;
   updated_at?: string;
-  spots?: { label: string } | null;
+  spots?: {
+    label: string;
+    resource_type: "parking" | "office";
+    entity_id: string | null;
+  } | null;
   profiles?: { full_name: string } | null;
 }): {
   id: string;
@@ -215,7 +219,11 @@ export function createMockReservationJoin(overrides?: {
   notes: string | null;
   created_at: string;
   updated_at: string;
-  spots: { label: string } | null;
+  spots: {
+    label: string;
+    resource_type: "parking" | "office";
+    entity_id: string | null;
+  } | null;
   profiles: { full_name: string } | null;
 } {
   return {
@@ -227,7 +235,7 @@ export function createMockReservationJoin(overrides?: {
     notes: null,
     created_at: "2025-01-01T10:00:00Z",
     updated_at: "2025-01-01T10:00:00Z",
-    spots: { label: "A-01" },
+    spots: { label: "A-01", resource_type: "parking", entity_id: null },
     profiles: { full_name: "Usuario Test" },
     ...overrides,
   };

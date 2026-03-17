@@ -6,15 +6,16 @@
  */
 
 import { createClient } from "@/lib/supabase/server";
+import { toServerDateStr } from "@/lib/utils";
 
 function currentMonthBounds(): { firstOfMonth: string; lastOfMonth: string } {
   const now = new Date();
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0]!;
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0]!;
+  const firstOfMonth = toServerDateStr(
+    new Date(now.getFullYear(), now.getMonth(), 1)
+  );
+  const lastOfMonth = toServerDateStr(
+    new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  );
   return { firstOfMonth, lastOfMonth };
 }
 
@@ -55,8 +56,8 @@ export async function getDailyCountsLast30Days(
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - (days - 1));
 
-  const startStr = startDate.toISOString().split("T")[0]!;
-  const endStr = endDate.toISOString().split("T")[0]!;
+  const startStr = toServerDateStr(startDate);
+  const endStr = toServerDateStr(endDate);
 
   // Para filtrar por resource_type o entity_id necesitamos hacer join con spots
   const needsJoin = resourceType || entityId;
@@ -121,7 +122,7 @@ export async function getDailyCountsLast30Days(
   for (let i = 0; i < days; i++) {
     const d = new Date(startDate);
     d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split("T")[0]!;
+    const dateStr = toServerDateStr(d);
     countsByDate.set(dateStr, { reservations: 0, visitors: 0 });
   }
 

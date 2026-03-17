@@ -67,7 +67,9 @@ describe("getReservationsByDate", () => {
   });
 
   it("mapea correctamente spot_label desde el join de plazas", async () => {
-    const res = createMockReservationJoin({ spots: { label: "B-03" } });
+    const res = createMockReservationJoin({
+      spots: { label: "B-03", resource_type: "parking", entity_id: null },
+    });
     setupSupabaseMock({ data: [res] });
 
     const result = await getReservationsByDate(DATE);
@@ -108,7 +110,7 @@ describe("getReservationsByDate", () => {
 
   it("el resultado incluye spot_label y user_name pero no los campos de join raw", async () => {
     const res = createMockReservationJoin({
-      spots: { label: "A-01" },
+      spots: { label: "A-01", resource_type: "parking", entity_id: null },
       profiles: { full_name: "Test" },
     });
     setupSupabaseMock({ data: [res] });
@@ -146,20 +148,56 @@ describe("getReservationsByDate", () => {
   it("lanza error si Supabase devuelve error", async () => {
     setupSupabaseMock({ error: { message: "Error de conexión" } });
     await expect(getReservationsByDate(DATE)).rejects.toThrow(
-      "Error al obtener reservas: Error de conexión"
+      "No se pudieron obtener las reservas"
     );
+  });
+
+  it("con entityId incluye reservas de la sede y globales (entity_id=null)", async () => {
+    const reservations = [
+      createMockReservationJoin({
+        id: "r1",
+        spots: {
+          label: "A-01",
+          resource_type: "parking",
+          entity_id: "ent-1",
+        },
+      }),
+      createMockReservationJoin({
+        id: "r2",
+        spots: {
+          label: "A-02",
+          resource_type: "parking",
+          entity_id: null,
+        },
+      }),
+      createMockReservationJoin({
+        id: "r3",
+        spots: {
+          label: "A-03",
+          resource_type: "parking",
+          entity_id: "ent-2",
+        },
+      }),
+    ];
+
+    setupSupabaseMock({ data: reservations });
+
+    const result = await getReservationsByDate(DATE, undefined, "ent-1");
+
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.id)).toEqual(["r1", "r2"]);
   });
 
   it("devuelve múltiples reservas mapeadas", async () => {
     const reservations = [
       createMockReservationJoin({
         id: "r1",
-        spots: { label: "A-01" },
+        spots: { label: "A-01", resource_type: "parking", entity_id: null },
         profiles: { full_name: "Ana" },
       }),
       createMockReservationJoin({
         id: "r2",
-        spots: { label: "B-02" },
+        spots: { label: "B-02", resource_type: "parking", entity_id: null },
         profiles: { full_name: "Luis" },
       }),
     ];
@@ -188,7 +226,7 @@ describe("getUserReservations", () => {
 
   it("mapea spot_label y user_name correctamente", async () => {
     const res = createMockReservationJoin({
-      spots: { label: "C-05" },
+      spots: { label: "C-05", resource_type: "parking", entity_id: null },
       profiles: { full_name: "Pedro García" },
     });
     setupSupabaseMock({ data: [res] });
@@ -202,8 +240,44 @@ describe("getUserReservations", () => {
   it("lanza error si la query falla", async () => {
     setupSupabaseMock({ error: { message: "Timeout" } });
     await expect(getUserReservations(USER_ID)).rejects.toThrow(
-      "Error al obtener reservas del usuario: Timeout"
+      "No se pudieron obtener las reservas del usuario"
     );
+  });
+
+  it("con entityId en getUserReservations aplica mismo criterio (sede + global)", async () => {
+    const reservations = [
+      createMockReservationJoin({
+        id: "r1",
+        spots: {
+          label: "C-05",
+          resource_type: "office",
+          entity_id: "ent-1",
+        },
+      }),
+      createMockReservationJoin({
+        id: "r2",
+        spots: {
+          label: "C-06",
+          resource_type: "office",
+          entity_id: null,
+        },
+      }),
+      createMockReservationJoin({
+        id: "r3",
+        spots: {
+          label: "C-07",
+          resource_type: "office",
+          entity_id: "ent-2",
+        },
+      }),
+    ];
+
+    setupSupabaseMock({ data: reservations });
+
+    const result = await getUserReservations(USER_ID, "office", "ent-1");
+
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.id)).toEqual(["r1", "r2"]);
   });
 });
 
@@ -236,7 +310,7 @@ describe("getUserReservationForDate", () => {
     setupSupabaseMock({ error: { message: "Error de BD" } });
 
     await expect(getUserReservationForDate(USER_ID, DATE)).rejects.toThrow(
-      "Error al comprobar reserva: Error de BD"
+      "No se pudo comprobar la reserva"
     );
   });
 });

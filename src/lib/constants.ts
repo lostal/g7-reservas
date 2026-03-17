@@ -5,9 +5,8 @@
  */
 
 /** Application metadata */
-export const APP_NAME = "GRUPOSIETE Reservas";
-export const APP_DESCRIPTION =
-  "Sistema de gestión de reservas de espacios corporativos";
+export const APP_NAME = "Seven Suite";
+export const APP_DESCRIPTION = "Sistema de gestión de espacios corporativos";
 
 /** Route paths */
 export const ROUTES = {

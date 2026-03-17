@@ -78,23 +78,39 @@ export const updateSpot = actionClient
 
     const { id, ...updates } = parsedInput;
 
+    const { data: currentSpot, error: currentSpotError } = await supabase
+      .from("spots")
+      .select("id, entity_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (currentSpotError) {
+      console.error(
+        "[admin] updateSpot fetch spot error:",
+        currentSpotError.message,
+        currentSpotError.code
+      );
+      throw new Error("Error al comprobar la plaza");
+    }
+    if (!currentSpot) {
+      throw new Error("Plaza no encontrada");
+    }
+
     // Verificar que el spot pertenece a la sede activa (o es global)
     if (activeEntityId) {
-      const { data: spot } = await supabase
-        .from("spots")
-        .select("entity_id")
-        .eq("id", id)
-        .single();
       if (
-        spot &&
-        spot.entity_id !== null &&
-        spot.entity_id !== activeEntityId
+        currentSpot.entity_id !== null &&
+        currentSpot.entity_id !== activeEntityId
       ) {
         throw new Error("No tienes permisos para modificar esta plaza");
       }
     }
 
-    const { error } = await supabase.from("spots").update(updates).eq("id", id);
+    const { data: updatedRows, error } = await supabase
+      .from("spots")
+      .update(updates)
+      .eq("id", id)
+      .select("id");
 
     if (error) {
       if (error.code === "23505") {
@@ -102,6 +118,9 @@ export const updateSpot = actionClient
       }
       console.error("[admin] updateSpot DB error:", error.message, error.code);
       throw new Error("Error al actualizar la plaza");
+    }
+    if (!updatedRows || updatedRows.length === 0) {
+      throw new Error("Plaza no encontrada");
     }
 
     revalidatePath("/administracion");
@@ -123,30 +142,46 @@ export const deleteSpot = actionClient
     const supabase = await createClient();
     const activeEntityId = await getActiveEntityId();
 
+    const { data: currentSpot, error: currentSpotError } = await supabase
+      .from("spots")
+      .select("id, entity_id")
+      .eq("id", parsedInput.id)
+      .maybeSingle();
+
+    if (currentSpotError) {
+      console.error(
+        "[admin] deleteSpot fetch spot error:",
+        currentSpotError.message,
+        currentSpotError.code
+      );
+      throw new Error("Error al comprobar la plaza");
+    }
+    if (!currentSpot) {
+      throw new Error("Plaza no encontrada");
+    }
+
     // Verificar que el spot pertenece a la sede activa (o es global)
     if (activeEntityId) {
-      const { data: spot } = await supabase
-        .from("spots")
-        .select("entity_id")
-        .eq("id", parsedInput.id)
-        .single();
       if (
-        spot &&
-        spot.entity_id !== null &&
-        spot.entity_id !== activeEntityId
+        currentSpot.entity_id !== null &&
+        currentSpot.entity_id !== activeEntityId
       ) {
         throw new Error("No tienes permisos para eliminar esta plaza");
       }
     }
 
-    const { error } = await supabase
+    const { data: deletedRows, error } = await supabase
       .from("spots")
       .delete()
-      .eq("id", parsedInput.id);
+      .eq("id", parsedInput.id)
+      .select("id");
 
     if (error) {
       console.error("[admin] deleteSpot DB error:", error.message, error.code);
       throw new Error("Error al eliminar la plaza");
+    }
+    if (!deletedRows || deletedRows.length === 0) {
+      throw new Error("Plaza no encontrada");
     }
 
     revalidatePath("/administracion");
@@ -187,8 +222,7 @@ export const updateUserRole = actionClient
 
     const { error } = await supabase
       .from("profiles")
-      // Cast: roles 'manager' | 'hr' added in migration 00003; valid once applied
-      .update({ role: parsedInput.role as "employee" | "admin" })
+      .update({ role: parsedInput.role })
       .eq("id", parsedInput.user_id);
 
     if (error) {
@@ -340,7 +374,43 @@ export const assignSpotToUser = actionClient
         error: cleanupError.message,
         code: cleanupError.code,
       });
-      throw new Error("Error al limpiar la plaza anterior");
+
+      // Compensación: revertir la asignación recién hecha para no dejar al
+      // usuario con dos plazas del mismo tipo.
+      const { error: rollbackError } = await supabase
+        .from("spots")
+        .update({ assigned_to: null })
+        .eq("id", spot_id);
+
+      if (rollbackError) {
+        console.error("[admin] assignSpotToUser rollback error:", {
+          userId: user_id,
+          spotId: spot_id,
+          error: rollbackError.message,
+          code: rollbackError.code,
+        });
+        await logAuditEvent("spot.assigned", "spot", spot_id, {
+          user_id,
+          resource_type: spot.resource_type,
+          state: "inconsistent",
+          cleanup_error: cleanupError.code ?? cleanupError.message,
+          rollback_error: rollbackError.code ?? rollbackError.message,
+        });
+        throw new Error(
+          "Error al limpiar la plaza anterior y no se pudo revertir la nueva asignación"
+        );
+      }
+
+      await logAuditEvent("spot.unassigned", "spot", spot_id, {
+        user_id,
+        resource_type: spot.resource_type,
+        state: "reverted_after_cleanup_error",
+        cleanup_error: cleanupError.code ?? cleanupError.message,
+      });
+
+      throw new Error(
+        "Error al limpiar la plaza anterior. La nueva asignación se ha revertido"
+      );
     }
 
     revalidatePath("/parking/asignaciones");
@@ -400,6 +470,20 @@ export const assignUserToSpot = actionClient
       ) {
         throw new Error("Esta plaza no pertenece a la sede activa");
       }
+
+      const { data: targetProfile } = await supabase
+        .from("profiles")
+        .select("entity_id")
+        .eq("id", user_id)
+        .single();
+
+      if (
+        targetProfile &&
+        targetProfile.entity_id !== null &&
+        targetProfile.entity_id !== activeEntityId
+      ) {
+        throw new Error("Este usuario no pertenece a la sede activa");
+      }
     }
 
     // 1. Assign user to this spot FIRST — if this fails the user's previous
@@ -422,12 +506,57 @@ export const assignUserToSpot = actionClient
     // 2. Clear previous spot of same resource_type for this user (except
     //    the one we just assigned). Worst case on failure: user has two spots,
     //    not zero — a recoverable state.
-    await supabase
+    const { error: cleanupError } = await supabase
       .from("spots")
       .update({ assigned_to: null })
       .eq("assigned_to", user_id)
       .eq("resource_type", resource_type)
       .neq("id", spot_id);
+
+    if (cleanupError) {
+      console.error(
+        "[admin] assignUserToSpot cleanup error:",
+        cleanupError.code
+      );
+
+      // Compensación: revertir la asignación recién hecha para evitar doble
+      // asignación del mismo tipo al usuario.
+      const { error: rollbackError } = await supabase
+        .from("spots")
+        .update({ assigned_to: null })
+        .eq("id", spot_id)
+        .eq("assigned_to", user_id);
+
+      if (rollbackError) {
+        console.error("[admin] assignUserToSpot rollback error:", {
+          userId: user_id,
+          spotId: spot_id,
+          error: rollbackError.message,
+          code: rollbackError.code,
+        });
+        await logAuditEvent("spot.assigned", "spot", spot_id, {
+          user_id,
+          resource_type,
+          state: "inconsistent",
+          cleanup_error: cleanupError.code ?? cleanupError.message,
+          rollback_error: rollbackError.code ?? rollbackError.message,
+        });
+        throw new Error(
+          "Error al limpiar la plaza anterior y no se pudo revertir la nueva asignación"
+        );
+      }
+
+      await logAuditEvent("spot.unassigned", "spot", spot_id, {
+        user_id,
+        resource_type,
+        state: "reverted_after_cleanup_error",
+        cleanup_error: cleanupError.code ?? cleanupError.message,
+      });
+
+      throw new Error(
+        "Error al limpiar la plaza anterior. La nueva asignación se ha revertido"
+      );
+    }
 
     revalidatePath("/parking/asignaciones");
     revalidatePath("/oficinas/asignaciones");

@@ -48,7 +48,10 @@ export async function getSpots(
   }
 
   const { data, error } = await query;
-  if (error) throw new Error(`Error al obtener plazas: ${error.message}`);
+  if (error) {
+    console.error("[spots] getSpots query error", { code: error.code });
+    throw new Error("No se pudieron obtener las plazas");
+  }
   return data;
 }
 
@@ -109,8 +112,12 @@ export async function getSpotsByDate(
         .eq("status", "confirmed"),
     ]);
 
-  if (spotsResult.error)
-    throw new Error(`Error al obtener plazas: ${spotsResult.error.message}`);
+  if (spotsResult.error) {
+    console.error("[spots] getSpotsByDate spots query error", {
+      code: spotsResult.error.code,
+    });
+    throw new Error("No se pudieron obtener las plazas");
+  }
 
   const spots = spotsResult.data;
   const reservations = reservationsResult.data ?? [];

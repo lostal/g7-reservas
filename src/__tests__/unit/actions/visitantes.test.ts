@@ -84,12 +84,19 @@ function setupSupabaseMock(
       error: { message: string; code?: string } | null;
     };
     visitorFetchData?: typeof DEFAULT_VISITOR | null;
+    updateData?: { id: string }[] | null;
+    updateError?: { message: string; code?: string } | null;
   } = {}
 ) {
   // Chain compartido para spots (solo necesita maybeSingle para el label)
   const spotsChain = createQueryChain({ data: null, error: null });
   (spotsChain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
-    data: { label: "V-01", entity_id: null },
+    data: {
+      label: "V-01",
+      entity_id: null,
+      type: "visitor",
+      resource_type: "parking",
+    },
     error: null,
   });
 
@@ -100,7 +107,10 @@ function setupSupabaseMock(
   };
   const fetchData =
     "visitorFetchData" in opts ? opts.visitorFetchData : DEFAULT_VISITOR;
-  const visitorChain = createQueryChain({ data: null, error: null });
+  const visitorChain = createQueryChain({
+    data: opts.updateData ?? [{ id: VISITOR_ID }],
+    error: opts.updateError ?? null,
+  });
   (visitorChain.single as ReturnType<typeof vi.fn>).mockResolvedValue(
     insertResult
   );
@@ -210,6 +220,32 @@ describe("createVisitorReservation", () => {
     if (!result.success) expect(result.error).toContain("ya tiene una reserva");
   });
 
+  it("rechaza crear si el spot no es de tipo visitor", async () => {
+    const spotsChain = createQueryChain({ data: null, error: null });
+    (spotsChain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        label: "P-01",
+        entity_id: null,
+        type: "standard",
+        resource_type: "parking",
+      },
+      error: null,
+    });
+
+    vi.mocked(createClient).mockResolvedValue({
+      from: vi.fn((table: string) =>
+        table === "spots"
+          ? spotsChain
+          : createQueryChain({ data: [{ id: VISITOR_ID }], error: null })
+      ),
+    } as never);
+
+    const result = await createVisitorReservation(validInput);
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("plaza de visitantes");
+  });
+
   it("devuelve error si el usuario no está autenticado", async () => {
     vi.mocked(getCurrentUser).mockResolvedValue(null);
 
@@ -254,6 +290,15 @@ describe("cancelVisitorReservation", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("falla si la reserva fue cambiada y no se actualiza ninguna fila", async () => {
+    setupSupabaseMock({ updateData: [] });
+
+    const result = await cancelVisitorReservation(validInput);
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("ya cancelada");
+  });
 });
 
 // ─── updateVisitorReservation ──────────────────────────────────────────────────
@@ -286,7 +331,12 @@ describe("updateVisitorReservation", () => {
   it("rechaza si el spot pertenece a una sede distinta a la activa", async () => {
     const spotsChain = createQueryChain({ data: null, error: null });
     (spotsChain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { label: "V-02", entity_id: "entity-B" },
+      data: {
+        label: "V-02",
+        entity_id: "entity-B",
+        type: "visitor",
+        resource_type: "parking",
+      },
       error: null,
     });
 
@@ -303,5 +353,31 @@ describe("updateVisitorReservation", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) expect(result.error).toContain("sede activa");
+  });
+
+  it("rechaza editar si el spot no es de tipo visitor", async () => {
+    const spotsChain = createQueryChain({ data: null, error: null });
+    (spotsChain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        label: "P-01",
+        entity_id: null,
+        type: "standard",
+        resource_type: "parking",
+      },
+      error: null,
+    });
+
+    vi.mocked(createClient).mockResolvedValue({
+      from: vi.fn((table: string) =>
+        table === "spots"
+          ? spotsChain
+          : createQueryChain({ data: [{ id: VISITOR_ID }], error: null })
+      ),
+    } as never);
+
+    const result = await updateVisitorReservation(validInput);
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("plaza de visitantes");
   });
 });

@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { SettingsSidebar } from "./components/settings-sidebar";
 
 export const metadata = {
-  title: "Ajustes - Parking GRUPOSIETE",
+  title: "Ajustes - Seven Suite",
   description: "Configura tus preferencias y ajustes de la aplicación",
 };
 

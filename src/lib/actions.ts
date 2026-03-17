@@ -93,11 +93,18 @@ export const actionClient: ActionBuilder = {
             const data = await handler({ parsedInput: result.data });
             return success(data);
           } catch (err) {
-            // Loguear con stack trace para facilitar debugging en producción
-            console.error(
-              "[action] error inesperado:",
-              err instanceof Error ? (err.stack ?? err.message) : err
-            );
+            // Evitar volcar stack traces completos en producción.
+            if (err instanceof Error) {
+              console.error("[action] error inesperado", {
+                name: err.name,
+                message: err.message,
+              });
+              if (process.env.NODE_ENV !== "production") {
+                console.error("[action] stack", err.stack);
+              }
+            } else {
+              console.error("[action] error inesperado no estándar");
+            }
             return error(
               err instanceof Error
                 ? err.message

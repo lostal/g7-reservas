@@ -97,9 +97,24 @@ describe("getSpots", () => {
     expect(result).toEqual([]);
   });
 
+  it("con entityId incluye plazas de la sede y globales", async () => {
+    const spots = [
+      createMockSpot({ id: "s1", entity_id: "ent-1" }),
+      createMockSpot({ id: "s2", entity_id: null }),
+    ];
+    setupSupabaseMock({ spots });
+
+    const result = await getSpots(undefined, false, "ent-1");
+
+    expect(result).toHaveLength(2);
+    expect(result.map((s) => s.id)).toEqual(["s1", "s2"]);
+  });
+
   it("lanza error si Supabase devuelve error", async () => {
     setupSupabaseMock({ spotsError: { message: "Conexión fallida" } });
-    await expect(getSpots()).rejects.toThrow("Conexión fallida");
+    await expect(getSpots()).rejects.toThrow(
+      "No se pudieron obtener las plazas"
+    );
   });
 });
 
@@ -391,7 +406,7 @@ describe("getSpotsByDate", () => {
   it("lanza error si la query de plazas falla", async () => {
     setupSupabaseMock({ spotsError: { message: "Error de base de datos" } });
     await expect(getSpotsByDate(DATE)).rejects.toThrow(
-      "Error de base de datos"
+      "No se pudieron obtener las plazas"
     );
   });
 

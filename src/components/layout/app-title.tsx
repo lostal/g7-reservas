@@ -1,7 +1,7 @@
 /**
  * AppTitle Component
  *
- * Sidebar header with GRUPOSIETE branding and logo.
+ * Sidebar header with Seven Suite branding and logo.
  * Based on shadcn-admin AppTitle pattern.
  */
 
@@ -35,7 +35,7 @@ export function AppTitle({ entityName }: { entityName?: string }) {
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
               <Image
                 src="/favicon-512x512.png"
-                alt="GRUPOSIETE Reservas"
+                alt="GRUPOSIETE"
                 width={32}
                 height={32}
                 className="size-8 rounded-lg"

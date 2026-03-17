@@ -84,7 +84,9 @@ describe("getOfficeSpots", () => {
       client as unknown as Awaited<ReturnType<typeof createClient>>
     );
 
-    await expect(getOfficeSpots()).rejects.toThrow("Error al obtener puestos");
+    await expect(getOfficeSpots()).rejects.toThrow(
+      "No se pudieron obtener los puestos"
+    );
   });
 });
 
@@ -284,7 +286,7 @@ describe("getOfficeAvailabilityForDate", () => {
     );
 
     await expect(getOfficeAvailabilityForDate("2026-04-01")).rejects.toThrow(
-      "Error al obtener puestos"
+      "No se pudieron obtener los puestos"
     );
   });
 });
@@ -429,7 +431,7 @@ describe("getAvailableTimeSlots", () => {
 
     await expect(
       getAvailableTimeSlots("spot-1", "2026-04-01", 8, 10, 60)
-    ).rejects.toThrow("Error al obtener franjas");
+    ).rejects.toThrow("No se pudieron obtener las franjas");
   });
 
   it("overlapping reservation (09:00-10:00) blocks the 09:00-10:00 slot", async () => {
@@ -533,7 +535,7 @@ describe("getUserOfficeReservations", () => {
     );
 
     await expect(getUserOfficeReservations("user-1")).rejects.toThrow(
-      "Error al obtener reservas de oficina"
+      "No se pudieron obtener las reservas de oficina"
     );
   });
 

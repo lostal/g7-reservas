@@ -191,13 +191,16 @@ export const createOfficeReservation = actionClient
     // Verificar que el spot es de tipo oficina
     const { data: spot } = await supabase
       .from("spots")
-      .select("id, resource_type")
+      .select("id, resource_type, entity_id")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
 
     if (!spot) throw new Error("Puesto no encontrado");
     if (spot.resource_type !== "office") {
       throw new Error("Este puesto no es un espacio de oficina");
+    }
+    if (entityId && spot.entity_id !== null && spot.entity_id !== entityId) {
+      throw new Error("El puesto seleccionado no pertenece a la sede activa");
     }
 
     // Insertar reserva
@@ -225,13 +228,10 @@ export const createOfficeReservation = actionClient
           "Esta franja horaria ya está reservada para este puesto"
         );
       }
-      console.error("[oficinas] createOfficeReservation DB error:", {
-        userId: user.id,
-        spotId: parsedInput.spot_id,
-        date: parsedInput.date,
-        error: insertError.message,
+      console.error("[oficinas] createOfficeReservation insert error", {
+        code: insertError.code,
       });
-      throw new Error(`Error al crear reserva: ${insertError.message}`);
+      throw new Error("No se pudo crear la reserva");
     }
 
     revalidatePath("/oficinas");
@@ -258,12 +258,10 @@ export const cancelOfficeReservation = actionClient
       .select("id");
 
     if (error) {
-      console.error("[oficinas] cancelOfficeReservation DB error:", {
-        userId: user.id,
-        reservationId: parsedInput.id,
-        error: error.message,
+      console.error("[oficinas] cancelOfficeReservation update error", {
+        code: error.code,
       });
-      throw new Error(`Error al cancelar reserva: ${error.message}`);
+      throw new Error("No se pudo cancelar la reserva");
     }
     if (!data || data.length === 0) {
       throw new Error("Reserva no encontrada o no pertenece a tu cuenta");

@@ -8,6 +8,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { SpotWithStatus, TimeSlot, ReservationWithDetails } from "@/types";
 import type { Reservation, Spot } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 
 // ─── Tipos internos ───────────────────────────────────────────────
 
@@ -40,7 +41,10 @@ export async function getOfficeSpots(
 
   const { data, error } = await query;
 
-  if (error) throw new Error(`Error al obtener puestos: ${error.message}`);
+  if (error) {
+    console.error("[offices] getOfficeSpots query error", { code: error.code });
+    throw new Error("No se pudieron obtener los puestos");
+  }
   return data ?? [];
 }
 
@@ -74,8 +78,12 @@ export async function getOfficeAvailabilityForDate(
 
   const spotsResult = await spotsQuery;
 
-  if (spotsResult.error)
-    throw new Error(`Error al obtener puestos: ${spotsResult.error.message}`);
+  if (spotsResult.error) {
+    console.error("[offices] getOfficeAvailabilityForDate spots query error", {
+      code: spotsResult.error.code,
+    });
+    throw new Error("No se pudieron obtener los puestos");
+  }
 
   const spots = spotsResult.data ?? [];
 
@@ -233,7 +241,12 @@ export async function getAvailableTimeSlots(
     .eq("status", "confirmed")
     .returns<{ start_time: string | null; end_time: string | null }[]>();
 
-  if (error) throw new Error(`Error al obtener franjas: ${error.message}`);
+  if (error) {
+    console.error("[offices] getAvailableTimeSlots query error", {
+      code: error.code,
+    });
+    throw new Error("No se pudieron obtener las franjas");
+  }
 
   const allReservations = reservations ?? [];
   // All-day reservations (null start/end) block the entire day: every slot is taken.
@@ -288,7 +301,7 @@ export async function getUserOfficeReservations(
   userId: string
 ): Promise<ReservationWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   const { data, error } = await supabase
     .from("reservations")
@@ -302,8 +315,12 @@ export async function getUserOfficeReservations(
     .order("date")
     .returns<OfficeReservationJoin[]>();
 
-  if (error)
-    throw new Error(`Error al obtener reservas de oficina: ${error.message}`);
+  if (error) {
+    console.error("[offices] getUserOfficeReservations query error", {
+      code: error.code,
+    });
+    throw new Error("No se pudieron obtener las reservas de oficina");
+  }
 
   return (data ?? [])
     .filter((r) => r.spots?.resource_type === "office")

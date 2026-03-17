@@ -53,7 +53,7 @@ export async function sendVisitorReservationEmail(
   const { to, icsBuffer, ...emailProps } = params;
 
   const { error } = await resend.emails.send({
-    from: `Gruposiete <${fromAddress}>`,
+    from: `Seven Suite <${fromAddress}>`,
     to,
     subject: `Plaza ${params.spotLabel} reservada — ${params.date}`,
     react: createElement(VisitorReservationEmail, emailProps),
@@ -92,7 +92,7 @@ export async function sendVisitorCancellationEmail(
   const { to, icsBuffer, ...emailProps } = params;
 
   const { error } = await resend.emails.send({
-    from: `Gruposiete <${fromAddress}>`,
+    from: `Seven Suite <${fromAddress}>`,
     to,
     subject: `Plaza ${params.spotLabel} cancelada — ${params.date}`,
     react: createElement(VisitorCancellationEmail, emailProps),

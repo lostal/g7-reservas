@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { AdminSettingsSidebar } from "./_components/admin-settings-sidebar";
 
 export const metadata = {
-  title: "Configuración del sistema - GRUPOSIETE Reservas",
+  title: "Configuración del sistema - Seven Suite",
   description:
     "Configura los parámetros del sistema: límites de reserva, disponibilidad y funcionalidades",
 };

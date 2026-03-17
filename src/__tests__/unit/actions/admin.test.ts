@@ -7,6 +7,7 @@
  * - deleteSpot: eliminación por id
  * - updateUserRole: cambio de rol de usuario
  * - assignSpotToUser: asignación/desasignación de plaza de dirección
+ * - assignUserToSpot: asignación desde perspectiva de plaza con control de cleanup
  * - deleteUser: eliminación de cuenta vía admin API
  */
 
@@ -17,6 +18,7 @@ import {
   deleteSpot,
   updateUserRole,
   assignSpotToUser,
+  assignUserToSpot,
   deleteUser,
 } from "@/app/(dashboard)/administracion/actions";
 import { createQueryChain } from "../../mocks/supabase";
@@ -47,6 +49,7 @@ vi.mock("@/lib/queries/active-entity", () => ({
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getActiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -212,9 +215,20 @@ describe("updateSpot", () => {
   });
 
   it("falla con mensaje claro en constraint único (23505)", async () => {
-    setupSupabaseMock({
-      thenableError: { message: "duplicate key", code: "23505" },
+    let callCount = 0;
+    const fetchChain = createQueryChain({
+      data: { id: UUID, entity_id: null },
+      error: null,
     });
+    const updateChain = createQueryChain({
+      data: null,
+      error: { message: "duplicate key", code: "23505" },
+    });
+    const mockFrom = vi.fn(() => {
+      callCount++;
+      return callCount === 1 ? fetchChain : updateChain;
+    });
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
 
     const result = await updateSpot({ id: UUID, label: "A-01" });
 
@@ -225,9 +239,20 @@ describe("updateSpot", () => {
   });
 
   it("falla con error genérico de BD", async () => {
-    setupSupabaseMock({
-      thenableError: { message: "Error de BD", code: "PGRST999" },
+    let callCount = 0;
+    const fetchChain = createQueryChain({
+      data: { id: UUID, entity_id: null },
+      error: null,
     });
+    const updateChain = createQueryChain({
+      data: null,
+      error: { message: "Error de BD", code: "PGRST999" },
+    });
+    const mockFrom = vi.fn(() => {
+      callCount++;
+      return callCount === 1 ? fetchChain : updateChain;
+    });
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
 
     const result = await updateSpot({ id: UUID, label: "A-01" });
 
@@ -242,6 +267,17 @@ describe("updateSpot", () => {
 
     expect(result.success).toBe(false);
     expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("falla si el spot no existe", async () => {
+    const fetchChain = createQueryChain({ data: null, error: null });
+    const mockFrom = vi.fn(() => fetchChain);
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
+
+    const result = await updateSpot({ id: UUID, label: "A-01" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("Plaza no encontrada");
   });
 });
 
@@ -263,9 +299,20 @@ describe("deleteSpot", () => {
   });
 
   it("falla si la BD devuelve error", async () => {
-    setupSupabaseMock({
-      thenableError: { message: "Foreign key constraint" },
+    let callCount = 0;
+    const fetchChain = createQueryChain({
+      data: { id: UUID, entity_id: null },
+      error: null,
     });
+    const deleteChain = createQueryChain({
+      data: null,
+      error: { message: "Foreign key constraint" },
+    });
+    const mockFrom = vi.fn(() => {
+      callCount++;
+      return callCount === 1 ? fetchChain : deleteChain;
+    });
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
 
     const result = await deleteSpot({ id: UUID });
 
@@ -279,6 +326,17 @@ describe("deleteSpot", () => {
 
     expect(result.success).toBe(false);
     expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("falla si el spot no existe", async () => {
+    const fetchChain = createQueryChain({ data: null, error: null });
+    const mockFrom = vi.fn(() => fetchChain);
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
+
+    const result = await deleteSpot({ id: UUID });
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("Plaza no encontrada");
   });
 });
 
@@ -451,6 +509,83 @@ describe("assignSpotToUser", () => {
 
     expect(result.success).toBe(false);
     expect(createClient).not.toHaveBeenCalled();
+  });
+});
+
+// ─── assignUserToSpot ─────────────────────────────────────────────────────────
+
+describe("assignUserToSpot", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupAdminUser();
+  });
+
+  it("falla si el cleanup de la plaza anterior devuelve error", async () => {
+    let callCount = 0;
+    const mockFrom = vi.fn(() => {
+      callCount++;
+      if (callCount === 1) {
+        return createQueryChain({ data: { ok: true }, error: null });
+      }
+      return createQueryChain({
+        data: null,
+        error: { message: "cleanup failed", code: "PGRST999" },
+      });
+    });
+
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
+
+    const result = await assignUserToSpot({
+      spot_id: UUID2,
+      user_id: UUID,
+      resource_type: "parking",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain("Error al limpiar la plaza anterior");
+    }
+  });
+
+  it("bloquea asignación si el usuario objetivo es de otra sede activa", async () => {
+    vi.mocked(getActiveEntityId).mockResolvedValueOnce("ent-1");
+
+    let callCount = 0;
+    const mockFrom = vi.fn((table: string) => {
+      callCount++;
+      const chain = createQueryChain({ data: null, error: null });
+
+      if (table === "spots" && callCount === 1) {
+        (chain.single as ReturnType<typeof vi.fn>).mockResolvedValue({
+          data: { entity_id: "ent-1" },
+          error: null,
+        });
+      }
+
+      if (table === "profiles") {
+        (chain.single as ReturnType<typeof vi.fn>).mockResolvedValue({
+          data: { entity_id: "ent-2" },
+          error: null,
+        });
+      }
+
+      return chain;
+    });
+
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
+
+    const result = await assignUserToSpot({
+      spot_id: UUID2,
+      user_id: UUID,
+      resource_type: "office",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain(
+        "Este usuario no pertenece a la sede activa"
+      );
+    }
   });
 });
 

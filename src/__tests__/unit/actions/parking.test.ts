@@ -63,6 +63,7 @@ vi.mock("@/lib/queries/active-entity", () => ({
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -79,10 +80,17 @@ function setupSupabaseMock(
      * Datos devueltos por maybeSingle() en la query de verificación resource_type.
      * Usado por createReservation (Bug 2 fix). Por defecto: plaza de parking válida.
      */
-    spotSingleData?: { id: string; resource_type: string } | null;
+    spotSingleData?: {
+      id: string;
+      resource_type: string;
+      entity_id: string | null;
+    } | null;
     reservations?: { id: string; spot_id: string }[];
+    reservationsError?: { message: string; code?: string } | null;
     cessions?: { id: string; spot_id: string; status: string }[];
+    cessionsError?: { message: string; code?: string } | null;
     visitorReservations?: { id: string; spot_id: string }[];
+    visitorReservationsError?: { message: string; code?: string } | null;
     existingReservation?: { id: string } | null;
     insertResult?: {
       data: { id: string } | null;
@@ -103,7 +111,7 @@ function setupSupabaseMock(
           data:
             config.spotSingleData !== undefined
               ? config.spotSingleData
-              : { id: UUID, resource_type: "parking" },
+              : { id: UUID, resource_type: "parking", entity_id: null },
           error: null,
         });
         return chain;
@@ -113,7 +121,7 @@ function setupSupabaseMock(
         // El insert usa .select().single() — devolver insertResult
         const chain = createQueryChain({
           data: config.reservations ?? [],
-          error: null,
+          error: config.reservationsError ?? null,
         });
         // Override maybeSingle para la comprobación de duplicado
         (chain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -136,12 +144,12 @@ function setupSupabaseMock(
       case "cessions":
         return createQueryChain({
           data: config.cessions ?? [],
-          error: null,
+          error: config.cessionsError ?? null,
         });
       case "visitor_reservations":
         return createQueryChain({
           data: config.visitorReservations ?? [],
-          error: null,
+          error: config.visitorReservationsError ?? null,
         });
       default:
         return createQueryChain({ data: [], error: null });
@@ -203,7 +211,20 @@ describe("getAvailableSpotsForDate", () => {
     setupSupabaseMock({ spotsError: { message: "Error de conexión" } });
     const result = await getAvailableSpotsForDate("2025-03-17");
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toContain("Error de conexión");
+    if (!result.success)
+      expect(result.error).toContain("No se pudieron obtener las plazas");
+  });
+
+  it("devuelve error si falla cualquiera de las queries auxiliares", async () => {
+    setupSupabaseMock({
+      reservationsError: { message: "fallo", code: "PGRST500" },
+    });
+
+    const result = await getAvailableSpotsForDate("2025-03-17");
+
+    expect(result.success).toBe(false);
+    if (!result.success)
+      expect(result.error).toContain("No se pudieron obtener las plazas");
   });
 
   // ── Plazas estándar ────────────────────────────────────────────────────────
@@ -356,6 +377,7 @@ describe("createReservation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getCurrentUser).mockResolvedValue(createMockAuthUser() as never);
+    vi.mocked(getEffectiveEntityId).mockResolvedValue(null);
   });
 
   it("crea la reserva y devuelve el id", async () => {
@@ -416,6 +438,43 @@ describe("createReservation", () => {
     }
   });
 
+  it("si hay carrera concurrente y termina existiendo reserva del usuario, devuelve mensaje de duplicado de usuario", async () => {
+    const spotsChain = createQueryChain({
+      data: { id: UUID, resource_type: "parking", entity_id: null },
+      error: null,
+    });
+    (spotsChain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: UUID, resource_type: "parking", entity_id: null },
+      error: null,
+    });
+
+    const reservationsChain = createQueryChain({ data: [], error: null });
+    (reservationsChain.maybeSingle as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce({ data: { id: "race-user-res" }, error: null });
+    (reservationsChain.single as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: null,
+      error: { message: "duplicate key value", code: "23505" },
+    });
+
+    const mockFrom = vi.fn((table: string) => {
+      if (table === "spots") return spotsChain;
+      if (table === "reservations") return reservationsChain;
+      return createQueryChain({ data: [], error: null });
+    });
+    vi.mocked(createClient).mockResolvedValue({ from: mockFrom } as never);
+
+    const result = await createReservation({
+      spot_id: UUID,
+      date: "2025-03-17",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain("Ya tienes una reserva para este día");
+    }
+  });
+
   it("falla con error genérico de BD si el código no es 23505", async () => {
     setupSupabaseMock({
       existingReservation: null,
@@ -432,8 +491,28 @@ describe("createReservation", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain("Connection timeout");
+      expect(result.error).toContain("No se pudo crear la reserva");
     }
+  });
+
+  it("rechaza reservar una plaza de otra sede", async () => {
+    vi.mocked(getEffectiveEntityId).mockResolvedValue("entity-A");
+    setupSupabaseMock({
+      existingReservation: null,
+      spotSingleData: {
+        id: UUID,
+        resource_type: "parking",
+        entity_id: "entity-B",
+      },
+    });
+
+    const result = await createReservation({
+      spot_id: UUID,
+      date: "2025-03-17",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("sede activa");
   });
 
   it("rechaza spot_id inválido sin llamar a BD (validación Zod)", async () => {
@@ -499,7 +578,7 @@ describe("cancelReservation", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain("Row not found or no permission");
+      expect(result.error).toContain("No se pudo cancelar la reserva");
     }
   });
 

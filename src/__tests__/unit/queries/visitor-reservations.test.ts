@@ -187,7 +187,7 @@ describe("getUpcomingVisitorReservations", () => {
     );
 
     await expect(getUpcomingVisitorReservations()).rejects.toThrow(
-      "Error al obtener reservas de visitantes"
+      "No se pudieron obtener las reservas de visitantes"
     );
   });
 
@@ -225,6 +225,7 @@ describe("getAvailableVisitorSpotsForDate", () => {
     spots: { id: string; label: string }[];
     reservedSpotIds: { spot_id: string }[];
     spotsError?: { message: string } | null;
+    reservedError?: { message: string } | null;
   }) {
     const spotsChain = createQueryChain({
       data: opts.spots,
@@ -232,7 +233,7 @@ describe("getAvailableVisitorSpotsForDate", () => {
     });
     const reservedChain = createQueryChain({
       data: opts.reservedSpotIds,
-      error: null,
+      error: opts.reservedError ?? null,
     });
 
     const client = {
@@ -326,7 +327,22 @@ describe("getAvailableVisitorSpotsForDate", () => {
     );
 
     await expect(getAvailableVisitorSpotsForDate("2026-04-01")).rejects.toThrow(
-      "Error al obtener plazas"
+      "No se pudieron obtener las plazas de visitantes"
+    );
+  });
+
+  it("reserved query error → throws", async () => {
+    const client = buildClientForAvailability({
+      spots: [{ id: "spot-1", label: "V-01" }],
+      reservedSpotIds: [],
+      reservedError: { message: "DB error" },
+    });
+    vi.mocked(createClient).mockResolvedValue(
+      client as unknown as Awaited<ReturnType<typeof createClient>>
+    );
+
+    await expect(getAvailableVisitorSpotsForDate("2026-04-01")).rejects.toThrow(
+      "No se pudieron obtener las plazas de visitantes"
     );
   });
 

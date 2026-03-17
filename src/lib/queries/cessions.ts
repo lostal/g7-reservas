@@ -6,6 +6,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Cession, ResourceType } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 
 /** Tipo interno para la query con joins de plaza y perfil */
 type CessionJoin = Cession & {
@@ -86,7 +87,7 @@ export async function getUserCessions(
   resourceType?: "parking" | "office"
 ): Promise<CessionWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   let query = supabase
     .from("cessions")

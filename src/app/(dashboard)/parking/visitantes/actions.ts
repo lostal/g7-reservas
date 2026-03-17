@@ -169,21 +169,27 @@ export const createVisitorReservation = actionClient
 
     const { data: spotData } = await supabase
       .from("spots")
-      .select("label, entity_id")
+      .select("label, entity_id, type, resource_type")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
+
+    if (!spotData) {
+      throw new Error("La plaza seleccionada no existe");
+    }
+    if (spotData.type !== "visitor" || spotData.resource_type !== "parking") {
+      throw new Error("La plaza seleccionada no es una plaza de visitantes");
+    }
 
     // Verificar que la plaza pertenece a la sede activa
     if (
       entityId &&
-      spotData &&
       spotData.entity_id !== null &&
       spotData.entity_id !== entityId
     ) {
       throw new Error("La plaza seleccionada no pertenece a la sede activa");
     }
 
-    const spotLabel = spotData?.label ?? parsedInput.spot_id;
+    const spotLabel = spotData.label;
     const reservedByName = user.profile?.full_name ?? user.email;
 
     const { data, error: insertError } = await supabase
@@ -261,21 +267,27 @@ export const updateVisitorReservation = actionClient
     // Obtener spot label y entity_id de la nueva plaza
     const { data: spotData } = await supabase
       .from("spots")
-      .select("label, entity_id")
+      .select("label, entity_id, type, resource_type")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
+
+    if (!spotData) {
+      throw new Error("La plaza seleccionada no existe");
+    }
+    if (spotData.type !== "visitor" || spotData.resource_type !== "parking") {
+      throw new Error("La plaza seleccionada no es una plaza de visitantes");
+    }
 
     const entityId = await getEffectiveEntityId();
     if (
       entityId &&
-      spotData &&
       spotData.entity_id !== null &&
       spotData.entity_id !== entityId
     ) {
       throw new Error("La plaza seleccionada no pertenece a la sede activa");
     }
 
-    const spotLabel = spotData?.label ?? parsedInput.spot_id;
+    const spotLabel = spotData.label;
     const reservedByName = user.profile?.full_name ?? user.email;
 
     // Actualizar la reserva (solo el creador o admin pueden hacerlo)
@@ -291,9 +303,10 @@ export const updateVisitorReservation = actionClient
         notification_sent: false,
       })
       .eq("id", parsedInput.id)
-      .eq("status", "confirmed");
+      .eq("status", "confirmed")
+      .select("id");
 
-    const { error: updateError, count } = await (isAdmin
+    const { error: updateError, data: updatedRows } = await (isAdmin
       ? baseQuery
       : baseQuery.eq("reserved_by", user.id));
 
@@ -307,7 +320,7 @@ export const updateVisitorReservation = actionClient
         `Error al actualizar reserva de visitante: ${updateError.message}`
       );
     }
-    if (count === 0) {
+    if (!updatedRows || updatedRows.length === 0) {
       throw new Error(
         "Reserva no encontrada, ya cancelada o sin permisos para editarla"
       );
@@ -387,14 +400,25 @@ export const cancelVisitorReservation = actionClient
     }
 
     // Cancelar la reserva
-    const { error: updateError } = await supabase
+    const updateBase = supabase
       .from("visitor_reservations")
       .update({ status: "cancelled" })
-      .eq("id", parsedInput.id);
+      .eq("id", parsedInput.id)
+      .eq("status", "confirmed")
+      .select("id");
+
+    const { error: updateError, data: updatedRows } = await (isAdmin
+      ? updateBase
+      : updateBase.eq("reserved_by", user.id));
 
     if (updateError) {
       throw new Error(
         `Error al cancelar reserva de visitante: ${updateError.message}`
+      );
+    }
+    if (!updatedRows || updatedRows.length === 0) {
+      throw new Error(
+        "Reserva no encontrada, ya cancelada o sin permisos para cancelarla"
       );
     }
 

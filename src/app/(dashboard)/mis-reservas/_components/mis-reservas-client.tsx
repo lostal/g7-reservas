@@ -28,7 +28,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, toClientDateStr } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -142,7 +142,7 @@ function ReservationItem({
   onCancel: (id: string, resourceType: "parking" | "office") => void;
 }) {
   const date = parseLocalDate(reservation.date);
-  const isToday = reservation.date === new Date().toISOString().split("T")[0]!;
+  const isToday = reservation.date === toClientDateStr(new Date());
   const isOffice = reservation.resourceType === "office";
   const officeRes = isOffice
     ? (reservation as OfficeReservationWithDetails & { resourceType: "office" })
@@ -240,7 +240,7 @@ function CessionRow({
   onCancel: (id: string, resourceType: "parking" | "office") => void;
 }) {
   const date = parseLocalDate(cession.date);
-  const isToday = cession.date === new Date().toISOString().split("T")[0]!;
+  const isToday = cession.date === toClientDateStr(new Date());
 
   return (
     <div className="flex items-center gap-4 py-3 pl-1">
