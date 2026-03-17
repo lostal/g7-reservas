@@ -6,10 +6,15 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Reservation, ResourceType } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 
 /** Tipo interno para la query con joins de plaza y perfil */
 type ReservationJoin = Reservation & {
-  spots: { label: string; resource_type: string } | null;
+  spots: {
+    label: string;
+    resource_type: string;
+    entity_id: string | null;
+  } | null;
   profiles: { full_name: string } | null;
 };
 
@@ -32,14 +37,15 @@ export interface ReservationRow extends Reservation {
  */
 export async function getReservationsByDate(
   date: string,
-  resourceType?: "parking" | "office"
+  resourceType?: "parking" | "office",
+  entityId?: string | null
 ): Promise<ReservationRow[]> {
   const supabase = await createClient();
 
   let query = supabase
     .from("reservations")
     .select(
-      "*, spots!reservations_spot_id_fkey(label, resource_type), profiles!reservations_user_id_fkey(full_name)"
+      "*, spots!reservations_spot_id_fkey(label, resource_type, entity_id), profiles!reservations_user_id_fkey(full_name)"
     )
     .eq("date", date)
     .eq("status", "confirmed")
@@ -51,42 +57,44 @@ export async function getReservationsByDate(
 
   const { data, error } = await query.returns<ReservationJoin[]>();
 
-  if (error) throw new Error(`Error al obtener reservas: ${error.message}`);
+  if (error) {
+    console.error("[reservations] getReservationsByDate query error", {
+      code: error.code,
+    });
+    throw new Error("No se pudieron obtener las reservas");
+  }
 
   // Guarda JS: el filtro `.eq("spots.resource_type")` en PostgREST actúa sobre el
   // join (no como WHERE), por lo que puede devolver filas con spots = null.
-  const rows = resourceType
-    ? data.filter((r) => {
-        const match = r.spots?.resource_type === resourceType;
-        if (!match && r.spots !== null) {
-          console.warn(
-            "[reservations] getReservations: fila descartada por resource_type incorrecto",
-            { id: r.id, expected: resourceType, got: r.spots?.resource_type }
-          );
-        }
-        return match;
-      })
-    : data;
+  const rows = data.filter((r) => {
+    if (r.spots === null) return false;
 
-  return rows
-    .filter((r) => r.spots !== null)
-    .map(
-      (r): ReservationRow => ({
-        id: r.id,
-        spot_id: r.spot_id,
-        user_id: r.user_id,
-        date: r.date,
-        status: r.status,
-        notes: r.notes,
-        start_time: r.start_time,
-        end_time: r.end_time,
-        created_at: r.created_at,
-        updated_at: r.updated_at,
-        spot_label: r.spots!.label,
-        user_name: r.profiles?.full_name ?? "",
-        resource_type: r.spots!.resource_type as ResourceType,
-      })
-    );
+    if (resourceType && r.spots.resource_type !== resourceType) return false;
+
+    if (entityId) {
+      return r.spots.entity_id === entityId || r.spots.entity_id === null;
+    }
+
+    return true;
+  });
+
+  return rows.map(
+    (r): ReservationRow => ({
+      id: r.id,
+      spot_id: r.spot_id,
+      user_id: r.user_id,
+      date: r.date,
+      status: r.status,
+      notes: r.notes,
+      start_time: r.start_time,
+      end_time: r.end_time,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+      spot_label: r.spots!.label,
+      user_name: r.profiles?.full_name ?? "",
+      resource_type: r.spots!.resource_type as ResourceType,
+    })
+  );
 }
 
 /**
@@ -97,15 +105,16 @@ export async function getReservationsByDate(
  */
 export async function getUserReservations(
   userId: string,
-  resourceType?: "parking" | "office"
+  resourceType?: "parking" | "office",
+  entityId?: string | null
 ): Promise<ReservationRow[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   let query = supabase
     .from("reservations")
     .select(
-      "*, spots!reservations_spot_id_fkey(label, resource_type), profiles!reservations_user_id_fkey(full_name)"
+      "*, spots!reservations_spot_id_fkey(label, resource_type, entity_id), profiles!reservations_user_id_fkey(full_name)"
     )
     .eq("user_id", userId)
     .eq("status", "confirmed")
@@ -118,43 +127,44 @@ export async function getUserReservations(
 
   const { data, error } = await query.returns<ReservationJoin[]>();
 
-  if (error)
-    throw new Error(`Error al obtener reservas del usuario: ${error.message}`);
+  if (error) {
+    console.error("[reservations] getUserReservations query error", {
+      code: error.code,
+    });
+    throw new Error("No se pudieron obtener las reservas del usuario");
+  }
 
   // Guarda JS: el filtro `.eq("spots.resource_type")` en PostgREST actúa sobre el
   // join (no como WHERE), por lo que puede devolver filas con spots = null.
-  const rows = resourceType
-    ? data.filter((r) => {
-        const match = r.spots?.resource_type === resourceType;
-        if (!match && r.spots !== null) {
-          console.warn(
-            "[reservations] getUserReservations: fila descartada por resource_type incorrecto",
-            { id: r.id, expected: resourceType, got: r.spots?.resource_type }
-          );
-        }
-        return match;
-      })
-    : data;
+  const rows = data.filter((r) => {
+    if (r.spots === null) return false;
 
-  return rows
-    .filter((r) => r.spots !== null)
-    .map(
-      (r): ReservationRow => ({
-        id: r.id,
-        spot_id: r.spot_id,
-        user_id: r.user_id,
-        date: r.date,
-        status: r.status,
-        notes: r.notes,
-        start_time: r.start_time,
-        end_time: r.end_time,
-        created_at: r.created_at,
-        updated_at: r.updated_at,
-        spot_label: r.spots!.label,
-        user_name: r.profiles?.full_name ?? "",
-        resource_type: r.spots!.resource_type as ResourceType,
-      })
-    );
+    if (resourceType && r.spots.resource_type !== resourceType) return false;
+
+    if (entityId) {
+      return r.spots.entity_id === entityId || r.spots.entity_id === null;
+    }
+
+    return true;
+  });
+
+  return rows.map(
+    (r): ReservationRow => ({
+      id: r.id,
+      spot_id: r.spot_id,
+      user_id: r.user_id,
+      date: r.date,
+      status: r.status,
+      notes: r.notes,
+      start_time: r.start_time,
+      end_time: r.end_time,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+      spot_label: r.spots!.label,
+      user_name: r.profiles?.full_name ?? "",
+      resource_type: r.spots!.resource_type as ResourceType,
+    })
+  );
 }
 
 /**
@@ -183,7 +193,12 @@ export async function getUserReservationForDate(
       .eq("status", "confirmed")
       .maybeSingle();
 
-    if (error) throw new Error(`Error al comprobar reserva: ${error.message}`);
+    if (error) {
+      console.error("[reservations] getUserReservationForDate query error", {
+        code: error.code,
+      });
+      throw new Error("No se pudo comprobar la reserva");
+    }
     return data;
   }
 
@@ -195,8 +210,12 @@ export async function getUserReservationForDate(
     .eq("resource_type", resourceType)
     .eq("is_active", true);
 
-  if (spotsError)
-    throw new Error(`Error al obtener plazas: ${spotsError.message}`);
+  if (spotsError) {
+    console.error("[reservations] getUserReservationForDate spots error", {
+      code: spotsError.code,
+    });
+    throw new Error("No se pudieron obtener las plazas");
+  }
 
   const ids = (spotIds ?? []).map((s) => s.id);
   if (ids.length === 0) return null;
@@ -210,6 +229,14 @@ export async function getUserReservationForDate(
     .in("spot_id", ids)
     .maybeSingle();
 
-  if (error) throw new Error(`Error al comprobar reserva: ${error.message}`);
+  if (error) {
+    console.error(
+      "[reservations] getUserReservationForDate filtered query error",
+      {
+        code: error.code,
+      }
+    );
+    throw new Error("No se pudo comprobar la reserva");
+  }
   return data;
 }

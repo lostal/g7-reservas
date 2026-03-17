@@ -18,8 +18,7 @@ import {
   Text,
 } from "@react-email/components";
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://reservas.gruposiete.es";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://sevensuite.app";
 
 export interface VisitorCancellationEmailProps {
   visitorName: string;
@@ -45,12 +44,12 @@ export function VisitorCancellationEmail({
           <Section style={s.header}>
             <Img
               src={`${APP_URL}/favicon-192x192.png`}
-              alt="Gruposiete"
+              alt="GRUPOSIETE"
               width={52}
               height={52}
               style={s.logoImg}
             />
-            <Heading style={s.logo}>Gruposiete</Heading>
+            <Heading style={s.logo}>GRUPOSIETE</Heading>
             <Text style={s.tagline}>RESERVAS</Text>
           </Section>
 
@@ -64,7 +63,7 @@ export function VisitorCancellationEmail({
             </Text>
             <Text style={s.text}>
               <strong>{cancelledByName}</strong> ha cancelado tu reserva de
-              plaza de aparcamiento en Gruposiete.
+              plaza de aparcamiento en GRUPOSIETE.
             </Text>
 
             {/* Tarjeta de la reserva cancelada */}

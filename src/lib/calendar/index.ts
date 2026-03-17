@@ -62,19 +62,19 @@ export function generateCancellationICSBuffer(data: {
   spotLabel: string;
   date: string;
 }): Buffer {
-  const summary = icsEscape(`Plaza ${data.spotLabel} — Reserva Gruposiete`);
+  const summary = icsEscape(`Plaza ${data.spotLabel} — Reserva GRUPOSIETE`);
 
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Gruposiete//Reservas//ES",
+    "PRODID:-//SevenSuite//Reservas//ES",
     "CALSCALE:GREGORIAN",
     "METHOD:CANCEL",
     "BEGIN:VEVENT",
     `DTSTART;VALUE=DATE:${toICSDate(data.date)}`,
     `DTEND;VALUE=DATE:${nextDayICS(data.date)}`,
     `SUMMARY:${summary}`,
-    `UID:${data.reservationId}@gruposiete.parking`,
+    `UID:${data.reservationId}@sevensuite.app`,
     `DTSTAMP:${nowICS()}`,
     "SEQUENCE:1",
     "STATUS:CANCELLED",
@@ -91,7 +91,7 @@ export function generateCancellationICSBuffer(data: {
  * si desea añadir el evento (Apple Calendar, Outlook, Google Calendar…).
  */
 export function generateICSBuffer(data: CalendarEventData): Buffer {
-  const summary = icsEscape(`Plaza ${data.spotLabel} — Reserva Gruposiete`);
+  const summary = icsEscape(`Plaza ${data.spotLabel} — Reserva GRUPOSIETE`);
   const description = icsEscape(
     `Plaza reservada para ${data.visitorName} (${data.visitorCompany}).\\nReservado por: ${data.reservedByName}` +
       (data.notes ? `\\nNotas: ${data.notes}` : "")
@@ -101,7 +101,7 @@ export function generateICSBuffer(data: CalendarEventData): Buffer {
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Gruposiete//Reservas//ES",
+    "PRODID:-//SevenSuite//Reservas//ES",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -110,7 +110,7 @@ export function generateICSBuffer(data: CalendarEventData): Buffer {
     `SUMMARY:${summary}`,
     `DESCRIPTION:${description}`,
     `LOCATION:${location}`,
-    `UID:${data.reservationId}@gruposiete.parking`,
+    `UID:${data.reservationId}@sevensuite.app`,
     `DTSTAMP:${nowICS()}`,
     "STATUS:CONFIRMED",
     "END:VEVENT",
@@ -125,7 +125,7 @@ export function generateICSBuffer(data: CalendarEventData): Buffer {
  * No requiere autenticación ni credenciales.
  */
 export function generateGoogleCalendarUrl(data: CalendarEventData): string {
-  const title = `Plaza ${data.spotLabel} — Reserva Gruposiete`;
+  const title = `Plaza ${data.spotLabel} — Reserva GRUPOSIETE`;
   const details =
     `Plaza reservada para ${data.visitorName} (${data.visitorCompany}).\nReservado por: ${data.reservedByName}` +
     (data.notes ? `\nNotas: ${data.notes}` : "");
@@ -146,7 +146,7 @@ export function generateGoogleCalendarUrl(data: CalendarEventData): string {
  * Funciona tanto con cuentas personales (outlook.live.com) como corporativas.
  */
 export function generateOutlookUrl(data: CalendarEventData): string {
-  const title = `Plaza ${data.spotLabel} — Reserva Gruposiete`;
+  const title = `Plaza ${data.spotLabel} — Reserva GRUPOSIETE`;
   const body =
     `Plaza reservada para ${data.visitorName} (${data.visitorCompany}).\nReservado por: ${data.reservedByName}` +
     (data.notes ? `\nNotas: ${data.notes}` : "");

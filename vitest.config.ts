@@ -35,10 +35,10 @@ export default defineConfig({
       // Umbrales de cobertura — calibrados contra cobertura real (46% líneas, 38% ramas, 47% funciones)
       // Objetivo: detectar regresiones. Subir progresivamente al añadir tests.
       thresholds: {
-        lines: 45,
-        branches: 37,
-        functions: 45,
-        statements: 45,
+        lines: 60,
+        branches: 50,
+        functions: 60,
+        statements: 60,
       },
     },
   },

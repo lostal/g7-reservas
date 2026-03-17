@@ -40,7 +40,12 @@ export const createEntity = actionClient
     if (error) {
       if (error.code === "23505")
         throw new Error("Ya existe una sede con ese nombre o código");
-      throw new Error(`Error al crear sede: ${error.message}`);
+      console.error(
+        "[entities] createEntity DB error:",
+        error.message,
+        error.code
+      );
+      throw new Error("Error al crear la sede");
     }
     revalidatePath("/administracion/entidades");
     return { id: data.id };
@@ -64,7 +69,12 @@ export const updateEntity = actionClient
     if (error) {
       if (error.code === "23505")
         throw new Error("Ya existe una sede con ese nombre o código");
-      throw new Error(`Error al actualizar sede: ${error.message}`);
+      console.error(
+        "[entities] updateEntity DB error:",
+        error.message,
+        error.code
+      );
+      throw new Error("Error al actualizar la sede");
     }
     revalidatePath("/administracion/entidades");
     return { updated: true };
@@ -82,7 +92,14 @@ export const deleteEntity = actionClient
       .from("entities")
       .delete()
       .eq("id", parsedInput.id);
-    if (error) throw new Error(`Error al eliminar sede: ${error.message}`);
+    if (error) {
+      console.error(
+        "[entities] deleteEntity DB error:",
+        error.message,
+        error.code
+      );
+      throw new Error("Error al eliminar la sede");
+    }
     revalidatePath("/administracion/entidades");
     return { deleted: true };
   });
@@ -102,7 +119,14 @@ export const toggleEntityModule = actionClient
         { entity_id, module, enabled },
         { onConflict: "entity_id,module" }
       );
-    if (error) throw new Error(`Error al actualizar módulo: ${error.message}`);
+    if (error) {
+      console.error(
+        "[entities] toggleEntityModule DB error:",
+        error.message,
+        error.code
+      );
+      throw new Error("Error al actualizar el módulo");
+    }
     revalidatePath("/administracion/entidades");
     return { updated: true };
   });

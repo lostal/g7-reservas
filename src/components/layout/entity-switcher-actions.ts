@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { invalidateConfigCache } from "@/lib/config";
 
 export async function setActiveEntityAction(entityId: string): Promise<void> {
   const cookieStore = await cookies();
@@ -10,7 +11,10 @@ export async function setActiveEntityAction(entityId: string): Promise<void> {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     httpOnly: true,
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
+  // Invalidar cache de config para que la nueva sede aplique sus overrides
+  await invalidateConfigCache();
   // Forzar re-render completo del layout para que todos los datos reflejen la nueva sede
   revalidatePath("/", "layout");
 }
@@ -28,6 +32,17 @@ export async function initActiveEntityCookie(entityId: string): Promise<void> {
       maxAge: 60 * 60 * 24 * 7,
       httpOnly: true,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
     });
   }
+}
+
+/**
+ * Elimina la cookie de sede activa.
+ * Llamar al cerrar sesión para evitar que un usuario nuevo herede
+ * el contexto de sede del usuario anterior en el mismo navegador.
+ */
+export async function clearActiveEntityCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete("active-entity-id");
 }

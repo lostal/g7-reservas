@@ -49,7 +49,12 @@ export async function getOfficeSpotsForDate(
     const dayOfWeek = getDayOfWeek(date);
     if (!config.allowed_days.includes(dayOfWeek)) return success([]);
 
-    const spots = await getOfficeAvailabilityForDate(date, startTime, endTime);
+    const spots = await getOfficeAvailabilityForDate(
+      date,
+      startTime,
+      endTime,
+      entityId
+    );
     return success(spots);
   } catch (err) {
     console.error("[oficinas] getOfficeSpotsForDate error:", err);
@@ -161,9 +166,14 @@ export const createOfficeReservation = actionClient
           "Debes seleccionar una franja horaria para reservar este puesto"
         );
       }
-      const toMinutes = (t: string) => {
-        const [h, m] = t.split(":").map(Number);
-        return (h ?? 0) * 60 + (m ?? 0);
+      const toMinutes = (t: string): number => {
+        const parts = t.split(":");
+        const h = parseInt(parts[0] ?? "", 10);
+        const m = parseInt(parts[1] ?? "0", 10);
+        if (isNaN(h) || isNaN(m)) {
+          throw new Error(`Formato de hora inválido: ${t}`);
+        }
+        return h * 60 + m;
       };
       const startMins = toMinutes(parsedInput.start_time);
       const endMins = toMinutes(parsedInput.end_time);
@@ -181,13 +191,16 @@ export const createOfficeReservation = actionClient
     // Verificar que el spot es de tipo oficina
     const { data: spot } = await supabase
       .from("spots")
-      .select("id, resource_type")
+      .select("id, resource_type, entity_id")
       .eq("id", parsedInput.spot_id)
       .maybeSingle();
 
     if (!spot) throw new Error("Puesto no encontrado");
     if (spot.resource_type !== "office") {
       throw new Error("Este puesto no es un espacio de oficina");
+    }
+    if (entityId && spot.entity_id !== null && spot.entity_id !== entityId) {
+      throw new Error("El puesto seleccionado no pertenece a la sede activa");
     }
 
     // Insertar reserva
@@ -215,13 +228,10 @@ export const createOfficeReservation = actionClient
           "Esta franja horaria ya está reservada para este puesto"
         );
       }
-      console.error("[oficinas] createOfficeReservation DB error:", {
-        userId: user.id,
-        spotId: parsedInput.spot_id,
-        date: parsedInput.date,
-        error: insertError.message,
+      console.error("[oficinas] createOfficeReservation insert error", {
+        code: insertError.code,
       });
-      throw new Error(`Error al crear reserva: ${insertError.message}`);
+      throw new Error("No se pudo crear la reserva");
     }
 
     revalidatePath("/oficinas");
@@ -248,12 +258,10 @@ export const cancelOfficeReservation = actionClient
       .select("id");
 
     if (error) {
-      console.error("[oficinas] cancelOfficeReservation DB error:", {
-        userId: user.id,
-        reservationId: parsedInput.id,
-        error: error.message,
+      console.error("[oficinas] cancelOfficeReservation update error", {
+        code: error.code,
       });
-      throw new Error(`Error al cancelar reserva: ${error.message}`);
+      throw new Error("No se pudo cancelar la reserva");
     }
     if (!data || data.length === 0) {
       throw new Error("Reserva no encontrada o no pertenece a tu cuenta");

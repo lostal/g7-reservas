@@ -38,7 +38,12 @@ export const updateDirectorioUser = actionClient
       .eq("id", parsedInput.user_id);
 
     if (error) {
-      throw new Error(`Error al actualizar usuario: ${error.message}`);
+      console.error(
+        "[directorio] updateDirectorioUser DB error:",
+        error.message,
+        error.code
+      );
+      throw new Error("Error al actualizar el usuario");
     }
 
     revalidatePath("/directorio");
@@ -69,7 +74,11 @@ export const createDirectorioUser = actionClient
       if (error.message.includes("already been registered")) {
         throw new Error("Ya existe un usuario con ese correo electrónico.");
       }
-      throw new Error(`Error al crear usuario: ${error.message}`);
+      console.error(
+        "[directorio] createDirectorioUser auth error:",
+        error.message
+      );
+      throw new Error("Error al crear el usuario");
     }
 
     // Update job_title if provided (not in trigger metadata).

@@ -74,8 +74,15 @@ export default async function DashboardLayout({
     try {
       entities = await getAllEntities();
       const cookieEntityId = cookieStore.get("active-entity-id")?.value ?? null;
-      activeEntityId = cookieEntityId ?? entities[0]?.id ?? null;
-      entityIdPersisted = cookieEntityId !== null;
+      // Validate that the cookie references an entity the current admin can access.
+      // If User B logs in after User A, the stale cookie must not grant cross-user context.
+      const isValidCookieEntity =
+        cookieEntityId !== null &&
+        entities.some((e) => e.id === cookieEntityId);
+      activeEntityId = isValidCookieEntity
+        ? cookieEntityId
+        : (entities[0]?.id ?? null);
+      entityIdPersisted = isValidCookieEntity;
       if (activeEntityId) {
         enabledModules = await getEntityEnabledModules(activeEntityId);
       }

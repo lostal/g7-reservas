@@ -88,7 +88,7 @@ export function LoginForm({ entities }: LoginFormProps) {
             {/* Logo modo claro */}
             <Image
               src="/logo-light.png"
-              alt="GRUPOSIETE Reservas"
+              alt="GRUPOSIETE"
               width={240}
               height={80}
               className="h-20 w-auto dark:hidden"
@@ -97,7 +97,7 @@ export function LoginForm({ entities }: LoginFormProps) {
             {/* Logo modo oscuro */}
             <Image
               src="/logo-dark.png"
-              alt="GRUPOSIETE Reservas"
+              alt="GRUPOSIETE"
               width={240}
               height={80}
               className="hidden h-20 w-auto dark:block"
@@ -294,7 +294,7 @@ export function LoginForm({ entities }: LoginFormProps) {
         {/* Mockup modo claro */}
         <Image
           src="/mockup-light.png"
-          alt="GRUPOSIETE Reservas"
+          alt="Seven Suite"
           fill
           className="object-cover object-top select-none dark:hidden"
           priority
@@ -302,7 +302,7 @@ export function LoginForm({ entities }: LoginFormProps) {
         {/* Mockup modo oscuro */}
         <Image
           src="/mockup-dark.png"
-          alt="GRUPOSIETE Reservas"
+          alt="Seven Suite"
           fill
           className="hidden object-cover object-top select-none dark:block"
           priority

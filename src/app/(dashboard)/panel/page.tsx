@@ -15,6 +15,7 @@ import { Header, Main } from "@/components/layout";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
+import { toServerDateStr } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ROUTES } from "@/lib/constants";
 import { getEffectiveEntityId } from "@/lib/queries/active-entity";
@@ -29,6 +30,7 @@ import {
   AnalyticsSkeleton,
   AlertsSkeleton,
 } from "./_components/panel-skeleton";
+import { PanelSectionErrorBoundary } from "./_components/panel-error-boundary";
 
 export default async function PanelPage() {
   const user = await requireAuth();
@@ -38,7 +40,7 @@ export default async function PanelPage() {
     redirect(ROUTES.PARKING);
   }
 
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
   const entityId = await getEffectiveEntityId();
 
   return (
@@ -73,26 +75,34 @@ export default async function PanelPage() {
           {/* ── Resumen ─────────────────────────────────────── */}
           <TabsContent value="overview" className="space-y-4">
             {/* Stats cards — bloqueo mínimo, solo 4 queries rápidas */}
-            <Suspense key={entityId ?? "global"} fallback={<StatsSkeleton />}>
-              <PanelStatsSection today={today} entityId={entityId} />
-            </Suspense>
+            <PanelSectionErrorBoundary>
+              <Suspense key={entityId ?? "global"} fallback={<StatsSkeleton />}>
+                <PanelStatsSection today={today} entityId={entityId} />
+              </Suspense>
+            </PanelSectionErrorBoundary>
 
             {/* Chart + Actividad reciente */}
-            <Suspense fallback={<ChartsSkeleton />}>
-              <PanelChartsSection entityId={entityId} />
-            </Suspense>
+            <PanelSectionErrorBoundary>
+              <Suspense fallback={<ChartsSkeleton />}>
+                <PanelChartsSection entityId={entityId} />
+              </Suspense>
+            </PanelSectionErrorBoundary>
 
             {/* Admin alerts */}
-            <Suspense fallback={<AlertsSkeleton />}>
-              <PanelAlertsSection today={today} entityId={entityId} />
-            </Suspense>
+            <PanelSectionErrorBoundary>
+              <Suspense fallback={<AlertsSkeleton />}>
+                <PanelAlertsSection today={today} entityId={entityId} />
+              </Suspense>
+            </PanelSectionErrorBoundary>
           </TabsContent>
 
           {/* ── Analítica ────────────────────────────────────── */}
           <TabsContent value="analytics" className="space-y-4">
-            <Suspense fallback={<AnalyticsSkeleton />}>
-              <PanelAnalyticsSection entityId={entityId} />
-            </Suspense>
+            <PanelSectionErrorBoundary>
+              <Suspense fallback={<AnalyticsSkeleton />}>
+                <PanelAnalyticsSection entityId={entityId} />
+              </Suspense>
+            </PanelSectionErrorBoundary>
           </TabsContent>
         </Tabs>
       </Main>

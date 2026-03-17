@@ -23,9 +23,16 @@ export type AuditEventType =
   | "leave.rejected"
   | "role.changed"
   | "document.deleted"
-  | "user.deleted";
+  | "user.deleted"
+  | "spot.assigned"
+  | "spot.unassigned";
 
-export type AuditEntityType = "document" | "leave_request" | "profile" | "user";
+export type AuditEntityType =
+  | "document"
+  | "leave_request"
+  | "profile"
+  | "user"
+  | "spot";
 
 /**
  * Registra un evento de auditoría.

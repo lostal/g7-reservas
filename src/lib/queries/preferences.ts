@@ -6,6 +6,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 import {
   validateUserPreferences,
   type ValidatedUserPreferences,
@@ -131,7 +132,7 @@ export async function getAssignedSpotInfo(
   }
 
   // Obtener la fecha de hoy
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   // Paralelizar: cesión de hoy + próxima cesión futura en una sola ronda
   const [{ data: todayCession }, { data: nextCession }] = await Promise.all([

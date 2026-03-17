@@ -68,7 +68,11 @@ export async function getEntityEnabledModules(
       (data ?? []).filter((m) => !m.enabled).map((m) => m.module)
     );
     return ALL_MODULES.filter((m) => !disabledSet.has(m));
-  } catch {
-    return ALL_MODULES; // migration not applied yet
+  } catch (err) {
+    console.warn(
+      "[entities] getEntityEnabledModules error (¿migración pendiente?):",
+      err
+    );
+    return ALL_MODULES;
   }
 }

@@ -80,6 +80,15 @@ describe("createReservationSchema", () => {
     expect(errorPaths(r)).toContain("date");
   });
 
+  it("rechaza fecha de calendario inválida", () => {
+    const r = createReservationSchema.safeParse({
+      spot_id: UUID,
+      date: "2025-02-30",
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("date");
+  });
+
   it("rechaza notas con más de 500 caracteres", () => {
     const r = createReservationSchema.safeParse({
       spot_id: UUID,
@@ -123,6 +132,15 @@ describe("createCessionSchema", () => {
       dates: ["2025-03-15", "no-es-fecha"],
     });
     expect(r.success).toBe(false);
+  });
+
+  it("rechaza fechas de calendario inválidas en el array", () => {
+    const r = createCessionSchema.safeParse({
+      spot_id: UUID,
+      dates: ["2025-03-15", "2025-02-30"],
+    });
+    expect(r.success).toBe(false);
+    expect(errorPaths(r)).toContain("dates.1");
   });
 });
 

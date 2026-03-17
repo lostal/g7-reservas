@@ -66,7 +66,7 @@ describe("generateICSBuffer", () => {
 
   it("incluye el UID con formato correcto", () => {
     const ics = generateICSBuffer(baseEvent).toString("utf-8");
-    expect(ics).toContain(`UID:${baseEvent.reservationId}@gruposiete.parking`);
+    expect(ics).toContain(`UID:${baseEvent.reservationId}@sevensuite.app`);
   });
 
   it("incluye la label de la plaza en el SUMMARY", () => {
@@ -168,7 +168,7 @@ describe("generateCancellationICSBuffer", () => {
 
   it("usa el mismo UID que el evento original (para emparejarlo)", () => {
     const ics = generateCancellationICSBuffer(cancelData).toString("utf-8");
-    expect(ics).toContain(`UID:${cancelData.reservationId}@gruposiete.parking`);
+    expect(ics).toContain(`UID:${cancelData.reservationId}@sevensuite.app`);
   });
 
   it("incluye la fecha correcta", () => {

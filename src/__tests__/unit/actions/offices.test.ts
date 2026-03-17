@@ -73,6 +73,7 @@ import {
   getOfficeAvailabilityForDate,
   getAvailableTimeSlots,
 } from "@/lib/queries/offices";
+import { getEffectiveEntityId } from "@/lib/queries/active-entity";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,11 @@ function setupSupabaseMock(
     };
     updateData?: { id: string }[] | null;
     updateError?: { message: string } | null;
-    spotData?: { id: string; resource_type: string } | null;
+    spotData?: {
+      id: string;
+      resource_type: string;
+      entity_id: string | null;
+    } | null;
   } = {}
 ) {
   const mockFrom = vi.fn((table: string) => {
@@ -99,7 +104,7 @@ function setupSupabaseMock(
           data:
             config.spotData !== undefined
               ? config.spotData
-              : { id: UUID, resource_type: "office" },
+              : { id: UUID, resource_type: "office", entity_id: null },
           error: null,
         });
         return chain;
@@ -146,6 +151,7 @@ describe("createOfficeReservation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getCurrentUser).mockResolvedValue(createMockAuthUser() as never);
+    vi.mocked(getEffectiveEntityId).mockResolvedValue(null);
   });
 
   it("crea la reserva y devuelve el id", async () => {
@@ -212,6 +218,25 @@ describe("createOfficeReservation", () => {
     }
   });
 
+  it("falla con error genérico si el insert devuelve un error no controlado", async () => {
+    setupSupabaseMock({
+      insertResult: {
+        data: null,
+        error: { message: "timeout", code: "PGRST999" },
+      },
+    });
+
+    const result = await createOfficeReservation({
+      spot_id: UUID,
+      date: "2025-03-17",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain("No se pudo crear la reserva");
+    }
+  });
+
   it("rechaza spot_id inválido sin llamar a BD (validación Zod)", async () => {
     const result = await createOfficeReservation({
       spot_id: "no-es-uuid",
@@ -230,6 +255,25 @@ describe("createOfficeReservation", () => {
 
     expect(result.success).toBe(false);
     expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("rechaza reservar un puesto de otra sede", async () => {
+    vi.mocked(getEffectiveEntityId).mockResolvedValue("entity-A");
+    setupSupabaseMock({
+      spotData: {
+        id: UUID,
+        resource_type: "office",
+        entity_id: "entity-B",
+      },
+    });
+
+    const result = await createOfficeReservation({
+      spot_id: UUID,
+      date: "2025-03-17",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error).toContain("sede activa");
   });
 });
 
@@ -285,7 +329,8 @@ describe("cancelOfficeReservation", () => {
     const result = await cancelOfficeReservation({ id: UUID });
 
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toContain("DB error");
+    if (!result.success)
+      expect(result.error).toContain("No se pudo cancelar la reserva");
   });
 
   it("rechaza id no UUID sin llamar a BD (validación Zod)", async () => {
@@ -302,6 +347,7 @@ describe("getOfficeSpotsForDate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getCurrentUser).mockResolvedValue(createMockAuthUser() as never);
+    vi.mocked(getEffectiveEntityId).mockResolvedValue(null);
     vi.mocked(getAllResourceConfigs).mockResolvedValue({
       booking_enabled: true,
       allowed_days: [1, 2, 3, 4, 5],
@@ -364,7 +410,8 @@ describe("getOfficeSpotsForDate", () => {
     expect(getOfficeAvailabilityForDate).toHaveBeenCalledWith(
       "2025-01-13",
       undefined,
-      undefined
+      undefined,
+      null
     );
   });
 
@@ -376,7 +423,8 @@ describe("getOfficeSpotsForDate", () => {
     expect(getOfficeAvailabilityForDate).toHaveBeenCalledWith(
       "2025-01-13",
       "09:00",
-      "11:00"
+      "11:00",
+      null
     );
   });
 
@@ -398,6 +446,7 @@ describe("getOfficeTimeSlotsForSpot", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getCurrentUser).mockResolvedValue(createMockAuthUser() as never);
+    vi.mocked(getEffectiveEntityId).mockResolvedValue(null);
     vi.mocked(getAllResourceConfigs).mockResolvedValue({
       booking_enabled: true,
       time_slots_enabled: true,

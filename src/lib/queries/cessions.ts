@@ -6,6 +6,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Cession, ResourceType } from "@/lib/supabase/types";
+import { toServerDateStr } from "@/lib/utils";
 
 /** Tipo interno para la query con joins de plaza y perfil */
 type CessionJoin = Cession & {
@@ -86,7 +87,7 @@ export async function getUserCessions(
   resourceType?: "parking" | "office"
 ): Promise<CessionWithDetails[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = toServerDateStr(new Date());
 
   let query = supabase
     .from("cessions")
@@ -108,7 +109,17 @@ export async function getUserCessions(
     throw new Error(`Error al obtener cesiones del usuario: ${error.message}`);
 
   return data
-    .filter((c) => c.spots !== null)
+    .filter((c) => {
+      if (c.spots === null) return false;
+      if (resourceType && c.spots.resource_type !== resourceType) {
+        console.warn(
+          "[cessions] getUserCessions: fila descartada por resource_type incorrecto",
+          { id: c.id, expected: resourceType, got: c.spots.resource_type }
+        );
+        return false;
+      }
+      return true;
+    })
     .map(
       (c): CessionWithDetails => ({
         id: c.id,

@@ -7,11 +7,21 @@
 
 import { z } from "zod/v4";
 
+const isoCalendarDate = z.iso.date().refine((value) => {
+  const [y, m, d] = value.split("-").map(Number);
+  const parsed = new Date(y!, m! - 1, d!);
+  return (
+    parsed.getFullYear() === y &&
+    parsed.getMonth() === m! - 1 &&
+    parsed.getDate() === d
+  );
+}, "Fecha inválida");
+
 // ─── Reservations ────────────────────────────────────────────
 
 export const createReservationSchema = z.object({
   spot_id: z.string().uuid(),
-  date: z.iso.date(),
+  date: isoCalendarDate,
   notes: z.string().max(500).optional(),
 });
 
@@ -21,7 +31,7 @@ export type CreateReservationInput = z.infer<typeof createReservationSchema>;
 
 export const createCessionSchema = z.object({
   spot_id: z.string().uuid(),
-  dates: z.array(z.iso.date()).min(1, "Selecciona al menos un día"),
+  dates: z.array(isoCalendarDate).min(1, "Selecciona al menos un día"),
 });
 
 export type CreateCessionInput = z.infer<typeof createCessionSchema>;
@@ -30,7 +40,7 @@ export type CreateCessionInput = z.infer<typeof createCessionSchema>;
 
 export const createVisitorReservationSchema = z.object({
   spot_id: z.string().uuid(),
-  date: z.iso.date(),
+  date: isoCalendarDate,
   visitor_name: z.string().min(1, "Nombre requerido").max(200),
   visitor_company: z.string().min(1, "Empresa requerida").max(200),
   visitor_email: z.email("Email inválido"),
