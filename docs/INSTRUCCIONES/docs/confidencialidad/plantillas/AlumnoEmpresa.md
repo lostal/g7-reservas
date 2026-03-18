@@ -1,13 +1,13 @@
 # Acuerdo de confidencialidad para el TFG
 
-Por un lado, el Sr./Sra. *nombre alumno/a*, con NIF *NIF alumno/a* y  por otro el Sr./Sra. *nombre representante empresa*, con NIF *NIF representante empresa* que actúa en nombre de la empresa *Nombre empresa*, acuerdan firmar este Acuerdo de Confidencialidad que se regirá por
+Por un lado, el Sr./Sra. _nombre alumno/a_, con NIF _NIF alumno/a_ y por otro el Sr./Sra. _nombre representante empresa_, con NIF _NIF representante empresa_ que actúa en nombre de la empresa _Nombre empresa_, acuerdan firmar este Acuerdo de Confidencialidad que se regirá por
 las siguientes cláusulas, previas a las siguientes
 
 CONSIDERACIONES:
 
-*Nombre y apellidos*, estudiante del Grado en Ingeniería Informática de la Escuela Politécnica Superior de la Universidad Europea del Atlántico, solicita de la empresa *nombre empresa* los datos e información necesaria para la realización del Trabajo de Fin de Grado.
+_Nombre y apellidos_, estudiante del Grado en Ingeniería Informática de la Escuela Politécnica Superior de la Universidad Europea del Atlántico, solicita de la empresa _nombre empresa_ los datos e información necesaria para la realización del Trabajo de Fin de Grado.
 
-*Nombre empresa*, representada por *nombre representante empresa*, comunicará por escrito qué información, de toda la que se comparta, debe tener la consideración de confidencial ya sea por motivos de interés empresarial, estratégico, o por cualquier otros.
+_Nombre empresa_, representada por _nombre representante empresa_, comunicará por escrito qué información, de toda la que se comparta, debe tener la consideración de confidencial ya sea por motivos de interés empresarial, estratégico, o por cualquier otros.
 
 CLÁUSULAS
 

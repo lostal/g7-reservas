@@ -2,15 +2,15 @@
 
 <div align=right>
 
-*La pregunta no debería ser si es apropiado presentar utilizando herramientas técnicas<br>como los repositorios, los IDEs o el UML, sino **por qué se aceptó como normal durante<br>tanto tiempo que los ingenieros informáticos ocultaran la riqueza de su trabajo detrás<br>de diapositivas genéricas**. Es hora de que la profesión muestre sus herramientas con el<br>mismo orgullo que cualquier otra ingeniería.*
-  
+_La pregunta no debería ser si es apropiado presentar utilizando herramientas técnicas<br>como los repositorios, los IDEs o el UML, sino **por qué se aceptó como normal durante<br>tanto tiempo que los ingenieros informáticos ocultaran la riqueza de su trabajo detrás<br>de diapositivas genéricas**. Es hora de que la profesión muestre sus herramientas con el<br>mismo orgullo que cualquier otra ingeniería._
+
 </div>
 
 ## ¿Por qué?
 
 Existe una paradoja en la presentación de proyectos de ingeniería informática. Los estudiantes y profesionales dedican meses desarrollando en entornos especializados, utilizando herramientas profesionales de vanguardia, creando artefactos digitales complejos y sofisticados. Sin embargo, al momento de presentar su trabajo, abandonan completamente estas herramientas para refugiarse en presentaciones genéricas mediante diapositivas.
 
-Esta desconexión genera múltiples problemas. 
+Esta desconexión genera múltiples problemas.
 
 - En primer lugar, se pierde la riqueza y complejidad del trabajo realizado, reduciéndolo a capturas de pantalla estáticas y descripciones superficiales.
 - En segundo lugar, se transmite una imagen de inseguridad profesional, como si las herramientas propias de la disciplina no fueran lo suficientemente presentables.
@@ -90,7 +90,7 @@ Seleccionar los 3 o 4 casos de uso más representativos y mostrar:
 - Análisis: de los casos de uso al diagrama de clases de análisis.
 - Brevísima discusión técnica conducente al diseño.
 - Diseño: de las clases de análisis a las clases de diseño.
-- Estructura general del proyecto desde el explorador de archivos del IDE. 
+- Estructura general del proyecto desde el explorador de archivos del IDE.
 - Organización de carpetas, separación de responsabilidades y el paralelo entre la arquitectura planteada y la organización física del código.
 - Código fuente.
 
@@ -152,7 +152,7 @@ Los ingenieros informáticos deben desarrollar la misma confianza en sus herrami
 
 ### Preparación para el mundo profesional
 
-En el entorno laboral real, las presentaciones técnicas se realizan en salas de reuniones con pantallas compartidas, mostrando código real, navegando por repositorios y  demostrando funcionalidades en vivo. La universidad debería preparar para esta realidad, no para un mundo artificial de diapositivas desconectadas del trabajo real.
+En el entorno laboral real, las presentaciones técnicas se realizan en salas de reuniones con pantallas compartidas, mostrando código real, navegando por repositorios y demostrando funcionalidades en vivo. La universidad debería preparar para esta realidad, no para un mundo artificial de diapositivas desconectadas del trabajo real.
 
 ## El repositorio como carta de presentación
 
@@ -166,10 +166,10 @@ La organización del código, la consistencia en el estilo, la calidad de los co
 
 ### Portafolio profesional
 
-El repositorio se convierte en parte del portafolio profesional del estudiante. Los empleadores prefieren ver código real, sistemas funcionando y  evidencia de capacidad técnica, por encima de presentaciones corporativas genéricas.
+El repositorio se convierte en parte del portafolio profesional del estudiante. Los empleadores prefieren ver código real, sistemas funcionando y evidencia de capacidad técnica, por encima de presentaciones corporativas genéricas.
 
 ## La presentación como acto profesional
 
 La defensa de un TFG en ingeniería informática debe ser un acto profesional genuino: un ingeniero demostrando su trabajo usando las herramientas de su profesión. Esta aproximación no solo mejora la calidad de la evaluación, sino que prepara mejor a los estudiantes para su futuro profesional.
 
-Cuando un ingeniero informático presenta desde su repositorio, desde su IDE, desde su entorno de trabajo real, está haciendo una declaración: ***"Esta es mi profesión, estas son mis herramientas y  domino ambas"***. Es una afirmación de competencia profesional que trasciende cualquier presentación tradicional.
+Cuando un ingeniero informático presenta desde su repositorio, desde su IDE, desde su entorno de trabajo real, está haciendo una declaración: **_"Esta es mi profesión, estas son mis herramientas y domino ambas"_**. Es una afirmación de competencia profesional que trasciende cualquier presentación tradicional.

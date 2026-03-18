@@ -20,13 +20,13 @@ Se dispone de aproximadamente 15 minutos para la presentación, seguidos de las 
 
 #### Distribución recomendada del tiempo
 
-|Sección|Tiempo|Descripción|Elemento clave|
-|-|-|-|-|
-|**Puesta en contexto**|3 minutos|Se debe establecer el marco de trabajo. Es necesario explicar el escenario problemático, las entidades principales involucradas y las relaciones entre ellas. Esta sección debe generar en la audiencia una comprensión clara del espacio de trabajo.|Modelo del dominio|
-|**Exposición de requisitos**|2 minutos|Se presentan los actores identificados, los casos de uso principales y el diagrama de contexto del sistema. El objetivo es mostrar los límites y el alcance de la solución propuesta.|Actores y casos de uso identificados & diagrama de contexto|
-|**Detalle de casos de uso representativos**|3 minutos|Se seleccionan uno o dos casos de uso que mejor representen la complejidad y el valor del trabajo realizado. Para cada caso se debe mostrar la cascada completa: detalle del caso de uso, interfaz de usuario propuesta, análisis (MVC) y diseño (tecnologías y arquitectura).|Detalle de uno o dos casos de uso representativos|
-|**Demostración de la solución**|5 minutos|Se presenta el sistema funcionando, preferiblemente ejecutando los casos de uso previamente explicados. Esta demostración debe ser fluida y mostrar las funcionalidades más relevantes del desarrollo.|Solución funcionando|
-|**Conclusiones**|2 minutos|Se realiza un cierre que conecte los objetivos planteados inicialmente con los resultados obtenidos, destacando el cumplimiento de las competencias profesionales.|Conclusiones finales|
+| Sección                                     | Tiempo    | Descripción                                                                                                                                                                                                                                                                    | Elemento clave                                              |
+| ------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| **Puesta en contexto**                      | 3 minutos | Se debe establecer el marco de trabajo. Es necesario explicar el escenario problemático, las entidades principales involucradas y las relaciones entre ellas. Esta sección debe generar en la audiencia una comprensión clara del espacio de trabajo.                          | Modelo del dominio                                          |
+| **Exposición de requisitos**                | 2 minutos | Se presentan los actores identificados, los casos de uso principales y el diagrama de contexto del sistema. El objetivo es mostrar los límites y el alcance de la solución propuesta.                                                                                          | Actores y casos de uso identificados & diagrama de contexto |
+| **Detalle de casos de uso representativos** | 3 minutos | Se seleccionan uno o dos casos de uso que mejor representen la complejidad y el valor del trabajo realizado. Para cada caso se debe mostrar la cascada completa: detalle del caso de uso, interfaz de usuario propuesta, análisis (MVC) y diseño (tecnologías y arquitectura). | Detalle de uno o dos casos de uso representativos           |
+| **Demostración de la solución**             | 5 minutos | Se presenta el sistema funcionando, preferiblemente ejecutando los casos de uso previamente explicados. Esta demostración debe ser fluida y mostrar las funcionalidades más relevantes del desarrollo.                                                                         | Solución funcionando                                        |
+| **Conclusiones**                            | 2 minutos | Se realiza un cierre que conecte los objetivos planteados inicialmente con los resultados obtenidos, destacando el cumplimiento de las competencias profesionales.                                                                                                             | Conclusiones finales                                        |
 
 ### Elementos clave para una presentación efectiva
 
@@ -85,7 +85,7 @@ El tribunal evaluará no solo lo que se presenta, sino el conocimiento subyacent
 
 #### Conexión con competencias profesionales
 
-Las preguntas pueden abordar cómo el trabajo demuestra la adquisición de competencias específicas del grado. 
+Las preguntas pueden abordar cómo el trabajo demuestra la adquisición de competencias específicas del grado.
 
 Se debe poder debatir sin problema acerca de:
 
@@ -129,11 +129,11 @@ La evaluación final combina la calidad del documento (80%) con la presentación
 
 El tribunal evaluará:
 
-|||
-|-|-|
-|**Calidad de la presentación (25%)**|Capacidad de síntesis, estructura del discurso, apoyo visual adecuado
-|**Claridad expositiva (25%)**|Expresión oral, mantenimiento del interés, ajuste al tiempo disponible
-|**Respuestas a evaluadores (50%)**|Capacidad de razonamiento, conocimiento profundo del trabajo, reflexión crítica
+|                                      |                                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------- |
+| **Calidad de la presentación (25%)** | Capacidad de síntesis, estructura del discurso, apoyo visual adecuado           |
+| **Claridad expositiva (25%)**        | Expresión oral, mantenimiento del interés, ajuste al tiempo disponible          |
+| **Respuestas a evaluadores (50%)**   | Capacidad de razonamiento, conocimiento profundo del trabajo, reflexión crítica |
 
 ### Recomendaciones finales
 

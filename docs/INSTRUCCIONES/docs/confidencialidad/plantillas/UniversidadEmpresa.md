@@ -1,18 +1,18 @@
 # Acuerdo de confidencialidad para la evaluación/tutorización del TFG
 
-Por un lado, el Sr./Sra. *nombre y apellidos*, con NIF *NIF*, en su calidad de *tutor/evaluador* del Grado en Ingeniería Informática de la Escuela Politécnica Superior de la Universidad Europea del Atlántico, actuando en representación de dicha institución académica, y por otro el Sr./Sra. *nombre representante empresa*, con NIF *NIF representante empresa*, que actúa en nombre de la empresa *Nombre empresa*, acuerdan firmar el presente Acuerdo de Confidencialidad, que se regirá por las siguientes cláusulas, previas las siguientes
+Por un lado, el Sr./Sra. _nombre y apellidos_, con NIF _NIF_, en su calidad de _tutor/evaluador_ del Grado en Ingeniería Informática de la Escuela Politécnica Superior de la Universidad Europea del Atlántico, actuando en representación de dicha institución académica, y por otro el Sr./Sra. _nombre representante empresa_, con NIF _NIF representante empresa_, que actúa en nombre de la empresa _Nombre empresa_, acuerdan firmar el presente Acuerdo de Confidencialidad, que se regirá por las siguientes cláusulas, previas las siguientes
 
 CONSIDERACIONES:
 
-La empresa *Nombre empresa*, en el marco del Trabajo de Fin de Grado de *nombre alumno/a*, facilitará al tutor/evaluador información de carácter confidencial relativa a herramientas, proyectos, productos, datos o procesos propios o de clientes de la empresa, necesaria para la dirección y/o evaluación del citado trabajo académico.
+La empresa _Nombre empresa_, en el marco del Trabajo de Fin de Grado de _nombre alumno/a_, facilitará al tutor/evaluador información de carácter confidencial relativa a herramientas, proyectos, productos, datos o procesos propios o de clientes de la empresa, necesaria para la dirección y/o evaluación del citado trabajo académico.
 
-El presente Acuerdo tiene carácter complementario al Acuerdo de Confidencialidad suscrito entre *Nombre empresa* y el/la estudiante *nombre alumno/a*, y no modifica ni sustituye dicho instrumento.
+El presente Acuerdo tiene carácter complementario al Acuerdo de Confidencialidad suscrito entre _Nombre empresa_ y el/la estudiante _nombre alumno/a_, y no modifica ni sustituye dicho instrumento.
 
 CLÁUSULAS
 
 **Primera**. El tutor/evaluador se compromete a no difundir públicamente, ni por escrito ni oralmente, a ninguna otra persona o entidad ajena al proceso de evaluación académica, la información confidencial facilitada por la empresa, sin el consentimiento previo y por escrito de esta última.
 
-**Segunda**. El tutor/evaluador se compromete a utilizar la información confidencial exclusivamente para la dirección y/o evaluación del TFG de *nombre alumno/a*, sin ninguna otra finalidad.
+**Segunda**. El tutor/evaluador se compromete a utilizar la información confidencial exclusivamente para la dirección y/o evaluación del TFG de _nombre alumno/a_, sin ninguna otra finalidad.
 
 **Tercera**. El tutor/evaluador velará porque la información confidencial sea conocida y utilizada únicamente por las personas que participan en la elaboración y evaluación del TFG, las cuales estarán debidamente informadas de su carácter confidencial. A estos efectos, se consideran personas autorizadas los miembros del tribunal evaluador del TFG.
 

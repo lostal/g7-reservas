@@ -16,3 +16,20 @@ de evolución.
 
 **Palabras clave:** Portal del empleado, gestión de espacios multisede, integración con M365,
 arquitectura modular, trabajo híbrido
+
+---
+
+# Abstract
+
+Recently GRUPOSIETE emerged from merging 8 construction materials firms across national
+offices. Main issue is workflow fragmentation between sites. Current a3innuva employee panel
+is faulty, used only for payroll and admin.
+
+Proposal adds parking with visitors and office desks modules to enable hybrid work without
+office expansion. Initial modules: parking, offices, user directory in MVP, extensible to payroll
+via Personio API, vacations, bulletin. Modular employee portal built with Next.js, TypeScript,
+Supabase, integrated in Microsoft 365. Work analyzes situation, designs/implements MVP,
+evaluates with tests/metrics, proposes improvements and evolution roadmap.
+
+**Keywords:** Employee portal, multi-site space management, M365 integration, modular
+architecture, hybrid work.
