@@ -26,8 +26,8 @@ export default async function EntidadesPage() {
     entidades = rows.map((entity) => ({
       id: entity.id,
       name: entity.name,
-      short_code: entity.shortCode,
       is_active: entity.isActive,
+      autonomous_community: entity.autonomousCommunity ?? null,
       created_at: entity.createdAt.toISOString(),
     }));
   } catch {

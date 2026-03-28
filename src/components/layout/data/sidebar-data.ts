@@ -31,6 +31,8 @@ import {
   Globe,
   BookUser,
   Landmark,
+  Palmtree,
+  ClipboardList,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { type SidebarData } from "../types";
@@ -50,6 +52,8 @@ export function getSidebarData({
 }: SidebarDataParams): SidebarData {
   const parkingEnabled = !enabledModules || enabledModules.includes("parking");
   const officeEnabled = !enabledModules || enabledModules.includes("office");
+  const vacacionesEnabled =
+    !enabledModules || enabledModules.includes("vacaciones");
   // "visitors" es un módulo independiente dentro del módulo parking
   const visitorsEnabled =
     parkingEnabled && (!enabledModules || enabledModules.includes("visitors"));
@@ -177,6 +181,41 @@ export function getSidebarData({
                   icon: Building2,
                   roles: ["admin"] as UserRole[],
                   items: adminOficinaItems,
+                },
+              ]
+            : []),
+          // Vacaciones — employee ve solo "Mis solicitudes"
+          ...(vacacionesEnabled
+            ? [
+                {
+                  title: "Vacaciones",
+                  icon: Palmtree,
+                  roles: ["employee"] as UserRole[],
+                  items: [
+                    {
+                      title: "Mis solicitudes",
+                      url: ROUTES.LEAVE_MY_REQUESTS,
+                      icon: CalendarCheck,
+                    },
+                  ],
+                },
+                // manager/hr/admin ven también "Gestionar"
+                {
+                  title: "Vacaciones",
+                  icon: Palmtree,
+                  roles: ["manager", "hr", "admin"] as UserRole[],
+                  items: [
+                    {
+                      title: "Mis solicitudes",
+                      url: ROUTES.LEAVE_MY_REQUESTS,
+                      icon: CalendarCheck,
+                    },
+                    {
+                      title: "Gestionar",
+                      url: ROUTES.LEAVE_MANAGE,
+                      icon: ClipboardList,
+                    },
+                  ],
                 },
               ]
             : []),

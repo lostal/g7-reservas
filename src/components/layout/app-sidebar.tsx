@@ -26,6 +26,8 @@ import type { Entity } from "@/lib/queries/entities";
 
 interface AppSidebarProps {
   role: UserRole;
+  displayName: string;
+  email: string;
   hasParkingSpot?: boolean;
   hasOfficeSpot?: boolean;
   /** Admin-only: list of entities for the switcher. Empty array = no migrations yet. */
@@ -41,6 +43,8 @@ interface AppSidebarProps {
 
 export function AppSidebar({
   role,
+  displayName,
+  email,
   hasParkingSpot = false,
   hasOfficeSpot = false,
   entities,
@@ -84,7 +88,7 @@ export function AppSidebar({
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser displayName={displayName} email={email} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

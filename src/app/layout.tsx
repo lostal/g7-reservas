@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider, SessionProvider } from "@/components/providers";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
+import { auth } from "@/lib/auth/config";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,18 +49,20 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <SessionProvider>
+          <SessionProvider session={session}>
             <NavigationProgress />
             {children}
             <Toaster richColors position="bottom-right" />

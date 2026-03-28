@@ -44,7 +44,6 @@ describe("createEntity", () => {
 
     const result = await createEntity({
       name: "Nueva Sede",
-      short_code: "NS",
       is_active: true,
     });
 
@@ -62,7 +61,6 @@ describe("createEntity", () => {
 
     const result = await createEntity({
       name: "Sede Duplicada",
-      short_code: "DUP",
       is_active: true,
     });
 
@@ -79,7 +77,6 @@ describe("createEntity", () => {
 
     const result = await createEntity({
       name: "Sede Error",
-      short_code: "ERR",
       is_active: true,
     });
 
@@ -89,12 +86,11 @@ describe("createEntity", () => {
     }
   });
 
-  it("short_code is uppercased before insert → success", async () => {
+  it("shortCode auto-generated from name → success", async () => {
     setupInsertMock([{ id: "entity-new" }]);
 
     const result = await createEntity({
       name: "Test Sede",
-      short_code: "ts",
       is_active: true,
     });
 
@@ -105,7 +101,6 @@ describe("createEntity", () => {
     // name is required but passing empty string should fail validation
     const result = await createEntity({
       name: "",
-      short_code: "XX",
       is_active: true,
     });
 
@@ -143,7 +138,7 @@ describe("updateEntity", () => {
 
     const result = await updateEntity({
       id: "550e8400-e29b-41d4-a716-446655440001",
-      short_code: "DUP",
+      name: "Sede Duplicada",
     });
 
     expect(result.success).toBe(false);

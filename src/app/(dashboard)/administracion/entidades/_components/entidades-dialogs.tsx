@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -26,11 +26,18 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AUTONOMOUS_COMMUNITIES } from "@/lib/constants";
+import {
   Loader2,
   ParkingCircle,
   Building2,
   Users,
-  FileText,
   Palmtree,
   Megaphone,
 } from "lucide-react";
@@ -39,6 +46,7 @@ import {
   updateEntity,
   deleteEntity,
   toggleEntityModule,
+  getEntityModuleStates,
 } from "../actions";
 import { useEntidades } from "./entidades-provider";
 import { entidadFormSchema, type EntidadForm } from "./entidades-schema";
@@ -71,12 +79,6 @@ const MODULE_CONFIG: {
     icon: Users,
   },
   {
-    key: "nominas",
-    label: "Nóminas",
-    description: "Consulta y descarga de nóminas",
-    icon: FileText,
-  },
-  {
     key: "vacaciones",
     label: "Vacaciones",
     description: "Solicitud y gestión de vacaciones",
@@ -99,12 +101,20 @@ function AddEntidadDialog() {
 
   const form = useForm<EntidadForm>({
     resolver: zodResolver(entidadFormSchema),
-    defaultValues: { name: "", short_code: "", is_active: true },
+    defaultValues: {
+      name: "",
+      is_active: true,
+      autonomous_community: null,
+    },
   });
 
   const closeDialog = () => {
     setOpen(null);
-    form.reset({ name: "", short_code: "", is_active: true });
+    form.reset({
+      name: "",
+      is_active: true,
+      autonomous_community: null,
+    });
   };
 
   const onSubmit = (values: EntidadForm) => {
@@ -125,7 +135,11 @@ function AddEntidadDialog() {
       open={open === "add"}
       onOpenChange={(o) => {
         if (o) {
-          form.reset({ name: "", short_code: "", is_active: true });
+          form.reset({
+            name: "",
+            is_active: true,
+            autonomous_community: null,
+          });
         } else {
           closeDialog();
         }
@@ -158,20 +172,27 @@ function AddEntidadDialog() {
             />
             <FormField
               control={form.control}
-              name="short_code"
+              name="autonomous_community"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Código corto</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: MAD-C"
-                      className="font-mono uppercase"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
+                  <FormLabel>Comunidad autónoma</FormLabel>
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v === "" ? null : v)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona una comunidad" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AUTONOMOUS_COMMUNITIES.map((cc) => (
+                        <SelectItem key={cc.code} value={cc.code}>
+                          {cc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -219,8 +240,8 @@ function EditEntidadDialog() {
     resolver: zodResolver(entidadFormSchema),
     values: {
       name: currentRow?.name ?? "",
-      short_code: currentRow?.short_code ?? "",
       is_active: currentRow?.is_active ?? true,
+      autonomous_community: currentRow?.autonomous_community ?? null,
     },
   });
 
@@ -249,8 +270,7 @@ function EditEntidadDialog() {
         <DialogHeader>
           <DialogTitle>Editar sede</DialogTitle>
           <DialogDescription>
-            Modifica los datos de la sede{" "}
-            <strong className="font-mono">{currentRow?.short_code}</strong>.
+            Modifica los datos de la sede <strong>{currentRow?.name}</strong>.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -270,19 +290,27 @@ function EditEntidadDialog() {
             />
             <FormField
               control={form.control}
-              name="short_code"
+              name="autonomous_community"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Código corto</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="font-mono uppercase"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
+                  <FormLabel>Comunidad autónoma</FormLabel>
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v === "" ? null : v)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona una comunidad" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AUTONOMOUS_COMMUNITIES.map((cc) => (
+                        <SelectItem key={cc.code} value={cc.code}>
+                          {cc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -389,11 +417,16 @@ function EntidadModulesDialogInner({
   onClose,
 }: EntidadModulesDialogInnerProps) {
   const router = useRouter();
-  // Default all modules to enabled=true (opt-out model)
   const [moduleStates, setModuleStates] = useState<Record<string, boolean>>(
     () => Object.fromEntries(MODULE_CONFIG.map((m) => [m.key, true]))
   );
   const [pendingModule, setPendingModule] = useState<string | null>(null);
+
+  useEffect(() => {
+    getEntityModuleStates(entityId)
+      .then(setModuleStates)
+      .catch(() => {});
+  }, [entityId]);
 
   const handleToggle = (moduleKey: EntityModuleKey, enabled: boolean) => {
     setPendingModule(moduleKey);

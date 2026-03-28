@@ -54,14 +54,7 @@ export async function getEntityWithModules(
 export async function getEntityEnabledModules(
   entityId: string
 ): Promise<string[]> {
-  const ALL_MODULES = [
-    "parking",
-    "office",
-    "visitors",
-    "nominas",
-    "vacaciones",
-    "tablon",
-  ];
+  const ALL_MODULES = ["parking", "office", "visitors", "vacaciones", "tablon"];
   try {
     const rows = await db
       .select({

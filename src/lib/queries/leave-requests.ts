@@ -1,0 +1,117 @@
+import { db } from "@/lib/db";
+import { leaveRequests, profiles } from "@/lib/db/schema";
+import type { LeaveStatus, LeaveType } from "@/lib/db/types";
+import { eq, and, desc } from "drizzle-orm";
+
+export type { LeaveStatus, LeaveType };
+
+export type LeaveRequestWithDetails = {
+  id: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  status: LeaveStatus;
+  reason: string | null;
+  workingDays: number | null;
+  createdAt: Date;
+  employeeId: string;
+  employeeName: string;
+  managerId: string | null;
+  managerName: string | null;
+  managerNotes: string | null;
+  hrId: string | null;
+  hrName: string | null;
+  hrNotes: string | null;
+};
+
+const LEAVE_SELECT = {
+  id: leaveRequests.id,
+  leaveType: leaveRequests.leaveType,
+  startDate: leaveRequests.startDate,
+  endDate: leaveRequests.endDate,
+  status: leaveRequests.status,
+  reason: leaveRequests.reason,
+  workingDays: leaveRequests.workingDays,
+  createdAt: leaveRequests.createdAt,
+  employeeId: leaveRequests.employeeId,
+  employeeName: profiles.fullName,
+  managerId: leaveRequests.managerId,
+  managerNotes: leaveRequests.managerNotes,
+  hrId: leaveRequests.hrId,
+  hrNotes: leaveRequests.hrNotes,
+} as const;
+
+function toRow(r: {
+  id: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  status: LeaveStatus;
+  reason: string | null;
+  workingDays: number | null;
+  createdAt: Date;
+  employeeId: string;
+  employeeName: string | null;
+  managerId: string | null;
+  managerNotes: string | null;
+  hrId: string | null;
+  hrNotes: string | null;
+}): LeaveRequestWithDetails {
+  return {
+    ...r,
+    employeeName: r.employeeName ?? "",
+    managerName: null,
+    hrName: null,
+  };
+}
+
+/**
+ * Obtiene todas las solicitudes de un empleado, ordenadas por fecha desc.
+ */
+export async function getUserLeaveRequests(
+  userId: string
+): Promise<LeaveRequestWithDetails[]> {
+  const rows = await db
+    .select(LEAVE_SELECT)
+    .from(leaveRequests)
+    .innerJoin(profiles, eq(leaveRequests.employeeId, profiles.id))
+    .where(eq(leaveRequests.employeeId, userId))
+    .orderBy(desc(leaveRequests.createdAt));
+
+  return rows.map(toRow);
+}
+
+/**
+ * Obtiene las solicitudes de todos los empleados de una sede,
+ * opcionalmente filtrando por estado.
+ */
+export async function getLeaveRequestsByEntity(
+  entityId: string,
+  status?: LeaveStatus
+): Promise<LeaveRequestWithDetails[]> {
+  const conditions = [eq(profiles.entityId, entityId)];
+  if (status) conditions.push(eq(leaveRequests.status, status));
+
+  const rows = await db
+    .select(LEAVE_SELECT)
+    .from(leaveRequests)
+    .innerJoin(profiles, eq(leaveRequests.employeeId, profiles.id))
+    .where(and(...conditions))
+    .orderBy(desc(leaveRequests.createdAt));
+
+  return rows.map(toRow);
+}
+
+/**
+ * Cuenta las solicitudes pendientes de una sede (para badges en sidebar).
+ */
+export async function countPendingByEntity(entityId: string): Promise<number> {
+  const rows = await db
+    .select({ id: leaveRequests.id })
+    .from(leaveRequests)
+    .innerJoin(profiles, eq(leaveRequests.employeeId, profiles.id))
+    .where(
+      and(eq(profiles.entityId, entityId), eq(leaveRequests.status, "pending"))
+    );
+  return rows.length;
+}

@@ -38,6 +38,9 @@ export const ROUTES = {
   SETTINGS_PREFERENCES: "/ajustes/preferencias",
   SETTINGS_MICROSOFT: "/ajustes/microsoft",
   SETTINGS_SECURITY: "/ajustes/seguridad",
+  LEAVE: "/vacaciones",
+  LEAVE_MY_REQUESTS: "/vacaciones/mis-solicitudes",
+  LEAVE_MANAGE: "/vacaciones/gestionar",
 } as const;
 
 /**
@@ -65,6 +68,33 @@ export const EXTERNAL = {
 //   • parking / visitor  → "Visitas"    (plaza para visitantes externos)
 //   • office  / visitor  → "Flexible"   (plaza sin propietario fijo)
 //   • */standard         → "Fija"       (plaza asignada a un usuario)
+
+// ─── Comunidades Autónomas ────────────────────────────────────────────────────
+
+export const AUTONOMOUS_COMMUNITIES = [
+  { code: "ES-AN", name: "Andalucía" },
+  { code: "ES-AR", name: "Aragón" },
+  { code: "ES-AS", name: "Asturias" },
+  { code: "ES-CN", name: "Canarias" },
+  { code: "ES-CB", name: "Cantabria" },
+  { code: "ES-CL", name: "Castilla y León" },
+  { code: "ES-CM", name: "Castilla-La Mancha" },
+  { code: "ES-CT", name: "Cataluña" },
+  { code: "ES-CE", name: "Ceuta" },
+  { code: "ES-EX", name: "Extremadura" },
+  { code: "ES-GA", name: "Galicia" },
+  { code: "ES-IB", name: "Illes Balears" },
+  { code: "ES-RI", name: "La Rioja" },
+  { code: "ES-MD", name: "Madrid" },
+  { code: "ES-ML", name: "Melilla" },
+  { code: "ES-MC", name: "Murcia" },
+  { code: "ES-NC", name: "Navarra" },
+  { code: "ES-PV", name: "País Vasco" },
+  { code: "ES-VC", name: "Comunitat Valenciana" },
+] as const;
+
+export type AutonomousCommunityCode =
+  (typeof AUTONOMOUS_COMMUNITIES)[number]["code"];
 
 export function getSpotTypeLabel(
   type: "standard" | "visitor",

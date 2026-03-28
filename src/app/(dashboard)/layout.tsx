@@ -133,6 +133,8 @@ export default async function DashboardLayout({
         <ThemeSync dbTheme={dbTheme} />
         <AppSidebar
           role={(user.profile?.role ?? "employee") as UserRole}
+          displayName={user.profile?.fullName ?? ""}
+          email={user.email ?? ""}
           hasParkingSpot={hasParkingSpot}
           hasOfficeSpot={hasOfficeSpot}
           entities={entities}

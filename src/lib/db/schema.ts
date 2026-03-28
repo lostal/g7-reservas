@@ -133,7 +133,11 @@ export const entities = pgTable("entities", {
   name: text("name").notNull().unique(),
   shortCode: text("short_code").notNull().unique(),
   isActive: boolean("is_active").notNull().default(true),
+  autonomousCommunity: text("autonomous_community"),
   createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

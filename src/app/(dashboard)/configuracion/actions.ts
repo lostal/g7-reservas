@@ -8,7 +8,7 @@
  * se reflejen inmediatamente en toda la aplicación.
  */
 
-import { actionClient } from "@/lib/actions";
+import { actionClient, type ActionResult, success, error } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { systemConfig, entityConfig } from "@/lib/db/schema";
 import { requireAdmin } from "@/lib/auth/helpers";
@@ -20,6 +20,7 @@ import {
   updateResourceConfigSchema,
   type UpdateResourceConfigInput,
 } from "@/lib/validations";
+import { syncAllHolidays } from "@/lib/holidays-sync";
 
 // ─── Helper interno ───────────────────────────────────────────
 
@@ -135,6 +136,28 @@ export const updateParkingConfig = actionClient
 
     return { updated: true };
   });
+
+// ─── Sincronizar festivos ─────────────────────────────────────
+
+/**
+ * Sincroniza los festivos de todas las sedes activas con CCAA asignada
+ * desde la API OpenHolidays. Solo admin.
+ */
+export async function syncHolidaysAction(): Promise<
+  ActionResult<{ synced: number; errors: string[] }>
+> {
+  try {
+    await requireAdmin();
+    const result = await syncAllHolidays();
+    revalidatePath("/configuracion/general");
+    return success(result);
+  } catch (err) {
+    console.error("[config] syncHolidaysAction error:", err);
+    return error(
+      err instanceof Error ? err.message : "Error al sincronizar festivos"
+    );
+  }
+}
 
 // ─── Actualizar configuración de oficinas ────────────────────
 

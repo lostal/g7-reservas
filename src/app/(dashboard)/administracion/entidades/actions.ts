@@ -18,8 +18,32 @@ import {
   updateEntitySchema,
   deleteEntitySchema,
   toggleEntityModuleSchema,
+  ENTITY_MODULES,
 } from "@/lib/validations";
 import { isUniqueViolation } from "@/lib/db/helpers";
+import { AUTONOMOUS_COMMUNITIES } from "@/lib/constants";
+import { getEntityEnabledModules } from "@/lib/queries/entities";
+
+function buildShortCode(name: string, ccaaCode?: string | null): string {
+  const normalized = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+
+  if (ccaaCode) {
+    const cc = AUTONOMOUS_COMMUNITIES.find((c) => c.code === ccaaCode);
+    if (cc) {
+      const words = cc.name.trim().split(/\s+/);
+      const lastWord = words[words.length - 1] ?? cc.name;
+      const ccaaPart = normalized(lastWord).slice(0, 3);
+      const entityFirst = normalized(name.trim()[0] ?? "X");
+      return `${ccaaPart}-${entityFirst}`;
+    }
+  }
+  // Fallback: first 5 chars of name
+  return normalized(name.replace(/\s+/g, "")).slice(0, 5);
+}
 
 // ─── Entity CRUD ──────────────────────────────────────────────
 
@@ -35,8 +59,12 @@ export const createEntity = actionClient
         .insert(entities)
         .values({
           name: parsedInput.name,
-          shortCode: parsedInput.short_code.toUpperCase(),
+          shortCode: buildShortCode(
+            parsedInput.name,
+            parsedInput.autonomous_community
+          ),
           isActive: parsedInput.is_active ?? true,
+          autonomousCommunity: parsedInput.autonomous_community ?? null,
         })
         .returning({ id: entities.id });
 
@@ -61,14 +89,13 @@ export const updateEntity = actionClient
   .schema(updateEntitySchema)
   .action(async ({ parsedInput }) => {
     await requireAdmin();
-    const { id, ...updates } = parsedInput;
+    const { id, name, is_active, autonomous_community } = parsedInput;
 
     const updateValues: Partial<typeof entities.$inferInsert> = {};
-    if (updates.name !== undefined) updateValues.name = updates.name;
-    if (updates.short_code !== undefined)
-      updateValues.shortCode = updates.short_code.toUpperCase();
-    if (updates.is_active !== undefined)
-      updateValues.isActive = updates.is_active;
+    if (name !== undefined) updateValues.name = name;
+    if (is_active !== undefined) updateValues.isActive = is_active;
+    if (autonomous_community !== undefined)
+      updateValues.autonomousCommunity = autonomous_community ?? null;
 
     try {
       await db.update(entities).set(updateValues).where(eq(entities.id, id));
@@ -84,6 +111,19 @@ export const updateEntity = actionClient
     revalidatePath("/administracion/entidades");
     return { updated: true };
   });
+
+/**
+ * Devuelve el estado actual de módulos para una sede (Record<module, enabled>).
+ */
+export async function getEntityModuleStates(
+  entityId: string
+): Promise<Record<string, boolean>> {
+  await requireAdmin();
+  const enabled = await getEntityEnabledModules(entityId);
+  return Object.fromEntries(
+    ENTITY_MODULES.map((m) => [m, enabled.includes(m)])
+  );
+}
 
 /**
  * Elimina una sede.

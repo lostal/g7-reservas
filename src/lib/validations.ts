@@ -242,8 +242,8 @@ export type UpdateResourceConfigInput = z.infer<
 
 export const createEntitySchema = z.object({
   name: z.string().min(1, "Nombre requerido").max(100),
-  short_code: z.string().min(2, "Mínimo 2 caracteres").max(10),
   is_active: z.boolean().optional(),
+  autonomous_community: z.string().optional().nullable(),
 });
 export type CreateEntityInput = z.infer<typeof createEntitySchema>;
 
@@ -259,7 +259,6 @@ export const ENTITY_MODULES = [
   "parking",
   "office",
   "visitors",
-  "nominas",
   "vacaciones",
   "tablon",
 ] as const;
@@ -332,3 +331,61 @@ export const createDirectorioUserSchema = z.object({
 export type CreateDirectorioUserInput = z.infer<
   typeof createDirectorioUserSchema
 >;
+
+// ─── Leave Requests ───────────────────────────────────────────
+
+export const LEAVE_TYPES = ["vacation", "personal", "sick", "other"] as const;
+export type LeaveTypeValue = (typeof LEAVE_TYPES)[number];
+
+export const LEAVE_TYPE_LABELS: Record<LeaveTypeValue, string> = {
+  vacation: "Vacaciones",
+  personal: "Asuntos personales",
+  sick: "Baja médica",
+  other: "Otro",
+};
+
+export const createLeaveRequestSchema = z
+  .object({
+    leave_type: z.enum(LEAVE_TYPES),
+    start_date: z.iso.date(),
+    end_date: z.iso.date(),
+    reason: z.string().max(500).optional().nullable(),
+  })
+  .refine((d) => d.end_date >= d.start_date, {
+    message: "La fecha de fin no puede ser anterior a la de inicio",
+    path: ["end_date"],
+  });
+export type CreateLeaveRequestInput = z.infer<typeof createLeaveRequestSchema>;
+
+export const updateLeaveRequestSchema = z
+  .object({
+    id: z.string().uuid(),
+    leave_type: z.enum(LEAVE_TYPES),
+    start_date: z.iso.date(),
+    end_date: z.iso.date(),
+    reason: z.string().max(500).optional().nullable(),
+  })
+  .refine((d) => d.end_date >= d.start_date, {
+    message: "La fecha de fin no puede ser anterior a la de inicio",
+    path: ["end_date"],
+  });
+export type UpdateLeaveRequestInput = z.infer<typeof updateLeaveRequestSchema>;
+
+export const approveLeaveRequestSchema = z.object({
+  id: z.string().uuid(),
+  notes: z.string().max(500).optional().nullable(),
+});
+export type ApproveLeaveRequestInput = z.infer<
+  typeof approveLeaveRequestSchema
+>;
+
+export const rejectLeaveRequestSchema = z.object({
+  id: z.string().uuid(),
+  notes: z.string().min(1, "El motivo del rechazo es obligatorio").max(500),
+});
+export type RejectLeaveRequestInput = z.infer<typeof rejectLeaveRequestSchema>;
+
+export const cancelLeaveRequestSchema = z.object({
+  id: z.string().uuid(),
+});
+export type CancelLeaveRequestInput = z.infer<typeof cancelLeaveRequestSchema>;

@@ -11,11 +11,9 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { ChevronsUpDown, LogOut, Loader2, User } from "lucide-react";
-import { useUser } from "@/hooks/use-user";
 import { signOutAction } from "@/lib/auth/sign-out";
 import { ROUTES } from "@/lib/constants";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,8 +30,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavUser() {
-  const { profile, loading } = useUser();
+interface NavUserProps {
+  displayName: string;
+  email: string;
+}
+
+export function NavUser({ displayName, email }: NavUserProps) {
   const { isMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
 
@@ -43,30 +45,12 @@ export function NavUser() {
     });
   };
 
-  const displayName = profile?.fullName ?? "";
-  const displayEmail = profile?.email || "";
   const initials = displayName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  if (loading) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg" disabled>
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <div className="grid flex-1 gap-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-2.5 w-32" />
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
 
   return (
     <SidebarMenu>
@@ -84,7 +68,7 @@ export function NavUser() {
               </Avatar>
               <div className="grid flex-1 text-start text-sm leading-tight">
                 <span className="truncate font-semibold">{displayName}</span>
-                <span className="truncate text-xs">{displayEmail}</span>
+                <span className="truncate text-xs">{email}</span>
               </div>
               <ChevronsUpDown className="ms-auto size-4" />
             </SidebarMenuButton>
@@ -104,7 +88,7 @@ export function NavUser() {
                 </Avatar>
                 <div className="grid flex-1 text-start text-sm leading-tight">
                   <span className="truncate font-semibold">{displayName}</span>
-                  <span className="truncate text-xs">{displayEmail}</span>
+                  <span className="truncate text-xs">{email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

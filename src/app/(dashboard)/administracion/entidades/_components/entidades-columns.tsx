@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/data-table";
 import type { Entidad } from "./entidades-schema";
 import { useEntidades } from "./entidades-provider";
+import { AUTONOMOUS_COMMUNITIES } from "@/lib/constants";
 
 // ─── Row Actions ──────────────────────────────────────────────
 
@@ -69,27 +70,19 @@ export const entidadesColumns: ColumnDef<Entidad>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nombre" />
     ),
-    cell: ({ row }) => {
-      const entidad = row.original;
-      return (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-medium">{entidad.name}</span>
-          <span className="text-muted-foreground font-mono text-xs">
-            {entidad.short_code}
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
-    accessorKey: "short_code",
-    header: "Código",
-    cell: ({ row }) => (
-      <span className="font-mono text-sm font-semibold">
-        {row.getValue("short_code")}
-      </span>
-    ),
-    meta: { className: "hidden @md/content:table-cell" },
+    accessorKey: "autonomous_community",
+    header: "CCAA",
+    cell: ({ row }) => {
+      const code = row.getValue<string | null>("autonomous_community");
+      if (!code)
+        return <span className="text-muted-foreground text-sm">—</span>;
+      const cc = AUTONOMOUS_COMMUNITIES.find((c) => c.code === code);
+      return <span className="text-sm">{cc?.name ?? code}</span>;
+    },
+    meta: { className: "hidden @lg/content:table-cell" },
   },
   {
     accessorKey: "is_active",

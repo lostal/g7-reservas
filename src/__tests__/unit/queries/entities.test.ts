@@ -13,14 +13,7 @@ import {
   getEntityEnabledModules,
 } from "@/lib/queries/entities";
 
-const ALL_MODULES = [
-  "parking",
-  "office",
-  "visitors",
-  "nominas",
-  "vacaciones",
-  "tablon",
-];
+const ALL_MODULES = ["parking", "office", "visitors", "vacaciones", "tablon"];
 
 describe("getAllEntities", () => {
   beforeEach(() => {
@@ -125,11 +118,11 @@ describe("getEntityEnabledModules", () => {
     resetDbMocks();
   });
 
-  it("no rows in entity_modules → returns all 6 modules (opt-out model)", async () => {
+  it("no rows in entity_modules → returns all 5 modules (opt-out model)", async () => {
     setupSelectMock([]);
 
     const result = await getEntityEnabledModules("ent-1");
-    expect(result).toHaveLength(6);
+    expect(result).toHaveLength(5);
     expect(result).toEqual(expect.arrayContaining(ALL_MODULES));
   });
 
@@ -138,7 +131,7 @@ describe("getEntityEnabledModules", () => {
     setupSelectMock(modules);
 
     const result = await getEntityEnabledModules("ent-1");
-    expect(result).toHaveLength(5);
+    expect(result).toHaveLength(4);
     expect(result).not.toContain("parking");
     expect(result).toContain("office");
     expect(result).toContain("visitors");
@@ -171,7 +164,7 @@ describe("getEntityEnabledModules", () => {
     });
 
     const result = await getEntityEnabledModules("ent-1");
-    expect(result).toHaveLength(6);
+    expect(result).toHaveLength(5);
     expect(result).toEqual(expect.arrayContaining(ALL_MODULES));
   });
 });
