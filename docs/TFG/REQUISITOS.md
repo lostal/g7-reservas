@@ -93,38 +93,38 @@ o RRHH pueden rechazarla en su respectivo nivel.
 
 ### 3.2.3. Glosario
 
-| Término | Definición |
-| --- | --- |
-| **Entidad** | Cada una de las sedes o empresas que conforman GRUPOSIETE. Cada entidad puede activar o desactivar módulos de forma independiente. |
-| **Empleado** | Usuario autenticado del sistema. Su rol determina las acciones que puede realizar. |
-| **Plaza** | Espacio físico reservable: plaza de aparcamiento o puesto de trabajo en oficina. |
-| **Plaza asignada** | Plaza vinculada de forma permanente a un Manager concreto. Solo este puede cederla. |
-| **Reserva** | Registro que vincula a un empleado con una plaza en una fecha y, opcionalmente, una franja horaria. |
-| **Cesión** | Liberación voluntaria de una plaza asignada por su propietario para que otros empleados la reserven en una fecha concreta. |
-| **ReglaAutoCesión** | Configuración que automatiza la cesión cuando el propietario está fuera de la oficina (detectado vía Microsoft 365) o en días fijos de la semana. |
-| **Hot desking** | Modelo de trabajo en el que los puestos de oficina no están asignados de forma permanente sino que se reservan dinámicamente según disponibilidad. |
-| **SolicitudAusencia** | Petición formal de ausencia laboral que sigue un flujo de aprobación en dos niveles: manager y RRHH. |
-| **Visitante** | Persona externa a GRUPOSIETE para la que un empleado gestiona una reserva de parking. No tiene acceso al portal y recibe únicamente un correo de confirmación. |
-| **Anuncio** | Comunicación interna publicada por RRHH o Administrador, con ámbito de entidad o global, y con fecha de expiración opcional. |
-| **CalendarioFestivos** | Conjunto de días festivos asociado a una entidad para excluirlos del cómputo de días laborables y de la disponibilidad de reservas. |
-| **Módulo** | Funcionalidad activable o desactivable de forma independiente por entidad desde el panel de administración. |
+| Término                | Definición                                                                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entidad**            | Cada una de las sedes o empresas que conforman GRUPOSIETE. Cada entidad puede activar o desactivar módulos de forma independiente.                             |
+| **Empleado**           | Usuario autenticado del sistema. Su rol determina las acciones que puede realizar.                                                                             |
+| **Plaza**              | Espacio físico reservable: plaza de aparcamiento o puesto de trabajo en oficina.                                                                               |
+| **Plaza asignada**     | Plaza vinculada de forma permanente a un Manager concreto. Solo este puede cederla.                                                                            |
+| **Reserva**            | Registro que vincula a un empleado con una plaza en una fecha y, opcionalmente, una franja horaria.                                                            |
+| **Cesión**             | Liberación voluntaria de una plaza asignada por su propietario para que otros empleados la reserven en una fecha concreta.                                     |
+| **ReglaAutoCesión**    | Configuración que automatiza la cesión cuando el propietario está fuera de la oficina (detectado vía Microsoft 365) o en días fijos de la semana.              |
+| **Hot desking**        | Modelo de trabajo en el que los puestos de oficina no están asignados de forma permanente sino que se reservan dinámicamente según disponibilidad.             |
+| **SolicitudAusencia**  | Petición formal de ausencia laboral que sigue un flujo de aprobación en dos niveles: manager y RRHH.                                                           |
+| **Visitante**          | Persona externa a GRUPOSIETE para la que un empleado gestiona una reserva de parking. No tiene acceso al portal y recibe únicamente un correo de confirmación. |
+| **Anuncio**            | Comunicación interna publicada por RRHH o Administrador, con ámbito de entidad o global, y con fecha de expiración opcional.                                   |
+| **CalendarioFestivos** | Conjunto de días festivos asociado a una entidad para excluirlos del cómputo de días laborables y de la disponibilidad de reservas.                            |
+| **Módulo**             | Funcionalidad activable o desactivable de forma independiente por entidad desde el panel de administración.                                                    |
 
 ### 3.2.4. Requisitos suplementarios
 
 Los requisitos suplementarios especifican propiedades del sistema que trascienden la funcionalidad
 individual de cada caso de uso.
 
-| ID | Categoría | Descripción |
-| --- | --- | --- |
-| RNF-01 | Rendimiento | Las operaciones de reserva y cancelación responderán en menos de 2 segundos bajo carga normal de uso. |
-| RNF-02 | Disponibilidad | El sistema estará disponible el 99,5 % del tiempo en horario laboral (L–V, 07:00–21:00). |
-| RNF-03 | Seguridad | La autenticación se delega en Microsoft Entra ID mediante OAuth 2.0/OIDC. No se almacenan contraseñas para cuentas M365. |
-| RNF-04 | Seguridad | La autorización se gestiona en la capa de aplicación mediante guardas de rol. Ningún dato de una entidad es visible para usuarios de otra entidad. |
-| RNF-05 | Usabilidad | La interfaz será responsiva y utilizable desde dispositivos móviles sin necesidad de aplicación nativa. |
-| RNF-06 | Mantenibilidad | La arquitectura modular permitirá añadir o desactivar módulos sin modificar el código base existente. |
-| RNF-07 | Portabilidad | El sistema se desplegará sobre infraestructura estándar (PostgreSQL, Node.js) sin dependencia de un proveedor cloud concreto. |
-| RNF-08 | Notificaciones | El sistema enviará notificaciones de confirmación y recordatorio a través de Microsoft Teams o correo electrónico según las preferencias de cada usuario. |
-| RNF-09 | Internacionalización | La interfaz estará disponible en español. La arquitectura soportará la incorporación de otros idiomas sin cambios estructurales. |
+| ID     | Categoría            | Descripción                                                                                                                                               |
+| ------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RNF-01 | Rendimiento          | Las operaciones de reserva y cancelación responderán en menos de 2 segundos bajo carga normal de uso.                                                     |
+| RNF-02 | Disponibilidad       | El sistema estará disponible el 99,5 % del tiempo en horario laboral (L–V, 07:00–21:00).                                                                  |
+| RNF-03 | Seguridad            | La autenticación se delega en Microsoft Entra ID mediante OAuth 2.0/OIDC. No se almacenan contraseñas para cuentas M365.                                  |
+| RNF-04 | Seguridad            | La autorización se gestiona en la capa de aplicación mediante guardas de rol. Ningún dato de una entidad es visible para usuarios de otra entidad.        |
+| RNF-05 | Usabilidad           | La interfaz será responsiva y utilizable desde dispositivos móviles sin necesidad de aplicación nativa.                                                   |
+| RNF-06 | Mantenibilidad       | La arquitectura modular permitirá añadir o desactivar módulos sin modificar el código base existente.                                                     |
+| RNF-07 | Portabilidad         | El sistema se desplegará sobre infraestructura estándar (PostgreSQL, Node.js) sin dependencia de un proveedor cloud concreto.                             |
+| RNF-08 | Notificaciones       | El sistema enviará notificaciones de confirmación y recordatorio a través de Microsoft Teams o correo electrónico según las preferencias de cada usuario. |
+| RNF-09 | Internacionalización | La interfaz estará disponible en español. La arquitectura soportará la incorporación de otros idiomas sin cambios estructurales.                          |
 
 ## 3.3. Disciplina de requisitos
 
@@ -142,15 +142,15 @@ sistema.
 
 ### 3.3.2. Actores del sistema
 
-| Actor | Tipo | Descripción |
-| --- | --- | --- |
-| **Empleado** | Primario | Usuario base del sistema. Realiza reservas, solicita ausencias y consulta información. |
-| **Manager** | Primario | Extiende a Empleado. Dispone de plaza asignada, puede cederla y aprueba solicitudes de ausencia de su equipo en primer nivel. |
-| **RRHH** | Primario | Extiende a Manager. Valida solicitudes de ausencia en segundo nivel y publica anuncios. |
-| **Administrador** | Primario | Extiende a RRHH. Gestiona entidades, plazas, usuarios y la configuración global del sistema. |
-| **Visitante** | Secundario pasivo | Persona externa sin acceso al portal. Recibe un correo de confirmación cuando un empleado registra una visita en su nombre. |
-| **Entra ID** | Sistema externo | Proveedor de identidad Microsoft utilizado para la autenticación SSO mediante OAuth 2.0/OIDC. |
-| **Microsoft Graph** | Sistema externo | API de Microsoft 365 consultada para la detección del estado fuera de oficina y el envío de notificaciones vía Teams. |
+| Actor               | Tipo              | Descripción                                                                                                                   |
+| ------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Empleado**        | Primario          | Usuario base del sistema. Realiza reservas, solicita ausencias y consulta información.                                        |
+| **Manager**         | Primario          | Extiende a Empleado. Dispone de plaza asignada, puede cederla y aprueba solicitudes de ausencia de su equipo en primer nivel. |
+| **RRHH**            | Primario          | Extiende a Manager. Valida solicitudes de ausencia en segundo nivel y publica anuncios.                                       |
+| **Administrador**   | Primario          | Extiende a RRHH. Gestiona entidades, plazas, usuarios y la configuración global del sistema.                                  |
+| **Visitante**       | Secundario pasivo | Persona externa sin acceso al portal. Recibe un correo de confirmación cuando un empleado registra una visita en su nombre.   |
+| **Entra ID**        | Sistema externo   | Proveedor de identidad Microsoft utilizado para la autenticación SSO mediante OAuth 2.0/OIDC.                                 |
+| **Microsoft Graph** | Sistema externo   | API de Microsoft 365 consultada para la detección del estado fuera de oficina y el envío de notificaciones vía Teams.         |
 
 ### 3.3.3. Casos de uso
 
@@ -164,37 +164,37 @@ capacidades: un Manager puede realizar todo lo que hace un Empleado, y así suce
 La siguiente tabla recoge la priorización de los casos de uso conforme al método MoSCoW,
 estableciendo el alcance del MVP documentado en este trabajo.
 
-| Prioridad | Caso de uso | Módulo |
-| --- | --- | --- |
-| **Must** | `autenticarse()` | Acceso |
-| **Must** | `reservarPlaza()` | Parking |
-| **Must** | `cancelarReservaParking()` | Parking |
-| **Must** | `cederPlaza()` | Parking |
-| **Must** | `cancelarCesion()` | Parking |
-| **Must** | `registrarVisitante()` | Parking |
-| **Must** | `reservarPuesto()` | Oficinas |
-| **Must** | `cancelarReservaPuesto()` | Oficinas |
-| **Must** | `solicitarAusencia()` | Vacaciones |
-| **Must** | `cancelarSolicitudAusencia()` | Vacaciones |
-| **Must** | `aprobarSolicitudAusencia()` | Vacaciones |
-| **Must** | `rechazarSolicitudAusencia()` | Vacaciones |
-| **Must** | `validarSolicitudAusencia()` | Vacaciones |
-| **Must** | `rechazarValidacionAusencia()` | Vacaciones |
-| **Must** | `editarPerfil()` | Ajustes |
-| **Must** | `gestionarPlazas()` | Administración |
-| **Must** | `gestionarUsuarios()` | Administración |
-| **Must** | `configurarSistema()` | Administración |
-| **Should** | `cancelarVisitante()` | Parking |
-| **Should** | `configurarReglaCesion()` | Parking |
-| **Should** | `configurarPreferencias()` | Ajustes |
-| **Should** | `conectarMicrosoft365()` | Ajustes |
-| **Should** | `consultarTablon()` | Tablón |
-| **Should** | `publicarAnuncio()` | Tablón |
-| **Should** | `consultarDirectorio()` | Directorio |
-| **Should** | `gestionarEntidades()` | Administración |
-| **Should** | `configurarModulos()` | Administración |
-| **Could** | `consultarAnalytics()` | Administración |
-| **Won't** | Gestión de nóminas y documentos | — |
+| Prioridad  | Caso de uso                     | Módulo         |
+| ---------- | ------------------------------- | -------------- |
+| **Must**   | `autenticarse()`                | Acceso         |
+| **Must**   | `reservarPlaza()`               | Parking        |
+| **Must**   | `cancelarReservaParking()`      | Parking        |
+| **Must**   | `cederPlaza()`                  | Parking        |
+| **Must**   | `cancelarCesion()`              | Parking        |
+| **Must**   | `registrarVisitante()`          | Parking        |
+| **Must**   | `reservarPuesto()`              | Oficinas       |
+| **Must**   | `cancelarReservaPuesto()`       | Oficinas       |
+| **Must**   | `solicitarAusencia()`           | Vacaciones     |
+| **Must**   | `cancelarSolicitudAusencia()`   | Vacaciones     |
+| **Must**   | `aprobarSolicitudAusencia()`    | Vacaciones     |
+| **Must**   | `rechazarSolicitudAusencia()`   | Vacaciones     |
+| **Must**   | `validarSolicitudAusencia()`    | Vacaciones     |
+| **Must**   | `rechazarValidacionAusencia()`  | Vacaciones     |
+| **Must**   | `editarPerfil()`                | Ajustes        |
+| **Must**   | `gestionarPlazas()`             | Administración |
+| **Must**   | `gestionarUsuarios()`           | Administración |
+| **Must**   | `configurarSistema()`           | Administración |
+| **Should** | `cancelarVisitante()`           | Parking        |
+| **Should** | `configurarReglaCesion()`       | Parking        |
+| **Should** | `configurarPreferencias()`      | Ajustes        |
+| **Should** | `conectarMicrosoft365()`        | Ajustes        |
+| **Should** | `consultarTablon()`             | Tablón         |
+| **Should** | `publicarAnuncio()`             | Tablón         |
+| **Should** | `consultarDirectorio()`         | Directorio     |
+| **Should** | `gestionarEntidades()`          | Administración |
+| **Should** | `configurarModulos()`           | Administración |
+| **Could**  | `consultarAnalytics()`          | Administración |
+| **Won't**  | Gestión de nóminas y documentos | —              |
 
 ### 3.3.4. Detalle de casos de uso representativos
 
