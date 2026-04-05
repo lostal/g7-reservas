@@ -39,6 +39,8 @@ interface AppSidebarProps {
   entityName?: string;
   /** List of enabled module keys for the active/assigned entity. */
   enabledModules?: string[];
+  /** Unread announcement count — shown as badge on Tablón sidebar item. */
+  unreadAnnouncementsCount?: number;
 }
 
 export function AppSidebar({
@@ -52,12 +54,14 @@ export function AppSidebar({
   entityIdPersisted = false,
   entityName,
   enabledModules,
+  unreadAnnouncementsCount = 0,
 }: AppSidebarProps) {
   const filteredNavGroups = useMemo(() => {
     const data = getSidebarData({
       hasParkingSpot,
       hasOfficeSpot,
       enabledModules,
+      unreadAnnouncementsCount,
     });
     return data.navGroups
       .map((group) => ({
@@ -67,7 +71,13 @@ export function AppSidebar({
         ),
       }))
       .filter((group) => group.items.length > 0);
-  }, [role, hasParkingSpot, hasOfficeSpot, enabledModules]);
+  }, [
+    role,
+    hasParkingSpot,
+    hasOfficeSpot,
+    enabledModules,
+    unreadAnnouncementsCount,
+  ]);
 
   return (
     <Sidebar collapsible="icon" variant="inset">

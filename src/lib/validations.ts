@@ -389,3 +389,37 @@ export const cancelLeaveRequestSchema = z.object({
   id: z.string().uuid(),
 });
 export type CancelLeaveRequestInput = z.infer<typeof cancelLeaveRequestSchema>;
+
+// ─── Announcements (Tablón) ────────────────────────────────────
+
+export const createAnnouncementSchema = z.object({
+  title: z.string().min(1, "Título requerido").max(200),
+  body: z.string().min(1, "El contenido no puede estar vacío"),
+  entity_id: z.string().uuid().nullable().optional(),
+  publish: z.boolean().optional(),
+});
+export type CreateAnnouncementInput = z.infer<typeof createAnnouncementSchema>;
+
+export const updateAnnouncementSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1, "Título requerido").max(200).optional(),
+  body: z.string().min(1, "El contenido no puede estar vacío").optional(),
+  entity_id: z.string().uuid().nullable().optional(),
+  publish: z.boolean().optional(),
+});
+export type UpdateAnnouncementInput = z.infer<typeof updateAnnouncementSchema>;
+
+export const publishAnnouncementSchema = z.object({ id: z.string().uuid() });
+export type PublishAnnouncementInput = z.infer<
+  typeof publishAnnouncementSchema
+>;
+
+export const deleteAnnouncementSchema = z.object({ id: z.string().uuid() });
+export type DeleteAnnouncementInput = z.infer<typeof deleteAnnouncementSchema>;
+
+export const markAnnouncementReadSchema = z.object({
+  announcement_id: z.string().uuid(),
+});
+export type MarkAnnouncementReadInput = z.infer<
+  typeof markAnnouncementReadSchema
+>;

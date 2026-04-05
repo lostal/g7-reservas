@@ -41,6 +41,8 @@ export const ROUTES = {
   LEAVE: "/vacaciones",
   LEAVE_MY_REQUESTS: "/vacaciones/mis-solicitudes",
   LEAVE_MANAGE: "/vacaciones/gestionar",
+  TABLON: "/tablon",
+  TABLON_MANAGE: "/tablon/gestionar",
 } as const;
 
 /**

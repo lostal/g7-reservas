@@ -33,6 +33,7 @@ import {
   Landmark,
   Palmtree,
   ClipboardList,
+  Megaphone,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { type SidebarData } from "../types";
@@ -43,20 +44,27 @@ interface SidebarDataParams {
   hasOfficeSpot: boolean;
   /** List of enabled module keys for the active/assigned entity. */
   enabledModules?: string[];
+  /** Unread announcement count for the current user — shown as badge on Tablón. */
+  unreadAnnouncementsCount?: number;
 }
 
 export function getSidebarData({
   hasParkingSpot,
   hasOfficeSpot,
   enabledModules,
+  unreadAnnouncementsCount = 0,
 }: SidebarDataParams): SidebarData {
   const parkingEnabled = !enabledModules || enabledModules.includes("parking");
   const officeEnabled = !enabledModules || enabledModules.includes("office");
   const vacacionesEnabled =
     !enabledModules || enabledModules.includes("vacaciones");
+  const tablonEnabled = !enabledModules || enabledModules.includes("tablon");
   // "visitors" es un módulo independiente dentro del módulo parking
   const visitorsEnabled =
     parkingEnabled && (!enabledModules || enabledModules.includes("visitors"));
+
+  const tablonBadge =
+    unreadAnnouncementsCount > 0 ? String(unreadAnnouncementsCount) : undefined;
 
   // ─── Subitems de empleado ─────────────────────────────────
   const parkingSubItems = [
@@ -213,6 +221,36 @@ export function getSidebarData({
                     {
                       title: "Gestionar",
                       url: ROUTES.LEAVE_MANAGE,
+                      icon: ClipboardList,
+                    },
+                  ],
+                },
+              ]
+            : []),
+          // Tablón — todos ven las novedades; manager/hr/admin también pueden gestionar
+          ...(tablonEnabled
+            ? [
+                {
+                  title: "Tablón",
+                  url: ROUTES.TABLON,
+                  icon: Megaphone,
+                  badge: tablonBadge,
+                  roles: ["employee"] as UserRole[],
+                },
+                {
+                  title: "Tablón",
+                  icon: Megaphone,
+                  badge: tablonBadge,
+                  roles: ["manager", "hr", "admin"] as UserRole[],
+                  items: [
+                    {
+                      title: "Novedades",
+                      url: ROUTES.TABLON,
+                      icon: Megaphone,
+                    },
+                    {
+                      title: "Gestionar",
+                      url: ROUTES.TABLON_MANAGE,
                       icon: ClipboardList,
                     },
                   ],

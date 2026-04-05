@@ -26,6 +26,7 @@ import {
   type Entity,
 } from "@/lib/queries/entities";
 import { getEffectiveEntityId } from "@/lib/queries/active-entity";
+import { countUnreadAnnouncements } from "@/lib/queries/announcements";
 
 export default async function DashboardLayout({
   children,
@@ -77,6 +78,14 @@ export default async function DashboardLayout({
   const hasParkingSpot = parkingSpotRow.length > 0;
   const hasOfficeSpot = officeSpotRow.length > 0;
   const dbTheme = prefs?.theme ?? "system";
+
+  // Unread announcements badge — silently ignore if no announcements yet
+  let unreadCount = 0;
+  try {
+    unreadCount = await countUnreadAnnouncements(user.id, entityId);
+  } catch {
+    // migration pending or no announcements — ignore
+  }
 
   // Carga de entidades y módulos — try/catch por si la migración no está aplicada aún
   let entities: Entity[] | undefined = undefined;
@@ -142,6 +151,7 @@ export default async function DashboardLayout({
           entityIdPersisted={entityIdPersisted}
           entityName={userEntityName}
           enabledModules={enabledModules}
+          unreadAnnouncementsCount={unreadCount}
         />
         <SidebarInset
           className={cn(
