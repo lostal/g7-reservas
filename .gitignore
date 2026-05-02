@@ -56,5 +56,7 @@ next-env.d.ts
 # Ignore Claude file
 CLAUDE.md
 claude.md
+AGENTS.md
+agents.md
 .agent
 .agents

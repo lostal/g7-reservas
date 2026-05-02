@@ -11,7 +11,7 @@
 import { revalidatePath } from "next/cache";
 import { actionClient, type ActionResult, success, error } from "@/lib/actions";
 import { db } from "@/lib/db";
-import { leaveRequests } from "@/lib/db/schema";
+import { leaveRequests, profiles } from "@/lib/db/schema";
 import { getCurrentUser } from "@/lib/auth/helpers";
 import {
   createLeaveRequestSchema,
@@ -67,6 +67,33 @@ async function calcWorkingDays(
     count++;
   }
   return count;
+}
+
+async function getManageableLeaveRequest(
+  requestId: string,
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>
+) {
+  const [request] = await db
+    .select({
+      status: leaveRequests.status,
+      employeeEntityId: profiles.entityId,
+    })
+    .from(leaveRequests)
+    .innerJoin(profiles, eq(leaveRequests.employeeId, profiles.id))
+    .where(eq(leaveRequests.id, requestId))
+    .limit(1);
+
+  if (!request) throw new Error("Solicitud no encontrada");
+
+  const activeEntityId = await getEffectiveEntityId();
+  const isAdmin = user.profile?.role === "admin";
+  const expectedEntityId = isAdmin ? activeEntityId : user.profile?.entityId;
+
+  if (expectedEntityId && request.employeeEntityId !== expectedEntityId) {
+    throw new Error("Sin permisos para gestionar esta solicitud");
+  }
+
+  return request;
 }
 
 // ─── Queries ──────────────────────────────────────────────────
@@ -273,14 +300,7 @@ export const approveLeaveRequest = actionClient
 
     const now = new Date();
 
-    // Fetch current status to determine valid transitions
-    const [current] = await db
-      .select({ status: leaveRequests.status })
-      .from(leaveRequests)
-      .where(eq(leaveRequests.id, parsedInput.id))
-      .limit(1);
-
-    if (!current) throw new Error("Solicitud no encontrada");
+    const current = await getManageableLeaveRequest(parsedInput.id, user);
 
     let newStatus: "manager_approved" | "hr_approved";
     let updateData: Partial<typeof leaveRequests.$inferInsert>;
@@ -315,7 +335,12 @@ export const approveLeaveRequest = actionClient
     await db
       .update(leaveRequests)
       .set(updateData)
-      .where(eq(leaveRequests.id, parsedInput.id));
+      .where(
+        and(
+          eq(leaveRequests.id, parsedInput.id),
+          eq(leaveRequests.status, current.status)
+        )
+      );
 
     revalidatePath("/vacaciones/gestionar");
     return { approved: true, newStatus };
@@ -333,6 +358,19 @@ export const rejectLeaveRequest = actionClient
     const role = user.profile?.role;
     if (role !== "manager" && role !== "hr" && role !== "admin") {
       throw new Error("Sin permisos para rechazar solicitudes");
+    }
+
+    const current = await getManageableLeaveRequest(parsedInput.id, user);
+    if (
+      (role === "manager" && current.status !== "pending") ||
+      (role === "hr" && current.status !== "manager_approved") ||
+      (role === "admin" &&
+        current.status !== "pending" &&
+        current.status !== "manager_approved")
+    ) {
+      throw new Error(
+        `No puedes rechazar una solicitud en estado "${current.status}" con tu rol`
+      );
     }
 
     const now = new Date();
@@ -356,7 +394,12 @@ export const rejectLeaveRequest = actionClient
     const updated = await db
       .update(leaveRequests)
       .set(updateData)
-      .where(eq(leaveRequests.id, parsedInput.id))
+      .where(
+        and(
+          eq(leaveRequests.id, parsedInput.id),
+          eq(leaveRequests.status, current.status)
+        )
+      )
       .returning({ id: leaveRequests.id });
 
     if (!updated || updated.length === 0) {

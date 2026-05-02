@@ -112,13 +112,13 @@ sus documentos; quedando las demás secciones totalmente vacías o sin actualiza
 una experiencia de usuario poco intuitiva para perfiles no administrativos, secciones confusas y
 no tener ningún mecanismo para la gestión de espacios físicos (Wolters Kluwer, 2024).
 
-| Solución    | Precio/mes | M365 Graph/Teams | Multi-sede | Nóminas API    | Custom/Modular     |
-| ----------- | ---------- | ---------------- | ---------- | -------------- | ------------------ |
-| Personio    | Consulta\* | Teams/Slack      | Sí         | Sí (a3innuva)  | Alta               |
-| Factorial   | 5,50 €/usu | Outlook          | Sí         | Automatización | Alta               |
-| a3innuva    | Consulta\* | No               | Parcial    | Sí             | Baja               |
-| SAP/Workday | Muy alto   | Parcial          | Sí         | No             | Media              |
-| GRUPOSIETE  | Sin licencia | Graph+Bot      | Sí         | Sí (futuro)    | Total              |
+| Solución    | Precio/mes   | M365 Graph/Teams | Multi-sede | Nóminas API    | Custom/Modular |
+| ----------- | ------------ | ---------------- | ---------- | -------------- | -------------- |
+| Personio    | Consulta\*   | Teams/Slack      | Sí         | Sí (a3innuva)  | Alta           |
+| Factorial   | 5,50 €/usu   | Outlook          | Sí         | Automatización | Alta           |
+| a3innuva    | Consulta\*   | No               | Parcial    | Sí             | Baja           |
+| SAP/Workday | Muy alto     | Parcial          | Sí         | No             | Media          |
+| GRUPOSIETE  | Sin licencia | Graph+Bot        | Sí         | Sí (futuro)    | Total          |
 
 _Tabla 1. Comparativa de soluciones ESS/RRHH. \* Precio no público, requiere contacto comercial. Fuente: elaboración propia con datos de mercado consultados en marzo de 2026._
 

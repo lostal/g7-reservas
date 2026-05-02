@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { actionClient, type ActionResult } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { announcements } from "@/lib/db/schema";
-import { getCurrentUser, requireManagerOrAbove } from "@/lib/auth/helpers";
+import {
+  getCurrentUser,
+  requireAuth,
+  requireManagerOrAbove,
+} from "@/lib/auth/helpers";
 import {
   createAnnouncementSchema,
   updateAnnouncementSchema,
@@ -68,7 +72,9 @@ export const updateAnnouncement = actionClient
     const updateValues: Partial<typeof announcements.$inferInsert> = {};
     if (title !== undefined) updateValues.title = title;
     if (body !== undefined) updateValues.body = body;
-    if (entity_id !== undefined) updateValues.entityId = entity_id ?? null;
+    if (user.profile?.role === "admin" && entity_id !== undefined) {
+      updateValues.entityId = entity_id ?? null;
+    }
     if (publish !== undefined && publish) updateValues.publishedAt = new Date();
 
     await db
@@ -143,6 +149,7 @@ export async function getMyFeedAnnouncements(): Promise<
   ActionResult<AnnouncementWithAuthor[]>
 > {
   try {
+    await requireAuth();
     const entityId = await getEffectiveEntityId();
     const data = await getPublishedAnnouncements(entityId);
     return { success: true, data };

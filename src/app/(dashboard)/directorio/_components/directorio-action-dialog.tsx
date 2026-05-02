@@ -107,7 +107,9 @@ export function DirectorioActionDialog({
           toast.error(result.error);
           return;
         }
-        toast.success("Usuario creado correctamente");
+        toast.success("Usuario creado correctamente", {
+          description: `Contraseña temporal: ${result.data.temp_password}`,
+        });
       }
 
       form.reset();

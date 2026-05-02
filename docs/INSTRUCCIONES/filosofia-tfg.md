@@ -12,11 +12,11 @@ El documento del TFG no es un informe de lo que se hizo. Es la evidencia de que 
 
 Los tres pilares que sustentan esa trazabilidad:
 
-| | |
-|-|-|
-| **Cliente real obligatorio** | Las decisiones responden a necesidades verificables, no a preferencias del desarrollador. |
-| **Metodología formal explícita** | RUP como estándar. Cada disciplina (requisitos, análisis, diseño) produce artefactos concretos y auditables. |
-| **Trazabilidad total vía repositorio** | Todo el trabajo reside en el repositorio. El historial de commits expone el proceso como objeto evaluable. |
+|                                        |                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Cliente real obligatorio**           | Las decisiones responden a necesidades verificables, no a preferencias del desarrollador.                    |
+| **Metodología formal explícita**       | RUP como estándar. Cada disciplina (requisitos, análisis, diseño) produce artefactos concretos y auditables. |
+| **Trazabilidad total vía repositorio** | Todo el trabajo reside en el repositorio. El historial de commits expone el proceso como objeto evaluable.   |
 
 ---
 
@@ -24,15 +24,16 @@ Los tres pilares que sustentan esa trazabilidad:
 
 Mmasias define una cadena directa entre objetivos y capítulos:
 
-| Objetivo específico | Capítulo |
-|---|---|
-| i. Ejecutar la disciplina de requisitos | Capítulo 2 |
+| Objetivo específico                             | Capítulo   |
+| ----------------------------------------------- | ---------- |
+| i. Ejecutar la disciplina de requisitos         | Capítulo 2 |
 | ii. Ejecutar la disciplina de análisis y diseño | Capítulo 3 |
-| iii. Desarrollar el producto mínimo viable | Capítulo 4 |
+| iii. Desarrollar el producto mínimo viable      | Capítulo 4 |
 
 El Capítulo 1 contextualiza y plantea la hipótesis. El Capítulo 5 demuestra que cada objetivo se cumplió — es el opuesto-complementario del 1: mientras el primero presenta, el quinto opina con la misma fundamentación.
 
 El Capítulo 1 se construye por etapas:
+
 1. Contextualización del escenario real
 2. Exploración de soluciones existentes (estado del arte)
 3. Justificación de por qué ninguna es adecuada para este contexto
@@ -90,6 +91,7 @@ Muestra las entidades del negocio, sus atributos relevantes para el dominio y la
 **Qué NO contiene**: `id`, tipos técnicos (`String`, `int`, `LocalDate`), clases de implementación (`Repository`, `Service`, `Controller`), nada que sea una decisión de tecnología o de base de datos. Si una clase no tiene nombre en el vocabulario del cliente, no pertenece aquí.
 
 **Relaciones — cómo elegir**:
+
 - **Asociación** — relación navegable entre objetos del dominio. La más frecuente.
 - **Agregación** — el todo puede existir sin las partes y viceversa (rombo vacío).
 - **Composición** — las partes no existen sin el todo; destrucción conjunta (rombo relleno). Usar con criterio: implica una afirmación fuerte sobre el ciclo de vida.
@@ -138,6 +140,7 @@ Muestra actores, casos de uso y sus relaciones dentro del límite del sistema.
 **Actores**: personas externas al sistema que interactúan con él, sistemas externos, y las generalizaciones entre actores cuando existen. Un actor que hereda de otro hereda también sus casos de uso.
 
 **Relaciones entre CdU**:
+
 - `<<include>>` — el CdU base siempre invoca al incluido. Es obligatorio, no opcional.
 - `<<extend>>` — el CdU extendido puede opcionalmente ejecutarse desde un punto de extensión del base. Si no hay punto de extensión claro, probablemente no es `<<extend>>`.
 - Si hay duda, no usar estas relaciones. Describir la variante en el detalle del CdU.
@@ -162,8 +165,8 @@ Uno por cada caso de uso detallado. Valida que el CdU tiene correspondencia en l
 
 ### Capítulo 3: Análisis y Diseño
 
-| Análisis | Diseño |
-|---|---|
+| Análisis                                                                                                       | Diseño                                                                                                            |
+| -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Refina los requisitos para obtener una descripción más precisa, mantenible, que ayuda a estructurar el sistema | Introduce los requisitos no funcionales y el dominio de la solución; prepara para la implementación y las pruebas |
 
 El objetivo del capítulo:
@@ -212,18 +215,18 @@ Uno por cada caso de uso representativo. Muestra la interacción entre los objet
 
 ## Lo que NO hacer en `docs/TFG/`
 
-| Síntoma | Señal |
-|---|---|
-| Clase en el modelo del dominio con `id` o tipo técnico | El modelo del dominio no conoce la base de datos — son planos distintos |
-| CdU nombrado con sustantivo en lugar de verbo | La nomenclatura es parte del rigor: `reservarPlaza()`, no "Reserva de plaza" |
-| Detalle de CdU que muestra la interacción entre objetos | Eso es un diagrama de secuencia — el detalle de CdU muestra el flujo lógico |
-| Clase de diseño sin origen trazable en una clase de análisis | La trazabilidad es obligatoria — toda clase de diseño viene de alguna parte del análisis |
-| Decisión de arquitectura sin justificación de negocio | "Porque es el estándar" no es una razón — el escenario o los RNFs sí lo son |
-| Texto que describe el contenido de un diagrama | La prosa explica el porqué; el diagrama muestra el qué |
-| Diagrama de estados para una entidad con dos estados y una transición | Eso se describe en el glosario, no merece diagrama |
-| `<<include>>` y `<<extend>>` invertidos o usados con duda | Si hay duda, no usar ninguno — describir la variante en el detalle del CdU |
-| Prototipo de interfaz con diseño visual (colores, tipografías) | Baja fidelidad siempre — la fidelidad visual pertenece al cap. 4 |
-| Diagrama sin fuente `.puml` en el repositorio | No es auditable — el SVG puede divergir de la intención sin que nadie lo detecte |
+| Síntoma                                                               | Señal                                                                                    |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Clase en el modelo del dominio con `id` o tipo técnico                | El modelo del dominio no conoce la base de datos — son planos distintos                  |
+| CdU nombrado con sustantivo en lugar de verbo                         | La nomenclatura es parte del rigor: `reservarPlaza()`, no "Reserva de plaza"             |
+| Detalle de CdU que muestra la interacción entre objetos               | Eso es un diagrama de secuencia — el detalle de CdU muestra el flujo lógico              |
+| Clase de diseño sin origen trazable en una clase de análisis          | La trazabilidad es obligatoria — toda clase de diseño viene de alguna parte del análisis |
+| Decisión de arquitectura sin justificación de negocio                 | "Porque es el estándar" no es una razón — el escenario o los RNFs sí lo son              |
+| Texto que describe el contenido de un diagrama                        | La prosa explica el porqué; el diagrama muestra el qué                                   |
+| Diagrama de estados para una entidad con dos estados y una transición | Eso se describe en el glosario, no merece diagrama                                       |
+| `<<include>>` y `<<extend>>` invertidos o usados con duda             | Si hay duda, no usar ninguno — describir la variante en el detalle del CdU               |
+| Prototipo de interfaz con diseño visual (colores, tipografías)        | Baja fidelidad siempre — la fidelidad visual pertenece al cap. 4                         |
+| Diagrama sin fuente `.puml` en el repositorio                         | No es auditable — el SVG puede divergir de la intención sin que nadie lo detecte         |
 
 ---
 
