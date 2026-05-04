@@ -1,6 +1,6 @@
 # 4. Análisis y Diseño
 
-> [← Cap. 3](REQUISITOS.md) · [Índice](../../README.md)
+[![← Cap. 3](https://img.shields.io/badge/←_Cap._3-555?style=flat-square)](REQUISITOS.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md)
 
 ## Contenido
 
@@ -288,4 +288,4 @@ La tabla siguiente cierra el ciclo de trazabilidad entre los casos de uso del ca
 
 ---
 
-[← Cap. 3](REQUISITOS.md) · [Índice](../../README.md)
+[![← Cap. 3](https://img.shields.io/badge/←_Cap._3-555?style=flat-square)](REQUISITOS.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md)

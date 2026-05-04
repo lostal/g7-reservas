@@ -1,6 +1,6 @@
 # 2. Marco teórico
 
-> [← Cap. 1](INTRODUCCION.md) · [Índice](../../README.md) · [Siguiente →](REQUISITOS.md)
+[![← Cap. 1](https://img.shields.io/badge/←_Cap._1-555?style=flat-square)](INTRODUCCION.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 3 →](https://img.shields.io/badge/Cap._3_→-555?style=flat-square)](REQUISITOS.md)
 
 ## Contenido
 
@@ -326,4 +326,4 @@ gestión de tareas y apuntes, PlantUML para la elaboración de diagramas UML.
 
 ---
 
-[← Cap. 1](INTRODUCCION.md) · [Índice](../../README.md) · [Siguiente →](REQUISITOS.md)
+[![← Cap. 1](https://img.shields.io/badge/←_Cap._1-555?style=flat-square)](INTRODUCCION.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 3 →](https://img.shields.io/badge/Cap._3_→-555?style=flat-square)](REQUISITOS.md)

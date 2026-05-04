@@ -1,6 +1,6 @@
 # 3. Requisitos
 
-> [← Cap. 2](MARCO_TEORICO.md) · [Índice](../../README.md) · [Siguiente →](ANALISIS_DISENO.md)
+[![← Cap. 2](https://img.shields.io/badge/←_Cap._2-555?style=flat-square)](MARCO_TEORICO.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 4 →](https://img.shields.io/badge/Cap._4_→-555?style=flat-square)](ANALISIS_DISENO.md)
 
 ## Contenido
 
@@ -282,4 +282,4 @@ de la visita (fecha y selección de plaza), con acción de registro y envío aut
 
 ---
 
-[← Cap. 2](MARCO_TEORICO.md) · [Índice](../../README.md) · [Siguiente →](ANALISIS_DISENO.md)
+[![← Cap. 2](https://img.shields.io/badge/←_Cap._2-555?style=flat-square)](MARCO_TEORICO.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 4 →](https://img.shields.io/badge/Cap._4_→-555?style=flat-square)](ANALISIS_DISENO.md)

@@ -1,6 +1,6 @@
 <div align="center">
 
-# Seven Suite — Portal del empleado
+# Seven Suite - Portal del empleado
 
 _Trabajo de Fin de Grado · Ingeniería Informática · UNEATLANTICO · 2025–2026_
 
@@ -16,7 +16,7 @@ ERP modular de reservas corporativas y gestión interna para GRUPOSIETE: parking
 
 ---
 
-## Resumen
+## 📝 Resumen
 
 Recientemente ha surgido una empresa llamada GRUPOSIETE que es el resultado de la fusión
 de 8 empresas del sector de materiales de construcción distribuidas en diferentes sedes a nivel
@@ -33,12 +33,12 @@ de evolución.
 
 **Palabras clave:** Portal del empleado, gestión de espacios multisede, integración con M365, arquitectura modular, trabajo híbrido
 
-## Documentación del TFG
+## 📂 Documentación del TFG
 
-|               | Capítulo I                                                                            | Capítulo II                          | Capítulo III                                     | Capítulos IV/V |
-| ------------- | ------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------ | -------------- |
-| **Fecha**     | 16/03                                                                                 | 06/04                                | 27/04                                            | 25/05          |
-| **Documento** | [Introducción](docs/TFG/INTRODUCCION.md) y [Marco teórico](docs/TFG/MARCO_TEORICO.md) | [Requisitos](docs/TFG/REQUISITOS.md) | [Análisis y diseño](docs/TFG/ANALISIS_DISENO.md) | —              |
+|               | Resumen         | Capítulo I                                                                            | Capítulo II                          | Capítulo III                                     | Capítulos IV/V |
+| ------------- | --------------- | ------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------ | -------------- |
+| **Fecha**     | -               | 16/03                                                                                 | 06/04                                | 27/04                                            | 25/05          |
+| **Documento** | _(este README)_ | [Introducción](docs/TFG/INTRODUCCION.md) y [Marco teórico](docs/TFG/MARCO_TEORICO.md) | [Requisitos](docs/TFG/REQUISITOS.md) | [Análisis y diseño](docs/TFG/ANALISIS_DISENO.md) | -              |
 
 [Continuar al Capítulo 1 →](docs/TFG/INTRODUCCION.md)
 
