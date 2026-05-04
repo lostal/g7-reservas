@@ -1,7 +1,7 @@
 # 1. Introducción
 
-| | [Índice](../../README.md) | [Cap. 2 →](MARCO_TEORICO.md) |
-| :--- | :---: | ---: |
+| [Índice](../../README.md) | [Cap. 2 →](MARCO_TEORICO.md) |
+| :-----------------------: | ---------------------------: |
 
 GRUPOSIETE surge tras la unión de ocho empresas dedicadas a la distribución de
 materiales de construcción. Como ocurre habitualmente tras una fusión, se han encontrado con

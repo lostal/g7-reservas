@@ -1,7 +1,7 @@
 # 3. Requisitos
 
 | [← Cap. 2](MARCO_TEORICO.md) | [Índice](../../README.md) | [Cap. 4 →](ANALISIS_DISENO.md) |
-| :--- | :---: | ---: |
+| :--------------------------- | :-----------------------: | -----------------------------: |
 
 ## Contenido
 

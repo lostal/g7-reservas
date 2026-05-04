@@ -1,7 +1,7 @@
 # 2. Marco teórico
 
 | [← Cap. 1](INTRODUCCION.md) | [Índice](../../README.md) | [Cap. 3 →](REQUISITOS.md) |
-| :--- | :---: | ---: |
+| :-------------------------- | :-----------------------: | ------------------------: |
 
 ## Contenido
 

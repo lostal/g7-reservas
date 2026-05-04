@@ -41,7 +41,7 @@ de evolución.
 | **Documento** | _(este README)_ | [Introducción](docs/TFG/INTRODUCCION.md) y [Marco teórico](docs/TFG/MARCO_TEORICO.md) | [Requisitos](docs/TFG/REQUISITOS.md) | [Análisis y diseño](docs/TFG/ANALISIS_DISENO.md) | -              |
 
 | [Cap. 1 →](docs/TFG/INTRODUCCION.md) |
-| ---: |
+| -----------------------------------: |
 
 ---
 
