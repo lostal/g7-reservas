@@ -1,6 +1,7 @@
 # 2. Marco teórico
 
-[![← Cap. 1](https://img.shields.io/badge/←_Cap._1-555?style=flat-square)](INTRODUCCION.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 3 →](https://img.shields.io/badge/Cap._3_→-555?style=flat-square)](REQUISITOS.md)
+| [← Cap. 1](INTRODUCCION.md) | [Índice](../../README.md) | [Cap. 3 →](REQUISITOS.md) |
+| :--- | :---: | ---: |
 
 ## Contenido
 
@@ -323,7 +324,3 @@ Las herramientas de soporte empleadas a lo largo del proyecto son: GitHub para c
 de versiones y trazabilidad de commits, el repositorio de código abierto
 https://github.com/satnaing/shadcn-admin como plantilla para el dashboard (core), Notion para la
 gestión de tareas y apuntes, PlantUML para la elaboración de diagramas UML.
-
----
-
-[![← Cap. 1](https://img.shields.io/badge/←_Cap._1-555?style=flat-square)](INTRODUCCION.md) [![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 3 →](https://img.shields.io/badge/Cap._3_→-555?style=flat-square)](REQUISITOS.md)

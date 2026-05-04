@@ -1,6 +1,7 @@
 # 1. Introducción
 
-[![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 2 →](https://img.shields.io/badge/Cap._2_→-555?style=flat-square)](MARCO_TEORICO.md)
+| | [Índice](../../README.md) | [Cap. 2 →](MARCO_TEORICO.md) |
+| :--- | :---: | ---: |
 
 GRUPOSIETE surge tras la unión de ocho empresas dedicadas a la distribución de
 materiales de construcción. Como ocurre habitualmente tras una fusión, se han encontrado con
@@ -27,7 +28,3 @@ varios módulos principales: gestión de parking con visitantes, reserva de pues
 incorpora un directorio de empleados, gestión de vacaciones con flujo de aprobación y un
 tablón de anuncios interno. La arquitectura modular permite incorporar en el futuro módulos
 adicionales de gestión de RRHH como nóminas y documentación laboral.
-
----
-
-[![Índice](https://img.shields.io/badge/Índice-0a66c2?style=flat-square)](../../README.md) [![Cap. 2 →](https://img.shields.io/badge/Cap._2_→-555?style=flat-square)](MARCO_TEORICO.md)
