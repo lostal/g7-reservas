@@ -275,8 +275,7 @@ describe("cancelOfficeReservation", () => {
     const result = await cancelOfficeReservation({ id: UUID });
 
     expect(result.success).toBe(false);
-    if (!result.success)
-      expect(result.error).toContain("No se pudo cancelar la reserva");
+    if (!result.success) expect(result.error).toContain("DB error");
   });
 
   it("rechaza id no UUID sin llamar a BD (validación Zod)", async () => {

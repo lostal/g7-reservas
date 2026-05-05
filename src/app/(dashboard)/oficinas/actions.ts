@@ -249,29 +249,22 @@ export const cancelOfficeReservation = actionClient
     const user = await getCurrentUser();
     if (!user) throw new Error("No autenticado");
 
-    try {
-      const updated = await db
-        .update(reservations)
-        .set({ status: "cancelled" })
-        .where(
-          and(
-            eq(reservations.id, parsedInput.id),
-            eq(reservations.userId, user.id)
-          )
+    const updated = await db
+      .update(reservations)
+      .set({ status: "cancelled" })
+      .where(
+        and(
+          eq(reservations.id, parsedInput.id),
+          eq(reservations.userId, user.id)
         )
-        .returning({ id: reservations.id });
+      )
+      .returning({ id: reservations.id });
 
-      if (!updated || updated.length === 0) {
-        throw new Error("Reserva no encontrada o no pertenece a tu cuenta");
-      }
-
-      revalidatePath("/oficinas");
-      revalidatePath("/oficinas/reservas");
-      return { cancelled: true };
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg === "Reserva no encontrada o no pertenece a tu cuenta") throw err;
-      console.error("[oficinas] cancelOfficeReservation update error", msg);
-      throw new Error("No se pudo cancelar la reserva");
+    if (!updated || updated.length === 0) {
+      throw new Error("Reserva no encontrada o no pertenece a tu cuenta");
     }
+
+    revalidatePath("/oficinas");
+    revalidatePath("/oficinas/reservas");
+    return { cancelled: true };
   });
