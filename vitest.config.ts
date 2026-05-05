@@ -32,13 +32,13 @@ export default defineConfig({
         "src/**/*.spec.{ts,tsx}",
         "src/__tests__/**",
       ],
-      // Umbrales de cobertura — calibrados contra cobertura real (46% líneas, 38% ramas, 47% funciones)
-      // Objetivo: detectar regresiones. Subir progresivamente al añadir tests.
+      // Umbrales de cobertura — elevados progresivamente (mayo 2026).
+      // Cobertura real: 79% stmts, 70% branches, 65% funcs, 80% lines.
       thresholds: {
-        lines: 60,
-        branches: 50,
-        functions: 60,
-        statements: 60,
+        statements: 75,
+        branches: 65,
+        functions: 62,
+        lines: 75,
       },
     },
   },
